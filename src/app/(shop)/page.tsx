@@ -31,7 +31,6 @@ export default async function HomePage() {
           subtitle: b.subtitle ?? "",
           imageUrl: b.imageUrl,
           linkUrl: b.linkUrl ?? "/",
-          bgColor: b.bgColor ?? "#000000",
         })) : undefined}
       />
       <CategoryNav />
