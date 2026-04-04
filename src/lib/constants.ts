@@ -1,8 +1,8 @@
-export const SITE_NAME = "MUSINSA";
+export const SITE_NAME = "NKBUS";
 export const SITE_DESCRIPTION = "온라인 패션 스토어";
 
 export const CHANNELS = [
-  { name: "MUSINSA", slug: "musinsa", displayName: "무신사", color: "#000000" },
+  { name: "NKBUS", slug: "nkbus", displayName: "엔큐버스", color: "#000000" },
   { name: "BEAUTY", slug: "beauty", displayName: "뷰티", color: "#FF6B9D" },
   { name: "KICKS", slug: "kicks", displayName: "킥스", color: "#FF4500" },
   { name: "SPORTS", slug: "sports", displayName: "스포츠", color: "#0066FF" },

@@ -30,7 +30,7 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
               </SheetContent>
             </Sheet>
             <Link href="/" className="flex items-center">
-              <span className="text-xl font-black tracking-tight">MUSINSA</span>
+              <span className="text-xl font-black tracking-tight">NKBUS</span>
             </Link>
           </div>
 

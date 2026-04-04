@@ -34,10 +34,10 @@ const DEMO_BANNERS: BannerData[] = [
   },
   {
     id: "3",
-    title: "무신사 스탠다드",
+    title: "NKBUS 스탠다드",
     subtitle: "합리적인 가격의 에센셜 아이템",
     imageUrl: "",
-    linkUrl: "/brands/musinsa-standard",
+    linkUrl: "/brands/nkbus-standard",
     bgColor: "#16213e",
   },
 ];

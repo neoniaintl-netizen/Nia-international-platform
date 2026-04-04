@@ -40,7 +40,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-sale: var(--sale);
-  --color-musinsa-red: var(--musinsa-red);
+  --color-nkbus-red: var(--nkbus-red);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -70,7 +70,7 @@
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   --sale: #FF3B3B;
-  --musinsa-red: #FF0000;
+  --nkbus-red: #FF0000;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);

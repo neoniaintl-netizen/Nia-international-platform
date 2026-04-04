@@ -10,10 +10,10 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: {
-    default: "MUSINSA | 온라인 패션 스토어",
-    template: "%s | MUSINSA",
+    default: "NKBUS | 온라인 패션 스토어",
+    template: "%s | NKBUS",
   },
-  description: "대한민국 대표 온라인 패션 스토어. 2만여 브랜드의 트렌디한 패션 아이템을 만나보세요.",
+  description: "엔큐버스 - 트렌디한 패션 아이템을 만나보세요.",
 };
 
 export default function RootLayout({
