@@ -42,7 +42,8 @@ const DEMO_BANNERS: BannerData[] = [
   },
 ];
 
-export function HeroBanner({ banners = DEMO_BANNERS }: { banners?: BannerData[] }) {
+export function HeroBanner({ banners: rawBanners = DEMO_BANNERS }: { banners?: BannerData[] }) {
+  const banners = rawBanners.length > 0 ? rawBanners : DEMO_BANNERS;
   const [current, setCurrent] = useState(0);
 
   const next = () => setCurrent((c) => (c + 1) % banners.length);
