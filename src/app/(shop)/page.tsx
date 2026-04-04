@@ -25,13 +25,14 @@ export default async function HomePage() {
   return (
     <div>
       <HeroBanner
-        banners={banners.map((b) => ({
+        banners={banners.length > 0 ? banners.map((b) => ({
           id: b.id,
           title: b.title,
           subtitle: b.subtitle ?? "",
           imageUrl: b.imageUrl,
           linkUrl: b.linkUrl ?? "/",
-        }))}
+          bgColor: b.bgColor ?? "#000000",
+        })) : undefined}
       />
       <CategoryNav />
       <RankingPreview products={ranked.map(toProductCard)} />
