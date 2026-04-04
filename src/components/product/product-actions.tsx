@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Heart, ShoppingBag, Share2 } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { addToCart } from "@/actions/cart";
 import { toggleWishlist } from "@/actions/wishlist";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { ShareButton } from "@/components/shared/share-button";
+import { SizeGuideModal } from "@/components/product/size-guide-modal";
 
 interface Variant {
   id: string;
@@ -24,6 +26,7 @@ interface ProductActionsProps {
   colors: string[];
   sizes: string[];
   isWishlisted: boolean;
+  categorySlug?: string;
 }
 
 export function ProductActions({
@@ -33,6 +36,7 @@ export function ProductActions({
   colors,
   sizes,
   isWishlisted,
+  categorySlug,
 }: ProductActionsProps) {
   const [selectedColor, setSelectedColor] = useState<string | null>(
     colors.length === 1 ? colors[0] : null
@@ -149,7 +153,7 @@ export function ProductActions({
             <p className="text-sm font-medium">
               사이즈 {selectedSize && <span className="text-gray-400 font-normal">· {selectedSize}</span>}
             </p>
-            <button className="text-xs text-gray-400 underline">사이즈 가이드</button>
+            <SizeGuideModal categorySlug={categorySlug} />
           </div>
           <div className="flex gap-2 flex-wrap">
             {sizes.map((size) => {
@@ -204,9 +208,7 @@ export function ProductActions({
           <ShoppingBag className="w-5 h-5" />
           장바구니
         </Button>
-        <Button variant="outline" size="icon" className="shrink-0 w-12 h-12">
-          <Share2 className="w-5 h-5" />
-        </Button>
+        <ShareButton url={"/products/" + productId} title={productName} />
       </div>
 
       <Button

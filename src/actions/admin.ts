@@ -117,13 +117,133 @@ export async function deleteBrand(brandId: string) {
 // ORDER ACTIONS
 // ═══════════════════════════════════════
 
-export async function updateOrderStatus(orderId: string, status: string) {
+export async function updateOrderStatus(orderId: string, status: string, trackingData?: { trackingNumber?: string; trackingCarrier?: string }) {
   await requireAdmin();
+
+  const updateData: any = { status: status as any };
+
+  if (status === "SHIPPED") {
+    updateData.shippedAt = new Date();
+    if (trackingData?.trackingNumber) updateData.trackingNumber = trackingData.trackingNumber;
+    if (trackingData?.trackingCarrier) updateData.trackingCarrier = trackingData.trackingCarrier;
+  }
+  if (status === "DELIVERED") {
+    updateData.deliveredAt = new Date();
+  }
+
   await prisma.order.update({
     where: { id: orderId },
-    data: { status: status as any },
+    data: updateData,
   });
+
   revalidatePath("/admin/orders");
+  revalidatePath("/my/orders");
+  return { success: true };
+}
+
+export async function approveReturn(returnRequestId: string) {
+  await requireAdmin();
+
+  const returnReq = await prisma.returnRequest.findUnique({
+    where: { id: returnRequestId },
+    include: { order: { include: { items: true } } },
+  });
+
+  if (!returnReq) return { error: "반품 요청을 찾을 수 없습니다." };
+  if (returnReq.status !== "PENDING") return { error: "처리할 수 없는 상태입니다." };
+
+  await prisma.$transaction(async (tx) => {
+    // Update return request
+    await tx.returnRequest.update({
+      where: { id: returnRequestId },
+      data: { status: "COMPLETED", processedAt: new Date() },
+    });
+
+    // Update order status
+    await tx.order.update({
+      where: { id: returnReq.orderId },
+      data: { status: "RETURNED" },
+    });
+
+    // Update payment status
+    await tx.payment.updateMany({
+      where: { orderId: returnReq.orderId },
+      data: { status: "REFUNDED" },
+    });
+
+    // Restore stock
+    for (const item of returnReq.order.items) {
+      if (item.variantId) {
+        await tx.productVariant.update({
+          where: { id: item.variantId },
+          data: { stock: { increment: item.quantity } },
+        });
+        await tx.product.updateMany({
+          where: { id: item.productId, status: "SOLDOUT" },
+          data: { status: "ACTIVE" },
+        });
+      }
+    }
+  });
+
+  revalidatePath("/admin/orders");
+  revalidatePath("/my/orders");
+  return { success: true };
+}
+
+export async function rejectReturn(returnRequestId: string) {
+  await requireAdmin();
+
+  const returnReq = await prisma.returnRequest.findUnique({
+    where: { id: returnRequestId },
+  });
+
+  if (!returnReq || returnReq.status !== "PENDING") return { error: "처리할 수 없는 상태입니다." };
+
+  await prisma.$transaction([
+    prisma.returnRequest.update({
+      where: { id: returnRequestId },
+      data: { status: "REJECTED", processedAt: new Date() },
+    }),
+    prisma.order.update({
+      where: { id: returnReq.orderId },
+      data: { status: "DELIVERED" },
+    }),
+  ]);
+
+  revalidatePath("/admin/orders");
+  return { success: true };
+}
+
+export async function updateVariantStock(variantId: string, stock: number) {
+  await requireAdmin();
+  if (stock < 0) return { error: "재고는 0 이상이어야 합니다." };
+
+  const variant = await prisma.productVariant.update({
+    where: { id: variantId },
+    data: { stock },
+    include: { product: true },
+  });
+
+  // Auto-update product status based on stock
+  if (stock === 0) {
+    const activeVariants = await prisma.productVariant.count({
+      where: { productId: variant.productId, stock: { gt: 0 } },
+    });
+    if (activeVariants === 0) {
+      await prisma.product.update({
+        where: { id: variant.productId },
+        data: { status: "SOLDOUT" },
+      });
+    }
+  } else if (variant.product.status === "SOLDOUT") {
+    await prisma.product.update({
+      where: { id: variant.productId },
+      data: { status: "ACTIVE" },
+    });
+  }
+
+  revalidatePath("/admin/products");
   return { success: true };
 }
 
@@ -242,5 +362,79 @@ export async function updateUserRole(userId: string, role: string) {
     data: { role: role as any },
   });
   revalidatePath("/admin/users");
+  return { success: true };
+}
+
+// ═══════════════════════════════════════
+// CATEGORY ACTIONS
+// ═══════════════════════════════════════
+
+export async function createCategory(
+  _prev: { success?: boolean; error?: string } | null,
+  formData: FormData
+) {
+  try {
+    await requireAdmin();
+    const name = (formData.get("name") as string)?.trim();
+    const slug = (formData.get("slug") as string)?.trim();
+    const iconUrl = (formData.get("iconUrl") as string)?.trim() || null;
+    const parentId = (formData.get("parentId") as string)?.trim() || null;
+    const sortOrder = parseInt(formData.get("sortOrder") as string) || 0;
+
+    if (!name || !slug) return { error: "카테고리명과 slug는 필수입니다." };
+
+    let depth = 0;
+    if (parentId) {
+      const parent = await prisma.category.findUnique({ where: { id: parentId } });
+      if (parent) depth = parent.depth + 1;
+    }
+
+    await prisma.category.create({
+      data: { name, slug, iconUrl, parentId, depth, sortOrder },
+    });
+    revalidatePath("/admin/categories");
+    return { success: true };
+  } catch (e: any) {
+    if (e.code === "P2002") return { error: "이미 존재하는 slug입니다." };
+    return { error: e.message };
+  }
+}
+
+export async function updateCategory(
+  _prev: { success?: boolean; error?: string } | null,
+  formData: FormData
+) {
+  try {
+    await requireAdmin();
+    const id = formData.get("id") as string;
+    const name = (formData.get("name") as string)?.trim();
+    const iconUrl = (formData.get("iconUrl") as string)?.trim() || null;
+    const sortOrder = parseInt(formData.get("sortOrder") as string) || 0;
+
+    if (!name) return { error: "카테고리명은 필수입니다." };
+
+    await prisma.category.update({
+      where: { id },
+      data: { name, iconUrl, sortOrder },
+    });
+    revalidatePath("/admin/categories");
+    return { success: true };
+  } catch (e: any) {
+    return { error: e.message };
+  }
+}
+
+export async function deleteCategory(categoryId: string) {
+  await requireAdmin();
+  const productCount = await prisma.product.count({ where: { categoryId } });
+  if (productCount > 0) {
+    return { error: `${productCount}개의 상품이 연결되어 있어 삭제할 수 없습니다.` };
+  }
+  const childCount = await prisma.category.count({ where: { parentId: categoryId } });
+  if (childCount > 0) {
+    return { error: "하위 카테고리가 있어 삭제할 수 없습니다." };
+  }
+  await prisma.category.delete({ where: { id: categoryId } });
+  revalidatePath("/admin/categories");
   return { success: true };
 }

@@ -15,17 +15,29 @@ async function getUserId() {
 export async function addToCart(productId: string, variantId: string, quantity = 1) {
   const userId = await getUserId();
 
+  // Stock check
+  const variant = await prisma.productVariant.findUnique({ where: { id: variantId } });
+  if (!variant || variant.stock <= 0) {
+    return { error: "해당 옵션은 품절되었습니다." };
+  }
+
   // 이미 같은 상품+옵션이 있으면 수량 증가
   const existing = await prisma.cartItem.findUnique({
     where: { userId_productId_variantId: { userId, productId, variantId } },
   });
 
   if (existing) {
+    if (existing.quantity + quantity > variant.stock) {
+      return { error: `재고가 부족합니다. (남은 수량: ${variant.stock}개)` };
+    }
     await prisma.cartItem.update({
       where: { id: existing.id },
       data: { quantity: existing.quantity + quantity },
     });
   } else {
+    if (quantity > variant.stock) {
+      return { error: `재고가 부족합니다. (남은 수량: ${variant.stock}개)` };
+    }
     await prisma.cartItem.create({
       data: { userId, productId, variantId, quantity },
     });

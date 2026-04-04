@@ -22,12 +22,27 @@ export async function toggleReleaseNotify(releaseId: string) {
     return { error: "이미 발매된 상품입니다." };
   }
 
-  // notifyCount 증가 (MVP: 단순 증가, 실제로는 유저별 구독 테이블 필요)
-  await prisma.release.update({
+  const existing = await prisma.releaseSubscription.findUnique({
+    where: { releaseId_userId: { releaseId, userId: session.user.id } },
+  });
+
+  if (existing) {
+    await prisma.$transaction([
+      prisma.releaseSubscription.delete({ where: { id: existing.id } }),
+      prisma.release.update({ where: { id: releaseId }, data: { notifyCount: { decrement: 1 } } }),
+    ]);
+  } else {
+    await prisma.$transaction([
+      prisma.releaseSubscription.create({ data: { releaseId, userId: session.user.id } }),
+      prisma.release.update({ where: { id: releaseId }, data: { notifyCount: { increment: 1 } } }),
+    ]);
+  }
+
+  const updated = await prisma.release.findUnique({
     where: { id: releaseId },
-    data: { notifyCount: { increment: 1 } },
+    select: { notifyCount: true },
   });
 
   revalidatePath("/release");
-  return { success: true, notifyCount: release.notifyCount + 1 };
+  return { success: true, subscribed: !existing, notifyCount: updated?.notifyCount ?? 0 };
 }

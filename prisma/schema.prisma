@@ -41,6 +41,10 @@ model User {
   coupons       UserCoupon[]
   points        PointHistory[]
   inquiries     ProductInquiry[]
+  returnRequests       ReturnRequest[]
+  snapLikes            SnapLike[]
+  snapComments         SnapComment[]
+  releaseSubscriptions ReleaseSubscription[]
 
   @@map("users")
 }
@@ -299,10 +303,18 @@ model Order {
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
+  couponId        String?
+  trackingNumber  String?
+  trackingCarrier String?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+
   user    User        @relation(fields: [userId], references: [id])
   address Address?    @relation(fields: [addressId], references: [id])
+  coupon  Coupon?     @relation(fields: [couponId], references: [id])
   items   OrderItem[]
   payment Payment?
+  returnRequests ReturnRequest[]
 
   @@index([userId])
   @@index([status])
@@ -470,6 +482,7 @@ model Coupon {
   createdAt      DateTime     @default(now())
 
   userCoupons UserCoupon[]
+  orders      Order[]
 
   @@map("coupons")
 }
@@ -566,6 +579,9 @@ model Snap {
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
 
+  likes    SnapLike[]
+  comments SnapComment[]
+
   @@map("snaps")
 }
 
@@ -585,6 +601,8 @@ model Release {
   notifyCount Int           @default(0)
   createdAt   DateTime      @default(now())
 
+  subscriptions ReleaseSubscription[]
+
   @@index([releaseDate])
   @@map("releases")
 }
@@ -593,4 +611,80 @@ enum ReleaseStatus {
   UPCOMING
   RELEASED
   SOLDOUT
+}
+
+// ═══════════════════════════════════════════════
+// 11. RETURN REQUESTS
+// ═══════════════════════════════════════════════
+
+model ReturnRequest {
+  id          String       @id @default(cuid())
+  orderId     String
+  userId      String
+  reason      String
+  description String?      @db.Text
+  imageUrls   String[]
+  status      ReturnStatus @default(PENDING)
+  refundAmount Int?
+  createdAt   DateTime     @default(now())
+  processedAt DateTime?
+
+  order Order @relation(fields: [orderId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@map("return_requests")
+}
+
+enum ReturnStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+// ═══════════════════════════════════════════════
+// 12. SNAP SOCIAL
+// ═══════════════════════════════════════════════
+
+model SnapLike {
+  id      String   @id @default(cuid())
+  snapId  String
+  userId  String
+  createdAt DateTime @default(now())
+
+  snap Snap @relation(fields: [snapId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([snapId, userId])
+  @@map("snap_likes")
+}
+
+model SnapComment {
+  id      String   @id @default(cuid())
+  snapId  String
+  userId  String
+  content String   @db.Text
+  createdAt DateTime @default(now())
+
+  snap Snap @relation(fields: [snapId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("snap_comments")
+}
+
+// ═══════════════════════════════════════════════
+// 13. RELEASE SUBSCRIPTIONS
+// ═══════════════════════════════════════════════
+
+model ReleaseSubscription {
+  id        String   @id @default(cuid())
+  releaseId String
+  userId    String
+  createdAt DateTime @default(now())
+
+  release Release @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([releaseId, userId])
+  @@map("release_subscriptions")
 }

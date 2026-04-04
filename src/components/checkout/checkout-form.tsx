@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { CreditCard, Truck, Tag, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { createOrder } from "@/actions/order";
+import { applyCouponCode } from "@/actions/coupon";
 import { DaumPostcodeButton } from "@/components/shared/daum-postcode";
 
 interface CartItem {
@@ -48,11 +49,20 @@ export function CheckoutForm({
   const [address1, setAddress1] = useState("");
   const address2Ref = useRef<HTMLInputElement>(null);
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponApplying, setCouponApplying] = useState(false);
+
+  // Points state
+  const [usedPoints, setUsedPoints] = useState(0);
+
   const handleAddressComplete = useCallback(
     (data: { zipCode: string; address: string }) => {
       setZipCode(data.zipCode);
       setAddress1(data.address);
-      // 상세주소 입력 필드로 포커스 이동
       setTimeout(() => address2Ref.current?.focus(), 100);
     },
     []
@@ -63,12 +73,47 @@ export function CheckoutForm({
     return sum + price * item.quantity;
   }, 0);
   const shipping = subtotal >= 30000 ? 0 : 3000;
-  const total = subtotal + shipping;
+  const discount = couponDiscount + usedPoints;
+  const total = subtotal - discount + shipping;
   const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponApplying(true);
+    setCouponError("");
+    try {
+      const result = await applyCouponCode(couponCode.trim(), subtotal);
+      if (result.error) {
+        setCouponError(result.error);
+        setCouponDiscount(0);
+        setAppliedCoupon(null);
+      } else if (result.success) {
+        setCouponDiscount(result.discount!);
+        setAppliedCoupon(result.couponCode!);
+      }
+    } catch {
+      setCouponError("쿠폰 적용 중 오류가 발생했습니다.");
+    }
+    setCouponApplying(false);
+  };
+
+  const handleCancelCoupon = () => {
+    setCouponCode("");
+    setCouponDiscount(0);
+    setAppliedCoupon(null);
+    setCouponError("");
+  };
+
+  const handleUseAllPoints = () => {
+    const maxUsable = Math.min(userPoints, subtotal - couponDiscount);
+    setUsedPoints(Math.max(0, maxUsable));
+  };
 
   return (
     <form action={formAction}>
       <input type="hidden" name="paymentMethod" value={paymentMethod} />
+      <input type="hidden" name="couponCode" value={appliedCoupon || ""} />
+      <input type="hidden" name="usedPoints" value={usedPoints.toString()} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left: Form */}
@@ -139,17 +184,51 @@ export function CheckoutForm({
             <div className="space-y-4">
               <div>
                 <Label className="text-sm mb-1.5">쿠폰</Label>
-                <div className="flex gap-2">
-                  <Input placeholder="쿠폰 코드 입력" className="flex-1" />
-                  <Button type="button" variant="outline">적용</Button>
-                </div>
+                {appliedCoupon ? (
+                  <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <Tag className="w-4 h-4 text-green-600" />
+                    <span className="text-sm text-green-700 flex-1">
+                      {appliedCoupon} (-{couponDiscount.toLocaleString()}원)
+                    </span>
+                    <Button type="button" variant="ghost" size="sm" onClick={handleCancelCoupon} className="text-gray-400 h-auto p-1">
+                      ✕
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="쿠폰 코드 입력"
+                        className="flex-1"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value)}
+                      />
+                      <Button type="button" variant="outline" onClick={handleApplyCoupon} disabled={couponApplying}>
+                        {couponApplying ? "확인중..." : "적용"}
+                      </Button>
+                    </div>
+                    {couponError && <p className="text-xs text-red-500 mt-1">{couponError}</p>}
+                  </>
+                )}
                 <p className="text-xs text-gray-400 mt-1.5">사용 가능한 쿠폰: {couponCount}장</p>
               </div>
               <div>
                 <Label className="text-sm mb-1.5">적립금</Label>
                 <div className="flex gap-2">
-                  <Input placeholder="0" className="flex-1" />
-                  <Button type="button" variant="outline">전액 사용</Button>
+                  <Input
+                    placeholder="0"
+                    className="flex-1"
+                    type="number"
+                    min={0}
+                    max={Math.min(userPoints, subtotal - couponDiscount)}
+                    value={usedPoints || ""}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      const maxUsable = Math.min(userPoints, subtotal - couponDiscount);
+                      setUsedPoints(Math.min(val, maxUsable));
+                    }}
+                  />
+                  <Button type="button" variant="outline" onClick={handleUseAllPoints}>전액 사용</Button>
                 </div>
                 <p className="text-xs text-gray-400 mt-1.5">보유 적립금: {userPoints.toLocaleString()}원</p>
               </div>
@@ -226,6 +305,22 @@ export function CheckoutForm({
               </div>
               {shipping === 0 && (
                 <p className="text-xs text-green-600">3만원 이상 무료배송 적용</p>
+              )}
+              {discount > 0 && (
+                <>
+                  {couponDiscount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">쿠폰 할인</span>
+                      <span className="text-red-500">-{couponDiscount.toLocaleString()}원</span>
+                    </div>
+                  )}
+                  {usedPoints > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">적립금 사용</span>
+                      <span className="text-red-500">-{usedPoints.toLocaleString()}원</span>
+                    </div>
+                  )}
+                </>
               )}
             </div>
             <Separator />

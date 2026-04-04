@@ -11,6 +11,7 @@ import {
   Tag,
   Image,
   Ticket,
+  FolderTree,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { href: "/admin/crawl", label: "크롤링 관리", icon: Bug },
   { href: "/admin/products", label: "상품 관리", icon: Package },
   { href: "/admin/orders", label: "주문 관리", icon: ShoppingBag },
+  { href: "/admin/categories", label: "카테고리 관리", icon: FolderTree },
   { href: "/admin/brands", label: "브랜드 관리", icon: Tag },
   { href: "/admin/banners", label: "배너 관리", icon: Image },
   { href: "/admin/coupons", label: "쿠폰 관리", icon: Ticket },

@@ -3,12 +3,25 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 import { getUpcomingReleases, getReleasedItems } from "@/lib/queries";
 import { NotifyButton } from "@/components/release/notify-button";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 
 export default async function ReleasePage() {
-  const [upcoming, released] = await Promise.all([
+  const [upcoming, released, session] = await Promise.all([
     getUpcomingReleases(6),
     getReleasedItems(4),
+    auth(),
   ]);
+
+  // Get user's subscriptions
+  let subscribedIds = new Set<string>();
+  if (session?.user?.id) {
+    const subs = await prisma.releaseSubscription.findMany({
+      where: { userId: session.user.id },
+      select: { releaseId: true },
+    });
+    subscribedIds = new Set(subs.map((s) => s.releaseId));
+  }
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
@@ -42,7 +55,7 @@ export default async function ReleasePage() {
                   <p className="text-sm font-bold">{item.price.toLocaleString()}원</p>
                 )}
               </div>
-              <NotifyButton releaseId={item.id} initialCount={item.notifyCount} />
+              <NotifyButton releaseId={item.id} initialCount={item.notifyCount} initialSubscribed={subscribedIds.has(item.id)} />
             </div>
           </div>
         ))}

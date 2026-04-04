@@ -169,6 +169,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             colors={colors}
             sizes={sizes}
             isWishlisted={isWishlisted}
+            categorySlug={product.category?.parent?.slug ?? product.category?.slug}
           />
         </div>
       </div>

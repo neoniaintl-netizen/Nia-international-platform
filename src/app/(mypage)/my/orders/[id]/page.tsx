@@ -4,8 +4,9 @@ import { redirect, notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Truck, CreditCard, ChevronLeft } from "lucide-react";
+import { Package, Truck, CreditCard, ChevronLeft, MapPin } from "lucide-react";
 import { OrderCancelButton } from "@/components/order/order-cancel-button";
+import { ReturnRequestForm } from "@/components/order/return-request-form";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -39,6 +40,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   const statusInfo = STATUS_MAP[order.status] ?? { label: order.status, variant: "outline" as const };
   const canCancel = ["PAID", "PENDING", "PREPARING"].includes(order.status);
+  const canReturn = ["SHIPPED", "DELIVERED"].includes(order.status);
 
   return (
     <div className="space-y-6">
@@ -132,6 +134,39 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         </Card>
       )}
 
+      {/* Tracking Info */}
+      {order.trackingNumber && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <MapPin className="w-4 h-4" /> 배송 추적
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-500">택배사</span>
+              <span>{order.trackingCarrier ?? "-"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">운송장번호</span>
+              <span className="font-mono">{order.trackingNumber}</span>
+            </div>
+            {order.shippedAt && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">발송일</span>
+                <span>{order.shippedAt.toLocaleDateString("ko-KR")}</span>
+              </div>
+            )}
+            {order.deliveredAt && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">배송완료일</span>
+                <span>{order.deliveredAt.toLocaleDateString("ko-KR")}</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Payment Info */}
       <Card>
         <CardHeader className="pb-3">
@@ -175,9 +210,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       </Card>
 
       {/* Actions */}
-      {canCancel && (
-        <div className="flex justify-end">
-          <OrderCancelButton orderId={order.id} />
+      {(canCancel || canReturn) && (
+        <div className="flex justify-end gap-2">
+          {canCancel && <OrderCancelButton orderId={order.id} />}
+          {canReturn && <ReturnRequestForm orderId={order.id} />}
         </div>
       )}
     </div>

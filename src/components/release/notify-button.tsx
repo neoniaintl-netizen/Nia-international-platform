@@ -9,29 +9,26 @@ import { toast } from "sonner";
 export function NotifyButton({
   releaseId,
   initialCount,
+  initialSubscribed = false,
 }: {
   releaseId: string;
   initialCount: number;
+  initialSubscribed?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
-  const [notified, setNotified] = useState(false);
+  const [notified, setNotified] = useState(initialSubscribed);
   const [count, setCount] = useState(initialCount);
 
   function handleClick() {
-    if (notified) {
-      toast.info("이미 알림 신청되었습니다.");
-      return;
-    }
-
     startTransition(async () => {
       const result = await toggleReleaseNotify(releaseId);
       if (result.error) {
         toast.error(result.error);
         return;
       }
-      setNotified(true);
-      setCount((c) => c + 1);
-      toast.success("발매 알림이 등록되었습니다!");
+      setNotified(result.subscribed ?? false);
+      setCount(result.notifyCount ?? 0);
+      toast.success(result.subscribed ? "발매 알림이 등록되었습니다!" : "알림이 해제되었습니다.");
     });
   }
 

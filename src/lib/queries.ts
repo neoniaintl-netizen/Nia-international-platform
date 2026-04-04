@@ -69,6 +69,10 @@ export async function getAllProducts(options?: {
   sort?: string;
   limit?: number;
   offset?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  sizes?: string[];
+  colors?: string[];
 }) {
   const { categorySlug, brandSlug, search, sort = "popular", limit = 24, offset = 0 } = options ?? {};
 
@@ -93,6 +97,23 @@ export async function getAllProducts(options?: {
         { tags: { some: { tag: { contains: search, mode: "insensitive" } } } },
       ],
     });
+  }
+  if (options?.minPrice !== undefined || options?.maxPrice !== undefined) {
+    const priceCondition: any = {};
+    if (options.minPrice !== undefined) priceCondition.gte = options.minPrice;
+    if (options.maxPrice !== undefined) priceCondition.lte = options.maxPrice;
+    conditions.push({
+      OR: [
+        { salePrice: priceCondition },
+        { salePrice: null, originalPrice: priceCondition },
+      ],
+    });
+  }
+  if (options?.sizes && options.sizes.length > 0) {
+    conditions.push({ variants: { some: { size: { in: options.sizes }, isActive: true } } });
+  }
+  if (options?.colors && options.colors.length > 0) {
+    conditions.push({ variants: { some: { color: { in: options.colors }, isActive: true } } });
   }
 
   const where = { AND: conditions };
@@ -647,4 +668,123 @@ export async function getAdminCoupons() {
     orderBy: { createdAt: "desc" },
     include: { _count: { select: { userCoupons: true } } },
   });
+}
+
+// ─── Return Request helpers ───
+
+export async function getReturnRequest(orderId: string) {
+  return prisma.returnRequest.findFirst({
+    where: { orderId },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function getAdminReturnRequests(status?: string) {
+  const where = status ? { status: status as any } : undefined;
+  return prisma.returnRequest.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    include: {
+      order: { select: { orderNumber: true, finalAmount: true } },
+      user: { select: { email: true, name: true } },
+    },
+  });
+}
+
+// ─── Product variants for admin ───
+
+export async function getProductVariants(productId: string) {
+  return prisma.productVariant.findMany({
+    where: { productId },
+    orderBy: [{ color: "asc" }, { size: "asc" }],
+  });
+}
+
+// ─── Low stock products ───
+
+export async function getLowStockProducts(threshold = 5) {
+  return prisma.product.findMany({
+    where: {
+      status: "ACTIVE",
+      variants: { some: { stock: { lte: threshold, gt: 0 } } },
+    },
+    include: {
+      brand: { select: { name: true } },
+      variants: { where: { stock: { lte: threshold } } },
+    },
+    take: 10,
+  });
+}
+
+// ─── User available coupons (for checkout) ───
+
+export async function getUserAvailableCoupons(userId: string) {
+  const now = new Date();
+  return prisma.userCoupon.findMany({
+    where: {
+      userId,
+      usedAt: null,
+      coupon: {
+        isActive: true,
+        startsAt: { lte: now },
+        expiresAt: { gte: now },
+      },
+    },
+    include: { coupon: true },
+    orderBy: { issuedAt: "desc" },
+  });
+}
+
+// ─── Admin: Categories ───
+
+export async function getAdminCategories() {
+  return prisma.category.findMany({
+    where: { depth: 0 },
+    orderBy: { sortOrder: "asc" },
+    include: {
+      children: {
+        orderBy: { sortOrder: "asc" },
+        include: {
+          _count: { select: { products: true } },
+          children: { orderBy: { sortOrder: "asc" }, include: { _count: { select: { products: true } } } },
+        },
+      },
+      _count: { select: { products: true } },
+    },
+  });
+}
+
+// ─── Search filter options ───
+
+export async function getFilterOptions(search?: string) {
+  const where = search ? {
+    status: "ACTIVE" as const,
+    OR: [
+      { name: { contains: search, mode: "insensitive" as const } },
+      { brand: { name: { contains: search, mode: "insensitive" as const } } },
+    ],
+  } : { status: "ACTIVE" as const };
+
+  const [prices, variants] = await Promise.all([
+    prisma.product.aggregate({
+      where: where as any,
+      _min: { originalPrice: true },
+      _max: { originalPrice: true },
+    }),
+    prisma.productVariant.findMany({
+      where: { product: where as any, isActive: true },
+      select: { color: true, size: true },
+      distinct: ["color", "size"],
+    }),
+  ]);
+
+  const colors = [...new Set(variants.map(v => v.color).filter(Boolean))] as string[];
+  const sizes = [...new Set(variants.map(v => v.size).filter(Boolean))] as string[];
+
+  return {
+    minPrice: prices._min.originalPrice ?? 0,
+    maxPrice: prices._max.originalPrice ?? 500000,
+    colors,
+    sizes,
+  };
 }

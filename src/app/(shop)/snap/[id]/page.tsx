@@ -2,16 +2,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { auth } from "@/lib/auth";
 import { Separator } from "@/components/ui/separator";
 import {
   Heart,
   MessageCircle,
   ChevronRight,
   ArrowLeft,
-  Share2,
   User,
 } from "lucide-react";
 import { getSnaps } from "@/lib/queries";
+import { ShareButton } from "@/components/shared/share-button";
+import { SnapLikeButton } from "@/components/snap/snap-like-button";
+import { SnapCommentSection } from "@/components/snap/snap-comment-section";
 
 export default async function SnapDetailPage({
   params,
@@ -24,8 +27,26 @@ export default async function SnapDetailPage({
 
   if (!snap || !snap.isActive) return notFound();
 
-  // 좋아요 수 증가 (조회 추적용, fire & forget)
-  // 실제로는 likeCount가 아닌 viewCount가 적절하지만 모델에 없으므로 skip
+  const session = await auth();
+  const currentUserId = session?.user?.id;
+
+  // Check if current user has liked the snap
+  let initialLiked = false;
+  if (currentUserId) {
+    const like = await prisma.snapLike.findUnique({
+      where: { snapId_userId: { snapId: id, userId: currentUserId } },
+    });
+    initialLiked = !!like;
+  }
+
+  // Fetch comments
+  const comments = await prisma.snapComment.findMany({
+    where: { snapId: id },
+    orderBy: { createdAt: "asc" },
+    include: {
+      user: { select: { id: true, nickname: true, name: true } },
+    },
+  });
 
   // 다른 스냅 추천 (본인 제외)
   const otherSnaps = await getSnaps(9);
@@ -91,12 +112,7 @@ export default async function SnapDetailPage({
         {/* Actions */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-5">
-            <button className="flex items-center gap-1.5 text-gray-600 hover:text-red-500 transition-colors">
-              <Heart className="w-5 h-5" />
-              <span className="text-sm font-medium">
-                {snap.likeCount.toLocaleString()}
-              </span>
-            </button>
+            <SnapLikeButton snapId={snap.id} initialLiked={initialLiked} likeCount={snap.likeCount} />
             <span className="flex items-center gap-1.5 text-gray-600">
               <MessageCircle className="w-5 h-5" />
               <span className="text-sm font-medium">
@@ -104,9 +120,7 @@ export default async function SnapDetailPage({
               </span>
             </span>
           </div>
-          <button className="text-gray-400 hover:text-black transition-colors">
-            <Share2 className="w-5 h-5" />
-          </button>
+          <ShareButton url={"/snap/" + snap.id} title={snap.caption || "NKBUS 스냅"} />
         </div>
 
         {/* Caption */}
@@ -118,6 +132,15 @@ export default async function SnapDetailPage({
             </p>
           </div>
         )}
+
+        {/* Comments */}
+        <div className="mb-6">
+          <SnapCommentSection
+            snapId={snap.id}
+            comments={comments}
+            currentUserId={currentUserId}
+          />
+        </div>
 
         {/* Back button */}
         <div className="flex items-center justify-between mb-8">
