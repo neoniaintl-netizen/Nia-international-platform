@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard, Truck, Tag, Loader2 } from "lucide-react";
+import { CreditCard, Truck, Tag } from "lucide-react";
 import Image from "next/image";
 import { createOrder } from "@/actions/order";
 import { applyCouponCode } from "@/actions/coupon";
 import { DaumPostcodeButton } from "@/components/shared/daum-postcode";
+import { PaymentButton } from "@/components/checkout/payment-button";
 
 interface CartItem {
   id: string;
@@ -44,10 +45,15 @@ export function CheckoutForm({
   couponCount: number;
 }) {
   const [state, formAction, isPending] = useActionState(createOrder, null);
+  const formRef = useRef<HTMLFormElement>(null);
   const [paymentMethod, setPaymentMethod] = useState("CARD");
   const [zipCode, setZipCode] = useState("");
   const [address1, setAddress1] = useState("");
   const address2Ref = useRef<HTMLInputElement>(null);
+
+  // PG 결제 결과 저장
+  const [paymentId, setPaymentId] = useState("");
+  const [merchantUid, setMerchantUid] = useState("");
 
   // Coupon state
   const [couponCode, setCouponCode] = useState("");
@@ -110,10 +116,13 @@ export function CheckoutForm({
   };
 
   return (
-    <form action={formAction}>
+    <form ref={formRef} action={formAction}>
       <input type="hidden" name="paymentMethod" value={paymentMethod} />
       <input type="hidden" name="couponCode" value={appliedCoupon || ""} />
       <input type="hidden" name="usedPoints" value={usedPoints.toString()} />
+      {/* PG 결제 결과 데이터 */}
+      <input type="hidden" name="paymentId" value={paymentId} />
+      <input type="hidden" name="merchantUid" value={merchantUid} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left: Form */}
@@ -337,20 +346,36 @@ export function CheckoutForm({
               <p className="text-[10px] text-gray-400">
                 위 주문 내용을 확인하였으며, 결제에 동의합니다.
               </p>
-              <Button
-                type="submit"
-                disabled={isPending}
-                className="w-full h-14 bg-black hover:bg-gray-800 text-white font-bold text-base"
-              >
-                {isPending ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    결제 처리중...
-                  </>
-                ) : (
-                  `${total.toLocaleString()}원 결제하기`
-                )}
-              </Button>
+              <PaymentButton
+                amount={total}
+                orderName={
+                  items.length === 1
+                    ? items[0].product.name
+                    : `${items[0].product.name} 외 ${items.length - 1}건`
+                }
+                paymentMethod={paymentMethod}
+                buyerName={
+                  (formRef.current?.querySelector<HTMLInputElement>(
+                    '[name="recipient"]'
+                  )?.value) ?? ""
+                }
+                buyerPhone={
+                  (formRef.current?.querySelector<HTMLInputElement>(
+                    '[name="phone"]'
+                  )?.value) ?? ""
+                }
+                disabled={isPending || !zipCode || !address1}
+                onSuccess={({ paymentId: pid, merchantUid: mid }) => {
+                  // PG 결제 성공 -> 결제 정보 저장 후 폼 제출
+                  setPaymentId(pid);
+                  setMerchantUid(mid);
+                  // requestSubmit으로 서버 액션 트리거
+                  setTimeout(() => formRef.current?.requestSubmit(), 0);
+                }}
+                onError={(errorMsg) => {
+                  alert(errorMsg);
+                }}
+              />
             </div>
           </div>
         </div>

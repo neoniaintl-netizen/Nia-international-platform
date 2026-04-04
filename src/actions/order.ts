@@ -31,6 +31,10 @@ export async function createOrder(_prevState: any, formData: FormData) {
   const couponCode = (formData.get("couponCode") as string)?.trim() || null;
   const usedPoints = parseInt(formData.get("usedPoints") as string) || 0;
 
+  // PG 결제 검증 데이터
+  const paymentId = (formData.get("paymentId") as string) || "";
+  const merchantUid = (formData.get("merchantUid") as string) || "";
+
   if (!recipient || !phone || !zipCode || !address1) {
     return { error: "배송 정보를 모두 입력해주세요." };
   }
@@ -194,7 +198,7 @@ export async function createOrder(_prevState: any, formData: FormData) {
             method: paymentMethod as any,
             status: "COMPLETED",
             amount: finalAmount,
-            transactionId: `TXN-${Date.now()}`,
+            transactionId: paymentId || merchantUid || `TXN-${Date.now()}`,
             paidAt: new Date(),
           },
         },
