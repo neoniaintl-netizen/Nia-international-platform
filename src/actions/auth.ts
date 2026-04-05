@@ -21,7 +21,7 @@ export async function loginAction(_prevState: any, formData: FormData) {
     await signIn("credentials", {
       email,
       password,
-      redirect: false,
+      redirectTo: callbackUrl,
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -34,8 +34,6 @@ export async function loginAction(_prevState: any, formData: FormData) {
     }
     throw error;
   }
-
-  redirect(callbackUrl);
 }
 
 // ─── 회원가입 ───
@@ -91,14 +89,14 @@ export async function registerAction(_prevState: any, formData: FormData) {
     await signIn("credentials", {
       email,
       password,
-      redirect: false,
+      redirectTo: "/",
     });
-  } catch {
-    // If auto-login fails, just redirect to login
-    redirect("/login");
+  } catch (error) {
+    if (error instanceof AuthError) {
+      redirect("/login");
+    }
+    throw error;
   }
-
-  redirect("/");
 }
 
 // ─── 소셜 로그인 ───
