@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { Star, Truck, RotateCcw, Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ProductImageGallery } from "@/components/product/product-image-gallery";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PriceDisplay } from "@/components/shared/price-display";
@@ -64,42 +64,20 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const colors = [...new Set(product.variants.map((v) => v.color).filter(Boolean))] as string[];
   const sizes = [...new Set(product.variants.map((v) => v.size).filter(Boolean))] as string[];
 
-  const mainImage = product.images.find((img) => img.isMain) ?? product.images[0];
-
   return (
     <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Image gallery */}
-        <div className="space-y-3">
-          <div className="relative aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden">
-            <Image
-              src={mainImage?.url ?? "https://placehold.co/800x1067/c0c0c0/444?text=No+Image"}
-              alt={product.name}
-              fill
-              className="object-cover"
-              priority
-            />
-            {product.isNew && (
-              <Badge className="absolute top-4 left-4 bg-black text-white">NEW</Badge>
-            )}
-          </div>
-          <div className="grid grid-cols-4 gap-2">
-            {product.images.map((img) => (
-              <div
-                key={img.id}
-                className="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:ring-2 ring-black transition-all"
-              >
-                <Image
-                  src={img.url}
-                  alt={img.alt ?? product.name}
-                  width={200}
-                  height={200}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+        <ProductImageGallery
+          images={product.images.map((img) => ({
+            id: img.id,
+            url: img.url,
+            alt: img.alt,
+            isMain: img.isMain,
+          }))}
+          productName={product.name}
+          isNew={product.isNew}
+        />
 
         {/* Product info */}
         <div className="space-y-6">
