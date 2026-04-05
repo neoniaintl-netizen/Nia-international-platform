@@ -1,16 +1,134 @@
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 
+const FOOTER_NAV = [
+  {
+    title: "어바웃 NKBUS",
+    links: [
+      { label: "회사 소개", href: "#" },
+      { label: "비즈니스 소개", href: "#" },
+      { label: "지속 가능성", href: "#" },
+      { label: "뉴스룸", href: "#" },
+      { label: "채용 정보", href: "#" },
+    ],
+  },
+  {
+    title: "오프라인 스토어",
+    links: [
+      { label: "NKBUS 스토어", href: "#" },
+      { label: "NKBUS 스탠다드", href: "#" },
+      { label: "NKBUS 엠프티", href: "#" },
+      { label: "NKBUS 스퀘어", href: "#" },
+      { label: "NKBUS 테라스", href: "#" },
+      { label: "아즈니섬", href: "#" },
+      { label: "NKBUS 골프", href: "#" },
+    ],
+  },
+  {
+    title: "비즈니스",
+    links: [
+      { label: "29CM", href: "#" },
+      { label: "솔드아웃", href: "#" },
+      { label: "엠프티", href: "#" },
+      { label: "NKBUS 파트너스", href: "#" },
+      { label: "NKBUS 스튜디오", href: "#" },
+      { label: "NKBUS 트레이딩", href: "#" },
+      { label: "NKBUS 로지스틱스", href: "#" },
+    ],
+  },
+  {
+    title: "파트너 지원",
+    links: [
+      { label: "입점 문의", href: "#" },
+      { label: "광고/제휴 문의", href: "#" },
+      { label: "협찬 문의", href: "#" },
+      { label: "공동/대량 구매 문의", href: "#" },
+    ],
+  },
+];
+
+const CUSTOMER_SUPPORT = {
+  title: "고객 지원",
+  quickLinks: [
+    { label: "1:1 문의하기", href: "#", bold: true },
+    { label: "FAQ 자주 묻는 질문", href: "#", bold: true },
+    { label: "안전 거래 센터", href: "#", bold: true },
+  ],
+  phone: "1544-7199",
+  hours: "평일 09:00 - 18:00 (점심시간 12:00 - 13:00 제외)",
+  email: "sosexy76@naver.com",
+};
+
 export function Footer() {
   return (
     <footer className="bg-gray-50 border-t mt-auto">
-      <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-10">
-        {/* Company title */}
+      {/* ── 하단 메뉴 ── */}
+      <div className="max-w-[1280px] mx-auto px-4 lg:px-6 pt-10 pb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+          {/* 4개 일반 컬럼 */}
+          {FOOTER_NAV.map((section) => (
+            <div key={section.title}>
+              <h3 className="text-sm font-bold text-gray-900 mb-4">
+                {section.title}
+              </h3>
+              <ul className="space-y-2.5">
+                {section.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-[13px] text-gray-500 hover:text-black transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+
+          {/* 고객 지원 컬럼 */}
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 mb-4">
+              {CUSTOMER_SUPPORT.title}
+            </h3>
+            <ul className="space-y-2">
+              {CUSTOMER_SUPPORT.quickLinks.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-[13px] font-semibold text-gray-700 hover:text-black underline-offset-2 hover:underline transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 space-y-1.5 text-[13px] text-gray-500">
+              <p>
+                고객센터{" "}
+                <span className="font-semibold text-gray-700">
+                  {CUSTOMER_SUPPORT.phone}
+                </span>
+              </p>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                운영시간 : {CUSTOMER_SUPPORT.hours}
+              </p>
+              <p className="text-[12px] text-gray-400">
+                {CUSTOMER_SUPPORT.email}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* ── 하단 정보 ── */}
+      <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-8">
         <p className="text-sm font-bold text-gray-900">
           엔큐버스 | &copy; NKBUS ALL RIGHTS RESERVED
         </p>
 
-        {/* Company info */}
         <div className="mt-4 space-y-1 text-xs text-gray-400">
           <p>
             상호명: 니아인터내셔널 | 대표자: 윤지현 | 주소: 서울특별시 강남구
@@ -19,7 +137,6 @@ export function Footer() {
           <p>사업자등록번호: 291-81-0245 | 통신판매업: 2022-서울 강남-0</p>
         </div>
 
-        {/* Notices */}
         <div className="mt-5 space-y-2 text-xs text-gray-400 leading-relaxed">
           <p>
             당사는 고객님이 현금 결제한 금액에 대해 우리은행과 채무지급보증
@@ -58,10 +175,18 @@ export function Footer() {
 
         {/* Certifications */}
         <div className="mt-6 space-y-2 text-xs text-gray-400">
-          <p>윤리·준법경영 국제 표준 통합 인증 · 안전보건경영시스템 국제 인증</p>
+          <p>
+            윤리·준법경영 국제 표준 통합 인증 · 안전보건경영시스템 국제 인증
+          </p>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 border border-gray-300 rounded px-2 py-1 text-[10px] font-bold text-gray-500">
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               </svg>
               ISMS
@@ -72,7 +197,6 @@ export function Footer() {
 
         {/* Social icons */}
         <div className="flex items-center gap-3 mt-6">
-          {/* Instagram */}
           <a
             href="https://instagram.com"
             target="_blank"
@@ -80,14 +204,26 @@ export function Footer() {
             className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:text-black hover:border-gray-500 transition-colors"
             aria-label="Instagram"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <rect x="2" y="2" width="20" height="20" rx="5" />
               <circle cx="12" cy="12" r="5" />
-              <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+              <circle
+                cx="17.5"
+                cy="6.5"
+                r="1"
+                fill="currentColor"
+                stroke="none"
+              />
             </svg>
           </a>
-
-          {/* YouTube */}
           <a
             href="https://youtube.com"
             target="_blank"
@@ -99,8 +235,6 @@ export function Footer() {
               <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.9 31.9 0 0 0 0 12a31.9 31.9 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.5 15.6V8.4L16 12l-6.5 3.6z" />
             </svg>
           </a>
-
-          {/* X (Twitter) */}
           <a
             href="https://x.com"
             target="_blank"
@@ -112,8 +246,6 @@ export function Footer() {
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
             </svg>
           </a>
-
-          {/* TikTok */}
           <a
             href="https://tiktok.com"
             target="_blank"
@@ -121,7 +253,11 @@ export function Footer() {
             className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:text-black hover:border-gray-500 transition-colors"
             aria-label="TikTok"
           >
-            <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="currentColor">
+            <svg
+              className="w-4.5 h-4.5"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
               <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.68a8.21 8.21 0 0 0 4.76 1.52v-3.4a4.85 4.85 0 0 1-1-.11z" />
             </svg>
           </a>
