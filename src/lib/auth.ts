@@ -55,15 +55,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    ...authConfig.callbacks,
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user, account }) {
+      // 기본 JWT 콜백 (auth.config.ts 와 동일)
       if (user) {
         token.id = user.id!;
         token.role = (user as any).role ?? "CUSTOMER";
         token.nickname = (user as any).nickname;
       }
 
-      // OAuth 신규 가입 시 DB에서 role 가져오기
+      // OAuth 신규 가입 시 DB에서 role 가져오기 (풀 런타임 전용)
       if (account && account.provider !== "credentials" && token.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },

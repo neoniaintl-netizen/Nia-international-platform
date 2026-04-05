@@ -1,25 +1,23 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth.config";
+
+const { auth } = NextAuth(authConfig);
 
 const protectedPaths = ["/my", "/wishlist", "/cart", "/checkout"];
 const adminPaths = ["/admin"];
 const authPaths = ["/login", "/register"];
 
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-  });
-
-  const isLoggedIn = !!token;
+export default auth((req) => {
+  const { nextUrl } = req;
+  const pathname = nextUrl.pathname;
+  const isLoggedIn = !!req.auth;
+  const role = (req.auth?.user as any)?.role;
 
   // 보호 라우트 — 미인증 시 로그인으로 리다이렉트
   const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
   if (isProtected && !isLoggedIn) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/login", nextUrl);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -28,24 +26,24 @@ export async function middleware(request: NextRequest) {
   const isAdmin = adminPaths.some((p) => pathname.startsWith(p));
   if (isAdmin) {
     if (!isLoggedIn) {
-      const loginUrl = new URL("/login", request.url);
+      const loginUrl = new URL("/login", nextUrl);
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);
     }
-    if (token?.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/", request.url));
+    if (role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/", nextUrl));
     }
   }
 
   // 인증 페이지 — 로그인된 사용자는 callbackUrl 또는 홈으로 리다이렉트
   const isAuth = authPaths.some((p) => pathname.startsWith(p));
   if (isAuth && isLoggedIn) {
-    const callbackUrl = request.nextUrl.searchParams.get("callbackUrl") || "/";
-    return NextResponse.redirect(new URL(callbackUrl, request.url));
+    const callbackUrl = nextUrl.searchParams.get("callbackUrl") || "/";
+    return NextResponse.redirect(new URL(callbackUrl, nextUrl));
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: [
