@@ -1,22 +1,30 @@
 import Link from "next/link";
-import { Shirt, Wind, Footprints, Watch, Gem, Glasses, ShoppingBag, Sparkles } from "lucide-react";
+import { Dumbbell, Mountain, Sparkles, Shirt } from "lucide-react";
+
+/** 골프 아이콘 (커스텀 SVG) */
+function GolfIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="18" r="2" />
+      <path d="M12 2v14" />
+      <path d="M12 2l6 4-6 4" />
+    </svg>
+  );
+}
 
 const categories = [
-  { label: "상의", slug: "tops", icon: Shirt },
-  { label: "아우터", slug: "outer", icon: Wind },
-  { label: "바지", slug: "pants", icon: Shirt },
-  { label: "신발", slug: "shoes", icon: Footprints },
-  { label: "가방", slug: "bags", icon: ShoppingBag },
-  { label: "시계", slug: "watches", icon: Watch },
-  { label: "주얼리", slug: "jewelry", icon: Gem },
-  { label: "액세서리", slug: "accessories", icon: Glasses },
+  { label: "골프", slug: "golf", icon: GolfIcon },
+  { label: "스포츠", slug: "sports", icon: Dumbbell },
+  { label: "아웃도어", slug: "outdoor", icon: Mountain },
+  { label: "뷰티", slug: "beauty", icon: Sparkles },
+  { label: "여성의류", slug: "women", icon: Shirt },
 ];
 
 export function CategoryNav() {
   return (
     <section className="py-6">
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
-        <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           {categories.map(({ label, slug, icon: Icon }) => (
             <Link
               key={slug}

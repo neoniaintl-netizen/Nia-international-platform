@@ -15,7 +15,7 @@ export function GNB() {
         {/* Channel tabs */}
         <ScrollArea className="w-full">
           <div className="flex items-center gap-1 px-4 lg:px-6 h-10">
-            {CHANNELS.slice(0, 5).map((channel) => (
+            {CHANNELS.map((channel) => (
               <Link
                 key={channel.slug}
                 href={`/?channel=${channel.slug}`}
@@ -25,16 +25,6 @@ export function GNB() {
                     ? "bg-black text-white"
                     : "text-gray-500 hover:bg-gray-100"
                 )}
-              >
-                {channel.displayName}
-              </Link>
-            ))}
-            <span className="text-gray-200 mx-1">|</span>
-            {CHANNELS.slice(5).map((channel) => (
-              <Link
-                key={channel.slug}
-                href={`/?channel=${channel.slug}`}
-                className="px-3 py-1.5 text-xs font-bold text-gray-400 hover:text-gray-600 whitespace-nowrap transition-colors"
               >
                 {channel.displayName}
               </Link>
