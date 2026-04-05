@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
       data: {
         email: "admin@nkbus.com",
         name: "NKBUS 관리자",
-        nickname: "admin",
+        nickname: "nkbus_admin",
         passwordHash,
         role: "ADMIN",
       },
