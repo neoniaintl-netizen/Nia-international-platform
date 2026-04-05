@@ -15,14 +15,14 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // 이미 어드민이 있는지 확인
+    // nkbus 어드민이 이미 있는지 확인
     const existingAdmin = await prisma.user.findFirst({
-      where: { role: "ADMIN" },
+      where: { email: "admin@nkbus.com" },
     });
 
     if (existingAdmin) {
       return NextResponse.json({
-        message: "어드민 계정이 이미 존재합니다.",
+        message: "NKBUS 어드민 계정이 이미 존재합니다.",
         admin: {
           email: existingAdmin.email,
           name: existingAdmin.name,
