@@ -10,6 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ProductStatusActions } from "@/components/admin/product-status-actions";
+import Link from "next/link";
+import { Plus, Pencil } from "lucide-react";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   DRAFT: { label: "검수대기", cls: "bg-yellow-100 text-yellow-700" },
@@ -38,7 +40,15 @@ export default async function AdminProductsPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">상품 관리</h1>
-        <Badge variant="outline">{total}개 상품</Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline">{total}개 상품</Badge>
+          <Link
+            href="/admin/products/new"
+            className="flex items-center gap-1.5 px-4 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            <Plus className="w-4 h-4" /> 상품 등록
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -104,7 +114,16 @@ export default async function AdminProductsPage({
                       {p._count.variants}개 / {p._count.images}장
                     </TableCell>
                     <TableCell>
-                      <ProductStatusActions productId={p.id} currentStatus={p.status} />
+                      <div className="flex items-center gap-1">
+                        <Link
+                          href={`/admin/products/${p.id}/edit`}
+                          className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-black"
+                          title="수정"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Link>
+                        <ProductStatusActions productId={p.id} currentStatus={p.status} />
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

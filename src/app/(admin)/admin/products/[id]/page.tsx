@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, ChevronLeft } from "lucide-react";
+import { Package, ChevronLeft, Pencil } from "lucide-react";
 import { VariantStockEditor } from "@/components/admin/variant-stock-editor";
 import Link from "next/link";
 
@@ -45,9 +45,17 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
             {product.brand.name} | {product.category?.name ?? "-"}
           </p>
         </div>
-        <Badge className={`text-sm px-3 py-1 ${statusInfo.color}`}>
-          {statusInfo.label}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/admin/products/${id}/edit`}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm border rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <Pencil className="w-3.5 h-3.5" /> 수정
+          </Link>
+          <Badge className={`text-sm px-3 py-1 ${statusInfo.color}`}>
+            {statusInfo.label}
+          </Badge>
+        </div>
       </div>
 
       {/* Summary cards */}
