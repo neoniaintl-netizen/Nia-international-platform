@@ -1,5 +1,5 @@
 import { getCrawlJobs, getCrawlJobStats } from "@/lib/queries";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Bug,
@@ -9,8 +9,9 @@ import {
   Clock,
   Package,
 } from "lucide-react";
-import { CrawlForm } from "@/components/admin/crawl-form";
+import { CrawlForm, QuickProductCrawl } from "@/components/admin/crawl-form";
 import { CrawlJobActions } from "@/components/admin/crawl-job-actions";
+import { CrawlAutoRefresh } from "@/components/admin/crawl-auto-refresh";
 
 export default async function CrawlPage() {
   const [{ jobs, total }, stats] = await Promise.all([
@@ -18,8 +19,13 @@ export default async function CrawlPage() {
     getCrawlJobStats(),
   ]);
 
+  const hasRunning = jobs.some((j) => j.status === "RUNNING" || j.status === "PENDING");
+
   return (
     <div className="space-y-6">
+      {/* 자동 새로고침 (RUNNING 작업이 있을 때) */}
+      {hasRunning && <CrawlAutoRefresh />}
+
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">크롤링 관리</h1>
         <Badge variant="outline">{total}건의 작업</Badge>
@@ -35,7 +41,10 @@ export default async function CrawlPage() {
         <StatCard label="수집 상품" value={stats.totalProducts} icon={Package} color="purple" />
       </div>
 
-      {/* New crawl form */}
+      {/* 빠른 상품 추가 */}
+      <QuickProductCrawl />
+
+      {/* 배치 크롤링 */}
       <CrawlForm />
 
       {/* Job list */}
