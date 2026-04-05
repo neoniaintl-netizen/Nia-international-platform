@@ -5,8 +5,9 @@ import bcrypt from "bcryptjs";
 /**
  * GET /api/admin/setup?key=nkbus2026
  *
- * NKBUS 어드민 계정 초기 셋업 (1회용)
- * admin@nkbus.com 계정이 이미 존재하면 스킵
+ * NKBUS 어드민 계정 셋업
+ * - 계정 없으면 생성
+ * - 계정 있으면 비밀번호 리셋 + role을 ADMIN으로 보장
  */
 export async function GET(req: NextRequest) {
   const key = req.nextUrl.searchParams.get("key");
@@ -14,29 +15,43 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const EMAIL = "admin@nkbus.com";
+  const PASSWORD = "nkbus1234!";
+
   try {
-    // nkbus 어드민이 이미 있는지 확인
+    const passwordHash = await bcrypt.hash(PASSWORD, 12);
+
     const existingAdmin = await prisma.user.findFirst({
-      where: { email: "admin@nkbus.com" },
+      where: { email: EMAIL },
     });
 
     if (existingAdmin) {
-      return NextResponse.json({
-        message: "NKBUS 어드민 계정이 이미 존재합니다.",
-        admin: {
-          email: existingAdmin.email,
-          name: existingAdmin.name,
-          role: existingAdmin.role,
+      // 기존 계정 → 비밀번호 리셋 + role ADMIN 보장
+      await prisma.user.update({
+        where: { id: existingAdmin.id },
+        data: {
+          passwordHash,
+          role: "ADMIN",
         },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "어드민 계정 비밀번호 리셋 및 권한 확인 완료",
+        admin: {
+          id: existingAdmin.id,
+          email: EMAIL,
+          name: existingAdmin.name,
+          role: "ADMIN",
+        },
+        credentials: { email: EMAIL, password: PASSWORD },
       });
     }
 
-    // 어드민 계정 생성
-    const passwordHash = await bcrypt.hash("nkbus1234!", 12);
-
+    // 신규 생성
     const admin = await prisma.user.create({
       data: {
-        email: "admin@nkbus.com",
+        email: EMAIL,
         name: "NKBUS 관리자",
         nickname: "nkbus_admin",
         passwordHash,
@@ -46,16 +61,14 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "어드민 계정 생성 완료",
+      message: "어드민 계정 신규 생성 완료",
       admin: {
+        id: admin.id,
         email: admin.email,
         name: admin.name,
         role: admin.role,
       },
-      credentials: {
-        email: "admin@nkbus.com",
-        password: "nkbus1234!",
-      },
+      credentials: { email: EMAIL, password: PASSWORD },
     });
   } catch (err: any) {
     return NextResponse.json(

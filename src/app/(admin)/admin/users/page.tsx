@@ -14,7 +14,6 @@ import { UserRoleSelect } from "@/components/admin/user-role-select";
 const ROLE_MAP: Record<string, { label: string; cls: string }> = {
   CUSTOMER: { label: "회원", cls: "bg-gray-100 text-gray-600" },
   ADMIN: { label: "관리자", cls: "bg-blue-100 text-blue-700" },
-  SUPER_ADMIN: { label: "슈퍼관리자", cls: "bg-purple-100 text-purple-700" },
   SELLER: { label: "판매자", cls: "bg-green-100 text-green-700" },
 };
 
