@@ -10,50 +10,29 @@ export function GNB() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-14 z-40">
-      <div className="max-w-[1280px] mx-auto">
-        {/* Channel tabs */}
-        <ScrollArea className="w-full">
-          <div className="flex items-center gap-1 px-4 lg:px-6 h-10">
-            {CHANNELS.map((channel) => (
-              <Link
-                key={channel.slug}
-                href={`/?channel=${channel.slug}`}
-                className={cn(
-                  "px-3 py-1.5 text-xs font-bold rounded-full whitespace-nowrap transition-colors",
-                  channel.slug === "nkbus"
-                    ? "bg-black text-white"
-                    : "text-gray-500 hover:bg-gray-100"
-                )}
-              >
-                {channel.displayName}
-              </Link>
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" className="invisible" />
-        </ScrollArea>
-
-        {/* Sub navigation tabs */}
-        <div className="flex items-center px-4 lg:px-6 border-t border-gray-50">
+    <nav
+      className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-16 z-40"
+      aria-label="섹션 탭"
+    >
+      <div className="max-w-[1360px] mx-auto px-4 lg:px-8">
+        {/* 모바일: 채널 가로 스크롤 */}
+        <div className="lg:hidden">
           <ScrollArea className="w-full">
-            <div className="flex items-center gap-6 h-11">
-              {NAV_TABS.map((tab) => {
-                const isActive =
-                  tab.href === "/"
-                    ? pathname === "/"
-                    : pathname.startsWith(tab.href);
+            <div className="flex items-center gap-4 h-10">
+              {CHANNELS.map((channel) => {
+                const isActive = channel.slug === "nkbus"
+                  ? !pathname.includes("/category/")
+                  : pathname.includes(`/category/${channel.slug}`);
                 return (
                   <Link
-                    key={tab.href}
-                    href={tab.href}
+                    key={channel.slug}
+                    href={channel.slug === "nkbus" ? "/" : `/category/${channel.slug}`}
                     className={cn(
-                      "text-sm font-medium whitespace-nowrap py-3 border-b-2 transition-colors",
-                      isActive
-                        ? "border-black text-black"
-                        : "border-transparent text-gray-400 hover:text-gray-600"
+                      "text-[13px] font-semibold whitespace-nowrap transition-colors",
+                      isActive ? "text-black" : "text-gray-400"
                     )}
                   >
-                    {tab.label}
+                    {channel.displayName}
                   </Link>
                 );
               })}
@@ -61,6 +40,36 @@ export function GNB() {
             <ScrollBar orientation="horizontal" className="invisible" />
           </ScrollArea>
         </div>
+
+        {/* 서브 탭 */}
+        <ScrollArea className="w-full">
+          <div className="flex items-center gap-7 h-11">
+            {NAV_TABS.map((tab) => {
+              const isActive =
+                tab.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(tab.href);
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={cn(
+                    "relative text-[13px] font-medium whitespace-nowrap py-3 transition-colors",
+                    isActive
+                      ? "text-black font-semibold"
+                      : "text-gray-400 hover:text-gray-700"
+                  )}
+                >
+                  {tab.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-black rounded-full" />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+          <ScrollBar orientation="horizontal" className="invisible" />
+        </ScrollArea>
       </div>
     </nav>
   );
