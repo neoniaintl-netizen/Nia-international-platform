@@ -5,8 +5,8 @@ import bcrypt from "bcryptjs";
 /**
  * GET /api/admin/setup?key=nkbus2026
  *
- * 어드민 계정 초기 셋업 (1회용)
- * 이미 어드민이 존재하면 스킵
+ * NKBUS 어드민 계정 초기 셋업 (1회용)
+ * admin@nkbus.com 계정이 이미 존재하면 스킵
  */
 export async function GET(req: NextRequest) {
   const key = req.nextUrl.searchParams.get("key");
