@@ -1,17 +1,18 @@
 import Link from "next/link";
 import { Header } from "@/components/layout/header";
 import { MobileNav } from "@/components/layout/mobile-nav";
-import { Package, User, MapPin, Tag, Coins, Heart, ChevronRight } from "lucide-react";
+import { Package, User, MapPin, Tag, Coins, Heart, ChevronRight, Settings } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { getUserPoints, getUserCouponCount, getCartCount } from "@/lib/queries";
 
 const SIDEBAR_ITEMS = [
   { label: "주문 내역", href: "/my/orders", icon: Package },
-  { label: "프로필", href: "/my/profile", icon: User },
+  { label: "프로필 수정", href: "/my/profile", icon: User },
   { label: "배송지 관리", href: "/my/addresses", icon: MapPin },
   { label: "쿠폰", href: "/my/coupons", icon: Tag },
   { label: "적립금", href: "/my/points", icon: Coins },
   { label: "좋아요", href: "/wishlist", icon: Heart },
+  { label: "설정", href: "/my/profile", icon: Settings },
 ];
 
 export default async function MyPageLayout({
@@ -35,9 +36,14 @@ export default async function MyPageLayout({
   return (
     <>
       <Header cartCount={cartCount} />
-      <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6 pb-20 lg:pb-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar */}
+      <div className="max-w-[1280px] mx-auto pb-20 lg:pb-6">
+        {/* 모바일: 마이 타이틀 */}
+        <div className="lg:hidden px-4 py-3">
+          <h1 className="text-[18px] font-bold">마이</h1>
+        </div>
+
+        <div className="lg:grid lg:grid-cols-4 lg:gap-8 lg:px-6 lg:py-6">
+          {/* 데스크톱 사이드바 */}
           <aside className="hidden lg:block">
             <div className="sticky top-20">
               <div className="p-4 bg-black text-white rounded-xl mb-4">
@@ -55,7 +61,7 @@ export default async function MyPageLayout({
               <nav className="space-y-1">
                 {SIDEBAR_ITEMS.map(({ label, href, icon: Icon }) => (
                   <Link
-                    key={href}
+                    key={href + label}
                     href={href}
                     className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg hover:bg-gray-100 transition-colors"
                   >
@@ -68,7 +74,7 @@ export default async function MyPageLayout({
             </div>
           </aside>
 
-          {/* Content */}
+          {/* 콘텐츠 */}
           <main className="lg:col-span-3">{children}</main>
         </div>
       </div>

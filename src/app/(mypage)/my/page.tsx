@@ -1,8 +1,5 @@
-import { Package, Tag, Coins, Heart, ChevronRight, Truck, CheckCircle, RotateCcw } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { ChevronRight, Package, RotateCcw, Bell, Eye, Heart, Gift, Settings, Truck, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { auth } from "@/lib/auth";
 import { getUserOrders, getOrderStatusCounts, getUserPoints, getUserCouponCount, getUserWishlist } from "@/lib/queries";
 import { redirect } from "next/navigation";
@@ -19,154 +16,152 @@ export default async function MyPage() {
     getUserWishlist(session.user.id),
   ]);
 
-  const recentOrders = orders.slice(0, 3);
   const userName = session.user.name ?? "회원";
+  const userInitial = userName.charAt(0).toUpperCase();
+  const totalOrders = orders.length;
+
+  // 작성 가능한 후기: 배송완료 주문 수 (간이 계산)
+  const writableReviewCount = statusCounts.delivered;
+
+  // 회원 등급 (간이)
+  const level = totalOrders >= 20 ? { name: "GOLD", num: 3, benefit: "최대 5% 적립" }
+    : totalOrders >= 5 ? { name: "SILVER", num: 2, benefit: "최대 3% 적립" }
+    : { name: "BRONZE", num: 1, benefit: "최대 1% 적립" };
 
   return (
-    <div className="space-y-8">
-      {/* Mobile: User info */}
-      <div className="lg:hidden p-4 bg-black text-white rounded-xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-bold text-lg">{userName}님</p>
-            <Badge className="bg-white/20 text-white text-[10px] mt-1">BRONZE</Badge>
+    <div className="max-w-[640px] mx-auto">
+      {/* ── 프로필 섹션 ── */}
+      <div className="px-4 pt-2 pb-4">
+        <div className="flex items-center gap-3">
+          {/* 아바타 */}
+          <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-500 shrink-0">
+            {userInitial}
           </div>
-          <Link href="/my/profile" className="text-xs text-white/60 flex items-center">
-            프로필 <ChevronRight className="w-3.5 h-3.5" />
+          {/* 이름 + 프로필 편집 */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[17px] font-bold truncate">{userName}</span>
+              <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+            </div>
+          </div>
+          <Link
+            href="/my/profile"
+            className="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md hover:bg-gray-50 transition-colors shrink-0"
+          >
+            프로필 수정
           </Link>
-        </div>
-        <div className="grid grid-cols-3 mt-4 text-center">
-          <div>
-            <p className="text-xs text-white/60">적립금</p>
-            <p className="font-bold mt-0.5">{points.toLocaleString()}</p>
-          </div>
-          <div>
-            <p className="text-xs text-white/60">쿠폰</p>
-            <p className="font-bold mt-0.5">{couponCount}</p>
-          </div>
-          <div>
-            <p className="text-xs text-white/60">좋아요</p>
-            <p className="font-bold mt-0.5">{wishlist.length}</p>
-          </div>
         </div>
       </div>
 
-      {/* Order status */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold">주문 현황</h2>
+      {/* ── 등급 배너 ── */}
+      <Link href="/my/points" className="block mx-4 mb-4">
+        <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg">
+          <span className="text-[13px] text-blue-600 font-medium">
+            LV.{level.num} {level.name} · {level.benefit} · 무료배송
+          </span>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        </div>
+      </Link>
+
+      {/* ── 적립금 / 쿠폰 / 좋아요 ── */}
+      <div className="mx-4 mb-2 border border-gray-200 rounded-lg overflow-hidden">
+        <div className="grid grid-cols-3 divide-x divide-gray-200">
+          <Link href="/my/points" className="py-4 text-center hover:bg-gray-50 transition-colors">
+            <p className="text-[11px] text-gray-500 mb-1">적립금 &gt;</p>
+            <p className="text-[15px] font-bold">{points.toLocaleString()}원</p>
+          </Link>
+          <Link href="/my/coupons" className="py-4 text-center hover:bg-gray-50 transition-colors">
+            <p className="text-[11px] text-gray-500 mb-1">쿠폰 &gt;</p>
+            <p className="text-[15px] font-bold">{couponCount}장</p>
+          </Link>
+          <Link href="/wishlist" className="py-4 text-center hover:bg-gray-50 transition-colors">
+            <p className="text-[11px] text-gray-500 mb-1">좋아요 &gt;</p>
+            <p className="text-[15px] font-bold">{wishlist.length}개</p>
+          </Link>
+        </div>
+      </div>
+
+      {/* ── 작성 가능한 후기 ── */}
+      <Link href="/my/orders" className="block mx-4 mb-6">
+        <div className="flex items-center justify-between py-3">
+          <span className="text-[13px] font-medium">작성 가능한 후기 {writableReviewCount}개</span>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        </div>
+      </Link>
+
+      {/* ── 주문 현황 ── */}
+      <div className="mx-4 mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-[15px] font-bold">주문 현황</h3>
           <Link href="/my/orders" className="text-xs text-gray-400 flex items-center">
             전체보기 <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-2">
           {[
             { label: "결제완료", count: statusCounts.paid, icon: Package },
             { label: "배송중", count: statusCounts.shipped, icon: Truck },
             { label: "배송완료", count: statusCounts.delivered, icon: CheckCircle },
             { label: "취소/반품", count: statusCounts.cancelled, icon: RotateCcw },
           ].map(({ label, count, icon: Icon }) => (
-            <Card key={label} className="text-center py-4">
-              <CardContent className="p-0">
-                <Icon className="w-5 h-5 mx-auto text-gray-400 mb-2" />
-                <p className="text-xl font-bold">{count}</p>
-                <p className="text-[10px] text-gray-400 mt-1">{label}</p>
-              </CardContent>
-            </Card>
+            <div key={label} className="flex flex-col items-center py-3 bg-gray-50 rounded-lg">
+              <Icon className="w-5 h-5 text-gray-400 mb-1.5" strokeWidth={1.5} />
+              <p className="text-lg font-bold">{count}</p>
+              <p className="text-[10px] text-gray-400 mt-0.5">{label}</p>
+            </div>
           ))}
         </div>
-      </section>
+      </div>
 
-      {/* Quick links for mobile */}
-      <section className="lg:hidden">
-        <h2 className="font-bold mb-4">바로가기</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { label: "주문 내역", href: "/my/orders", icon: Package },
-            { label: "쿠폰함", href: "/my/coupons", icon: Tag },
-            { label: "적립금", href: "/my/points", icon: Coins },
-            { label: "좋아요", href: "/wishlist", icon: Heart },
-          ].map(({ label, href, icon: Icon }) => (
-            <Link key={href} href={href}>
-              <Card className="hover:bg-gray-50 transition-colors">
-                <CardContent className="flex items-center gap-3 p-4">
-                  <Icon className="w-5 h-5 text-gray-400" />
-                  <span className="text-sm font-medium">{label}</span>
-                  <ChevronRight className="w-4 h-4 text-gray-300 ml-auto" />
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+      {/* ── 프로모 배너 ── */}
+      <div className="mx-4 mb-6">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl px-5 py-4 text-white">
+          <p className="text-[13px] font-bold">신규 회원 혜택</p>
+          <p className="text-[11px] text-white/70 mt-0.5">첫 구매 시 10% 추가 적립! 지금 바로 쇼핑하세요</p>
         </div>
-      </section>
+      </div>
 
-      {/* Recent orders */}
-      <section>
-        <h2 className="font-bold mb-4">최근 주문</h2>
-        {recentOrders.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-gray-400 text-sm">
-              아직 주문 내역이 없습니다
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {recentOrders.map((order) => {
-              const firstItem = order.items[0];
-              const remainCount = order.items.length - 1;
-
-              return (
-                <Link key={order.id} href={`/my/orders/${order.id}`}>
-                  <Card className="hover:bg-gray-50 transition-colors">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <p className="text-xs text-gray-400">
-                            {order.createdAt.toLocaleDateString("ko-KR")}
-                          </p>
-                          <p className="text-xs font-mono">{order.orderNumber}</p>
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {order.status === "PAID" ? "결제완료" : order.status === "DELIVERED" ? "배송완료" : order.status === "CANCELLED" ? "취소됨" : order.status}
-                        </Badge>
-                      </div>
-                      {firstItem && (
-                        <div className="flex items-center gap-3">
-                          <div className="w-16 h-16 bg-gray-100 rounded-lg shrink-0 overflow-hidden">
-                            {firstItem.imageUrl ? (
-                              <Image
-                                src={firstItem.imageUrl}
-                                alt={firstItem.productName}
-                                width={64}
-                                height={64}
-                                className="object-cover w-full h-full"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                <Package className="w-6 h-6" />
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium">
-                              {firstItem.productName}
-                              {remainCount > 0 && ` 외 ${remainCount}건`}
-                            </p>
-                            <p className="text-xs text-gray-400">
-                              {firstItem.brandName} · {[firstItem.color, firstItem.size].filter(Boolean).join(" · ")}
-                            </p>
-                            <p className="text-sm font-bold mt-1">{order.finalAmount.toLocaleString()}원</p>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </section>
+      {/* ── 메뉴 리스트 ── */}
+      <div className="border-t border-gray-100">
+        <MenuItem href="/my/orders" icon={Package} label="주문 내역" desc="온·오프라인 주문 내역 모아보기" />
+        <MenuItem href="/my/orders" icon={RotateCcw} label="취소/반품/교환 내역" />
+        <MenuItem href="/my/addresses" icon={Truck} label="배송지 관리" />
+        <MenuItem href="/wishlist" icon={Heart} label="좋아요" />
+        <MenuItem href="/event/payment" icon={Gift} label="이벤트/회원혜택" badge="신규" />
+        <MenuItem href="/my/profile" icon={Settings} label="설정" />
+      </div>
     </div>
+  );
+}
+
+function MenuItem({
+  href,
+  icon: Icon,
+  label,
+  desc,
+  badge,
+}: {
+  href: string;
+  icon: React.ElementType;
+  label: string;
+  desc?: string;
+  badge?: string;
+}) {
+  return (
+    <Link href={href} className="flex items-center gap-4 px-4 py-4 hover:bg-gray-50 transition-colors">
+      <Icon className="w-5 h-5 text-gray-400 shrink-0" strokeWidth={1.5} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="text-[14px] font-medium">{label}</span>
+          {badge && (
+            <span className="px-1.5 py-0.5 text-[10px] font-bold text-blue-600 bg-blue-50 rounded">
+              {badge}
+            </span>
+          )}
+        </div>
+        {desc && <p className="text-[12px] text-gray-400 mt-0.5">{desc}</p>}
+      </div>
+      <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
+    </Link>
   );
 }
