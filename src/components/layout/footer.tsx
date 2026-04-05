@@ -5,44 +5,44 @@ const FOOTER_NAV = [
   {
     title: "어바웃 NKBUS",
     links: [
-      { label: "회사 소개", href: "#" },
-      { label: "비즈니스 소개", href: "#" },
-      { label: "지속 가능성", href: "#" },
-      { label: "뉴스룸", href: "#" },
-      { label: "채용 정보", href: "#" },
+      { label: "회사 소개", href: "/about" },
+      { label: "비즈니스 소개", href: "/about" },
+      { label: "지속 가능성", href: "/about" },
+      { label: "뉴스룸", href: "/notice" },
+      { label: "채용 정보", href: "/about" },
     ],
   },
   {
     title: "오프라인 스토어",
     links: [
-      { label: "NKBUS 스토어", href: "#" },
-      { label: "NKBUS 스탠다드", href: "#" },
-      { label: "NKBUS 엠프티", href: "#" },
-      { label: "NKBUS 스퀘어", href: "#" },
-      { label: "NKBUS 테라스", href: "#" },
-      { label: "아즈니섬", href: "#" },
-      { label: "NKBUS 골프", href: "#" },
+      { label: "NKBUS 스토어", href: "/stores" },
+      { label: "NKBUS 스탠다드", href: "/stores" },
+      { label: "NKBUS 엠프티", href: "/stores" },
+      { label: "NKBUS 스퀘어", href: "/stores" },
+      { label: "NKBUS 테라스", href: "/stores" },
+      { label: "아즈니섬", href: "/stores" },
+      { label: "NKBUS 골프", href: "/stores" },
     ],
   },
   {
     title: "비즈니스",
     links: [
-      { label: "29CM", href: "#" },
-      { label: "솔드아웃", href: "#" },
-      { label: "엠프티", href: "#" },
-      { label: "NKBUS 파트너스", href: "#" },
-      { label: "NKBUS 스튜디오", href: "#" },
-      { label: "NKBUS 트레이딩", href: "#" },
-      { label: "NKBUS 로지스틱스", href: "#" },
+      { label: "29CM", href: "/about" },
+      { label: "솔드아웃", href: "/about" },
+      { label: "엠프티", href: "/about" },
+      { label: "NKBUS 파트너스", href: "/partner" },
+      { label: "NKBUS 스튜디오", href: "/about" },
+      { label: "NKBUS 트레이딩", href: "/about" },
+      { label: "NKBUS 로지스틱스", href: "/about" },
     ],
   },
   {
     title: "파트너 지원",
     links: [
-      { label: "입점 문의", href: "#" },
-      { label: "광고/제휴 문의", href: "#" },
-      { label: "협찬 문의", href: "#" },
-      { label: "공동/대량 구매 문의", href: "#" },
+      { label: "중국 입점 문의", href: "/partner" },
+      { label: "광고/제휴 문의", href: "/partner" },
+      { label: "도소매 문의", href: "/partner" },
+      { label: "공동/대량 구매 문의", href: "/partner" },
     ],
   },
 ];
@@ -50,18 +50,97 @@ const FOOTER_NAV = [
 const CUSTOMER_SUPPORT = {
   title: "고객 지원",
   quickLinks: [
-    { label: "1:1 문의하기", href: "#", bold: true },
-    { label: "FAQ 자주 묻는 질문", href: "#", bold: true },
-    { label: "안전 거래 센터", href: "#", bold: true },
+    { label: "1:1 문의하기", href: "/support", bold: true },
+    { label: "FAQ 자주 묻는 질문", href: "/faq", bold: true },
+    { label: "안전 거래 센터", href: "/support", bold: true },
   ],
   phone: "1544-7199",
   hours: "평일 09:00 - 18:00 (점심시간 12:00 - 13:00 제외)",
   email: "sosexy76@naver.com",
 };
 
+const CHANNELS = [
+  { label: "NKBUS", href: "/" },
+  { label: "GOLF", href: "/category/golf" },
+  { label: "SPORTS", href: "/category/sports" },
+  { label: "OUTDOOR", href: "/category/outdoor" },
+  { label: "BEAUTY", href: "/category/beauty" },
+  { label: "WOMEN", href: "/category/women" },
+];
+
+const NOTICES = [
+  { title: "NKBUS 서비스 이용약관 개정 안내", date: "2026.04.01" },
+  { title: "중국 배송 지연 관련 안내", date: "2026.03.25" },
+  { title: "봄 시즌 프로모션 안내", date: "2026.03.15" },
+];
+
+const PAYMENT_BENEFITS = [
+  { icon: "💳", text: "NKBUSPay 첫 결제 시 5천원 할인" },
+  { icon: "🟡", text: "카카오페이 × 페이머니 10만원 이상 결제 시 4천원 할인" },
+  { icon: "🔵", text: "AliPay 결제 시 위안화 직결제 지원" },
+];
+
 export function Footer() {
   return (
     <footer className="bg-gray-50 border-t mt-auto">
+      {/* ── 채널 + 공지 + 결제혜택 ── */}
+      <div className="bg-white border-b">
+        <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
+          {/* 채널 탭 */}
+          <div className="flex items-center gap-1 overflow-x-auto py-3 border-b">
+            {CHANNELS.map((ch) => (
+              <Link
+                key={ch.label}
+                href={ch.href}
+                className="shrink-0 px-4 py-2 text-xs font-bold text-gray-500 border border-gray-200 rounded hover:text-black hover:border-gray-400 transition-colors"
+              >
+                {ch.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
+            {/* 공지사항 */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-gray-900">공지사항</h3>
+                <Link href="/notice" className="text-xs text-gray-400 hover:text-black">
+                  전체보기
+                </Link>
+              </div>
+              <ul className="space-y-2">
+                {NOTICES.map((notice, i) => (
+                  <li key={notice.title} className="flex items-center justify-between">
+                    <Link href={`/notice/${i + 1}`} className="text-[13px] text-gray-600 hover:text-black truncate mr-4">
+                      {notice.title}
+                    </Link>
+                    <span className="text-[11px] text-gray-400 shrink-0">{notice.date}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 결제 혜택 */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-gray-900">결제 혜택</h3>
+                <Link href="/event/payment" className="text-xs text-gray-400 hover:text-black">
+                  전체보기
+                </Link>
+              </div>
+              <ul className="space-y-2">
+                {PAYMENT_BENEFITS.map((benefit) => (
+                  <li key={benefit.text} className="flex items-center gap-2">
+                    <span className="text-sm">{benefit.icon}</span>
+                    <span className="text-[13px] text-gray-600">{benefit.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ── 하단 메뉴 ── */}
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6 pt-10 pb-8">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
@@ -147,9 +226,46 @@ export function Footer() {
           </p>
           <p>
             일부 상품의 경우 주식회사 NKBUS는 통신판매의 당사자가 아닌
-            통신판매중개자로서 상품, 상품정보, 거래에 대한 책임이 제한될 수
-            있으므로, 각 상품 페이지에서 구체적인 내용을 확인하시기 바랍니다.
+            통신판매중개자 및 구매대행 서비스 제공자로서 상품, 상품정보, 거래에
+            대한 책임이 제한될 수 있으므로, 각 상품 페이지에서 구체적인 내용을
+            확인하시기 바랍니다.
           </p>
+        </div>
+
+        {/* 결제수단 */}
+        <div className="mt-6">
+          <p className="text-[11px] text-gray-400 mb-2.5">지원 결제수단</p>
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              "VISA",
+              "Mastercard",
+              "JCB",
+              "AMEX",
+              "AliPay",
+              "WeChat Pay",
+              "NKBUSPay",
+              "KakaoPay",
+            ].map((method) => (
+              <span
+                key={method}
+                className="inline-block px-2 py-0.5 text-[10px] font-medium border border-gray-300 rounded text-gray-500"
+              >
+                {method}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* 지원 언어 */}
+        <div className="mt-4">
+          <p className="text-[11px] text-gray-400 mb-2">지원 언어</p>
+          <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-500">
+            <span>한국어</span>
+            <span>English</span>
+            <span>日本語</span>
+            <span>中文</span>
+            <span>Tiếng Việt</span>
+          </div>
         </div>
 
         <Separator className="my-6" />

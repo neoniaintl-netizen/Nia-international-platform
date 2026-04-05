@@ -1,5 +1,5 @@
 export const SITE_NAME = "NKBUS";
-export const SITE_DESCRIPTION = "온라인 패션 스토어";
+export const SITE_DESCRIPTION = "중국 수출 구매대행 & 패션 플랫폼";
 
 export const CHANNELS = [
   { name: "NKBUS", slug: "nkbus", displayName: "NKBUS", color: "#000000" },

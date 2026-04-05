@@ -127,7 +127,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </div>
             <div className="flex items-center gap-3 text-sm">
               <Shield className="w-4 h-4 text-gray-400 shrink-0" />
-              <span>NKBUS 정품 보증</span>
+              <span>NKBUS 정품 보증 · 해외배송 지원</span>
             </div>
           </div>
 

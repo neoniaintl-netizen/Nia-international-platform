@@ -155,8 +155,21 @@ export function CategoryMenu({ open, onClose }: CategoryMenuProps) {
           )}
 
           {activeTab === "service" && (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-sm text-gray-400">준비 중인 서비스입니다.</p>
+            <div className="px-4 py-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="border rounded-lg p-4 hover:border-black transition-colors cursor-pointer">
+                  <h4 className="text-sm font-bold text-gray-900 mb-1">구매대행 서비스</h4>
+                  <p className="text-xs text-gray-500 leading-relaxed">한국 브랜드를 중국 시장에 수출하는 구매대행 서비스를 제공합니다.</p>
+                </div>
+                <div className="border rounded-lg p-4 hover:border-black transition-colors cursor-pointer">
+                  <h4 className="text-sm font-bold text-gray-900 mb-1">해외배송 안내</h4>
+                  <p className="text-xs text-gray-500 leading-relaxed">중국 전역 배송 지원. EMS, 항공특송, 해상운송 등 다양한 배송 옵션.</p>
+                </div>
+                <div className="border rounded-lg p-4 hover:border-black transition-colors cursor-pointer">
+                  <h4 className="text-sm font-bold text-gray-900 mb-1">브랜드 입점 안내</h4>
+                  <p className="text-xs text-gray-500 leading-relaxed">중국 플랫폼 입점을 원하는 한국 브랜드를 위한 입점 가이드.</p>
+                </div>
+              </div>
             </div>
           )}
         </div>

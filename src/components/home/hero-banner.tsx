@@ -18,27 +18,27 @@ export interface BannerData {
 const DEMO_BANNERS: BannerData[] = [
   {
     id: "1",
-    title: "MEMBERS DAY",
-    subtitle: "회원 한정 최대 70% OFF",
+    title: "중국 시장 진출 파트너",
+    subtitle: "한국 브랜드의 중국 수출, NKBUS가 함께합니다",
     imageUrl: "",
-    linkUrl: "/products?sort=sale",
+    linkUrl: "#",
     bgColor: "#000000",
   },
   {
     id: "2",
-    title: "2025 S/S 신상품",
-    subtitle: "트렌디한 봄 컬렉션을 만나보세요",
+    title: "2026 S/S 골프 컬렉션",
+    subtitle: "프리미엄 골프웨어를 만나보세요",
     imageUrl: "",
-    linkUrl: "/products?tag=ss2025",
-    bgColor: "#1a1a2e",
+    linkUrl: "/category/golf",
+    bgColor: "#2D7D46",
   },
   {
     id: "3",
-    title: "NKBUS 스탠다드",
-    subtitle: "합리적인 가격의 에센셜 아이템",
+    title: "브랜드 입점 안내",
+    subtitle: "중국 플랫폼 입점, NKBUS와 함께 시작하세요",
     imageUrl: "",
-    linkUrl: "/brands/nkbus-standard",
-    bgColor: "#16213e",
+    linkUrl: "#",
+    bgColor: "#1a1a2e",
   },
 ];
 

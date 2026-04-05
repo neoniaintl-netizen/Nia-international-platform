@@ -10,10 +10,11 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: {
-    default: "NKBUS | 온라인 패션 스토어",
+    default: "NKBUS | 중국 수출 구매대행 & 패션 플랫폼",
     template: "%s | NKBUS",
   },
-  description: "엔큐버스 - 트렌디한 패션 아이템을 만나보세요.",
+  description:
+    "엔큐버스 - 한국 패션 브랜드의 중국 시장 진출을 돕는 구매대행 플랫폼. 골프웨어, 스포츠, 여성의류 도소매.",
 };
 
 export default function RootLayout({
