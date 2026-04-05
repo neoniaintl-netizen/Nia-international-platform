@@ -28,17 +28,20 @@ export async function middleware(request: NextRequest) {
   const isAdmin = adminPaths.some((p) => pathname.startsWith(p));
   if (isAdmin) {
     if (!isLoggedIn) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(loginUrl);
     }
     if (token?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
-  // 인증 페이지 — 로그인된 사용자는 홈으로 리다이렉트
+  // 인증 페이지 — 로그인된 사용자는 callbackUrl 또는 홈으로 리다이렉트
   const isAuth = authPaths.some((p) => pathname.startsWith(p));
   if (isAuth && isLoggedIn) {
-    return NextResponse.redirect(new URL("/", request.url));
+    const callbackUrl = request.nextUrl.searchParams.get("callbackUrl") || "/";
+    return NextResponse.redirect(new URL(callbackUrl, request.url));
   }
 
   return NextResponse.next();

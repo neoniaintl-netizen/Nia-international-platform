@@ -25,9 +25,10 @@ export const authConfig = {
 
       if (isProtected && !isLoggedIn) return false;
 
-      // 로그인된 사용자는 인증 페이지 접근 불가
+      // 로그인된 사용자는 인증 페이지 접근 불가 → callbackUrl 또는 홈으로
       if (isAuth && isLoggedIn) {
-        return Response.redirect(new URL("/", nextUrl));
+        const callbackUrl = nextUrl.searchParams.get("callbackUrl") || "/";
+        return Response.redirect(new URL(callbackUrl, nextUrl));
       }
 
       return true;

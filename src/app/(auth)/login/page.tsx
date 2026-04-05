@@ -1,6 +1,8 @@
 "use client";
 
+import { Suspense } from "react";
 import { useActionState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,14 +11,17 @@ import { loginAction } from "@/actions/auth";
 import { SocialLoginButton } from "@/components/auth/social-login-button";
 import { Gift } from "lucide-react";
 
-export default function LoginPage() {
+function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginAction, null);
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   return (
     <div className="w-full max-w-sm mx-auto">
       <h1 className="text-2xl font-black text-center mb-8">로그인</h1>
 
       <form action={formAction} className="space-y-4">
+        <input type="hidden" name="callbackUrl" value={callbackUrl} />
         <Input
           name="email"
           type="email"
@@ -77,5 +82,13 @@ export default function LoginPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

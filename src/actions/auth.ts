@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 export async function loginAction(_prevState: any, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const callbackUrl = (formData.get("callbackUrl") as string) || "/";
 
   if (!email || !password) {
     return { error: "이메일과 비밀번호를 입력해주세요." };
@@ -34,7 +35,7 @@ export async function loginAction(_prevState: any, formData: FormData) {
     throw error;
   }
 
-  redirect("/");
+  redirect(callbackUrl);
 }
 
 // ─── 회원가입 ───
