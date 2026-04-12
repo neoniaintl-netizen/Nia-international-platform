@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build && cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public",
+    "build": "prisma generate && prisma db push --schema=prisma/schema.prisma --accept-data-loss && next build",
     "seed": "npx prisma db seed",
     "postinstall": "prisma generate",
-    "start": "node .next/standalone/server.js",
+    "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {

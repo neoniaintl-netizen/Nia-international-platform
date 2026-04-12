@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // ── 프로덕션 최적화 ──
-  output: "standalone", // node_modules 없이 자체 완결 빌드 (~80MB)
-
   images: {
     unoptimized: true,
     remotePatterns: [
