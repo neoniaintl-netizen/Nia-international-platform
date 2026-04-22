@@ -130,11 +130,8 @@ export class ShopifyCrawler extends BaseCrawler {
       }
     }
 
-    // 브랜드
-    const brand =
-      typeof product.brand === "string"
-        ? product.brand
-        : product.brand?.name || this.inferBrandFromUrl(url);
+    // 브랜드 — URL 도메인 기반이 가장 신뢰성 높음 (JSON-LD는 대소문자/suffix 변동)
+    const brand = this.inferBrandFromUrl(url);
 
     return {
       name: String(product.name).trim(),
@@ -184,9 +181,8 @@ export class ShopifyCrawler extends BaseCrawler {
       }
     });
 
-    const brandName =
-      $('meta[property="product:brand"]').attr("content") ||
-      this.inferBrandFromUrl(url);
+    // URL 도메인 기반 브랜드 매칭 우선 (일관성 확보)
+    const brandName = this.inferBrandFromUrl(url);
 
     return {
       name: name.replace(/\s*[\|–\-—]\s*.*$/, "").trim(),

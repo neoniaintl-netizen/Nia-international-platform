@@ -16,7 +16,7 @@ import { importCrawledProducts } from "@/lib/crawler/product-importer";
  */
 
 const CRAWL_TARGETS = [
-  // ── 아웃도어 (직접 크롤링 4개 + Musinsa 폴백 3개) ──
+  // ── Salomon (Shopify 다중) ──
   {
     brandSlug: "salomon",
     sourceSite: "shopify",
@@ -24,17 +24,41 @@ const CRAWL_TARGETS = [
     note: "Shopify SSR — 베스트셀러",
   },
   {
-    brandSlug: "patagonia",
-    sourceSite: "musinsa",
-    targetUrl: "https://www.musinsa.com/brand/patagonia",
-    note: "Musinsa 폴백 (robots.txt 금지)",
+    brandSlug: "salomon",
+    sourceSite: "shopify",
+    targetUrl: "https://salomon.co.kr/collections/sal-all-shoes",
+    note: "Shopify SSR — 전체 슈즈",
+  },
+
+  // ── Wilson (Shopify 다중 성별) ──
+  {
+    brandSlug: "wilson",
+    sourceSite: "shopify",
+    targetUrl: "https://kr.wilson.com/collections/women-shoes-all",
+    note: "Shopify SSR — 여성 슈즈",
   },
   {
-    brandSlug: "arcteryx",
-    sourceSite: "musinsa",
-    targetUrl: "https://www.musinsa.com/brand/arcteryx",
-    note: "Musinsa 폴백 (SPA)",
+    brandSlug: "wilson",
+    sourceSite: "shopify",
+    targetUrl: "https://kr.wilson.com/collections/men-shoes-all",
+    note: "Shopify SSR — 남성 슈즈",
   },
+
+  // ── Alo Yoga (Shopify 다중 URL 폴백) ──
+  {
+    brandSlug: "aloyoga",
+    sourceSite: "shopify",
+    targetUrl: "https://www.aloyoga.com/collections/bestsellers",
+    note: "Shopify SSR — 글로벌 베스트셀러",
+  },
+  {
+    brandSlug: "aloyoga",
+    sourceSite: "shopify",
+    targetUrl: "https://www.aloyoga.com/collections/womens-leggings",
+    note: "Shopify SSR — 여성 레깅스",
+  },
+
+  // ── The North Face (Generic 3개 카테고리) ──
   {
     brandSlug: "thenorthface",
     sourceSite: "generic",
@@ -43,37 +67,21 @@ const CRAWL_TARGETS = [
     note: "Generic SSR — 남성 재킷/베스트",
   },
   {
-    brandSlug: "kolonsport",
-    sourceSite: "musinsa",
-    targetUrl: "https://www.musinsa.com/brand/kolonsport",
-    note: "Musinsa 폴백 (Next.js SPA)",
+    brandSlug: "thenorthface",
+    sourceSite: "generic",
+    targetUrl: "https://www.thenorthfacekorea.co.kr/category/n/men/tops",
+    note: "Generic SSR — 남성 상의",
+  },
+  {
+    brandSlug: "thenorthface",
+    sourceSite: "generic",
+    targetUrl:
+      "https://www.thenorthfacekorea.co.kr/category/n/women/jacket-vest",
+    note: "Generic SSR — 여성 재킷/베스트",
   },
 
-  // ── 스포츠 (직접 2 + Musinsa 폴백 2) ──
-  {
-    brandSlug: "descente",
-    sourceSite: "musinsa",
-    targetUrl: "https://www.musinsa.com/brand/descente",
-    note: "Musinsa 폴백 (robots.txt 금지)",
-  },
-  {
-    brandSlug: "wilson",
-    sourceSite: "shopify",
-    targetUrl: "https://kr.wilson.com/collections/women-shoes-all",
-    note: "Shopify SSR — 여성 슈즈",
-  },
-  {
-    brandSlug: "aloyoga",
-    sourceSite: "shopify",
-    targetUrl: "https://www.aloyoga.com/ko-kr/collections/bestsellers",
-    note: "Shopify SSR — 유일 옵션",
-  },
-  {
-    brandSlug: "nike-skims",
-    sourceSite: "musinsa",
-    targetUrl: "https://www.musinsa.com/brand/nike",
-    note: "Musinsa 폴백 (Akamai 차단)",
-  },
+  // ── Musinsa 폴백 (현재 불가능, 참고용만) ──
+  // Patagonia/Arc'teryx/Kolon/Descente/Nike은 수동 시드 스크립트로 처리
 ];
 
 // ─── 백그라운드 크롤 실행 (fire-and-forget) ───
