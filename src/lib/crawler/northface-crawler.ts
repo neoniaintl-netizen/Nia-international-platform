@@ -200,10 +200,13 @@ export class NorthFaceCrawler extends BaseCrawler {
 
   private resolveImageUrl(src: string): string {
     if (!src) return "";
-    if (src.startsWith("//")) return `https:${src}`;
-    if (src.startsWith("/")) return `https://www.thenorthfacekorea.co.kr${src}`;
-    if (src.startsWith("http")) return src;
-    return "";
+    let resolved = src;
+    if (src.startsWith("//")) resolved = `https:${src}`;
+    else if (src.startsWith("/")) resolved = `https://www.thenorthfacekorea.co.kr${src}`;
+    else if (!src.startsWith("http")) return "";
+    // 저해상도 thumbnail 쿼리 제거 (고화질 원본 사용)
+    resolved = resolved.replace(/\?thumbnail\b/i, "").replace(/&thumbnail\b/i, "");
+    return resolved;
   }
 
   private extractCategory($: cheerio.CheerioAPI): string | undefined {
