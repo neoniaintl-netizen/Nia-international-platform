@@ -2,8 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // Next.js 자동 최적화 활성화 (WebP/AVIF 변환 + srcset)
-    formats: ["image/avif", "image/webp"],
+    // Next 최적화 비활성화 — 원본 URL 직접 전달
+    // 이유:
+    //   - placehold.co는 SVG 반환 (Next는 기본 SVG 차단 → 400)
+    //   - 일부 외부 CDN URL에 특수문자 포함 (NorthFace `+%281%29`) → 400
+    //   - 외부 이미지 전부를 Railway 서버에서 AVIF 변환하면 cold start 지연
+    unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "placehold.co" },
 
@@ -11,7 +15,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "image.musinsa.com" },
       { protocol: "https", hostname: "**.musinsa.com" },
 
-      // Shopify CDN (Salomon, Wilson, Alo Yoga 공용)
+      // Shopify CDN
       { protocol: "https", hostname: "cdn.shopify.com" },
       { protocol: "https", hostname: "**.shopify.com" },
       { protocol: "https", hostname: "**.shopifycdn.com" },
@@ -38,7 +42,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**.nike.com" },
       { protocol: "https", hostname: "static.nike.com" },
 
-      // 29CM / WConcept (혹시 크롤링 확장 시)
+      // 29CM / WConcept
       { protocol: "https", hostname: "**.29cm.co.kr" },
       { protocol: "https", hostname: "**.wconcept.co.kr" },
 

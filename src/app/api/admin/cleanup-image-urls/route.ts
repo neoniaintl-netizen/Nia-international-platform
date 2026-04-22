@@ -20,8 +20,6 @@ const JUNK_QUERIES = [
 
 function cleanUrl(url: string): string {
   if (!url) return url;
-  // 쿼리 전체 제거 (단순한 접근: ? 이후 제거, 단 핵심 쿼리가 필요한 경우는 예외 처리)
-  // Shopify _2000x 같은 것은 경로에 포함되어 영향 없음
   let cleaned = url;
 
   // ?thumbnail 같은 단순 flag 쿼리 제거
@@ -32,9 +30,14 @@ function cleanUrl(url: string): string {
     cleaned = cleaned.replace(/\?sm.*$/i, "");
   }
 
-  // NorthFace 케이스 특화: ? 이후 전부 제거 (필요한 쿼리가 없음)
+  // NorthFace URL 정제: 쿼리 제거 + 특수문자(+%281%29 같은 것) 제거
   if (cleaned.includes("thenorthfacekorea.co.kr")) {
     cleaned = cleaned.split("?")[0];
+    // "+%281%29" (공백 + "(1)") 제거 → 표준 URL만 남김
+    cleaned = cleaned.replace(/\+%28\d+%29/g, "");
+    cleaned = cleaned.replace(/\+\(\d+\)/g, "");
+    // 끝의 `\` 이스케이프 제거
+    cleaned = cleaned.replace(/\\+$/, "");
   }
 
   return cleaned;
