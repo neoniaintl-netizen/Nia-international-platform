@@ -45,6 +45,8 @@ model User {
   snapLikes            SnapLike[]
   snapComments         SnapComment[]
   releaseSubscriptions ReleaseSubscription[]
+  brandFollows         BrandFollow[]
+  repairRequests       RepairRequest[]
 
   @@map("users")
 }
@@ -129,14 +131,52 @@ model Brand {
   slug          String   @unique
   logoUrl       String?
   description   String?  @db.Text
+  coverImageUrl String? // 브랜드관 상단 커버 이미지
   isActive      Boolean  @default(true)
   followerCount Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  products Product[]
+  products       Product[]
+  followers      BrandFollow[]
+  lookbooks      Lookbook[]
+  campaigns      BrandCampaign[]
 
   @@map("brands")
+}
+
+// ── 브랜드 팔로우 (좋아하는 브랜드 하트) ──
+model BrandFollow {
+  id        String   @id @default(cuid())
+  userId    String
+  brandId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, brandId])
+  @@index([brandId])
+  @@map("brand_follows")
+}
+
+// ── 브랜드관 캠페인 ──
+model BrandCampaign {
+  id          String   @id @default(cuid())
+  brandId     String
+  title       String
+  subtitle    String?
+  imageUrl    String
+  linkUrl     String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId])
+  @@map("brand_campaigns")
 }
 
 model Category {
@@ -171,10 +211,14 @@ model Product {
   status        ProductStatus @default(DRAFT)
   isNew         Boolean       @default(false)
   isBest        Boolean       @default(false)
+  isGift        Boolean       @default(false) // GIFTS 큐레이션용
+  isOutlet      Boolean       @default(false) // 아울렛 큐레이션용
   viewCount     Int           @default(0)
   reviewCount   Int           @default(0)
   reviewAvg     Float         @default(0)
   rankPosition  Int? // 랭킹 순위
+  dealStartsAt  DateTime? // 타임딜 시작
+  dealEndsAt    DateTime? // 타임딜 종료
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -194,12 +238,17 @@ model Product {
   orderItems    OrderItem[]
   inquiries     ProductInquiry[]
   tags          ProductTag[]
+  eventProducts EventProduct[]
+  lookbookProducts LookbookProduct[]
 
   @@index([brandId])
   @@index([categoryId])
   @@index([status])
   @@index([rankPosition])
   @@index([sourceUrl])
+  @@index([isGift])
+  @@index([isOutlet])
+  @@index([dealEndsAt])
   @@map("products")
 }
 
@@ -687,4 +736,140 @@ model ReleaseSubscription {
 
   @@unique([releaseId, userId])
   @@map("release_subscriptions")
+}
+
+// ═══════════════════════════════════════════════
+// 14. EVENTS (기획전 / 편집형 프로모션)
+// ═══════════════════════════════════════════════
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  subtitle    String?
+  description String?  @db.Text
+  coverImage  String
+  bannerImage String?
+  startsAt    DateTime?
+  endsAt      DateTime?
+  isPublished Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products EventProduct[]
+
+  @@index([isPublished])
+  @@index([endsAt])
+  @@map("events")
+}
+
+model EventProduct {
+  id        String @id @default(cuid())
+  eventId   String
+  productId String
+  sortOrder Int    @default(0)
+
+  event   Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, productId])
+  @@map("event_products")
+}
+
+// ═══════════════════════════════════════════════
+// 15. LOOKBOOK (코디네이션)
+// ═══════════════════════════════════════════════
+
+model Lookbook {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  subtitle    String?
+  season      String? // 2026 S/S 등
+  gender      String? // MEN, WOMEN, UNISEX
+  coverImage  String
+  description String?  @db.Text
+  isPublished Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  viewCount   Int      @default(0)
+  brandId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  brand    Brand?             @relation(fields: [brandId], references: [id])
+  products LookbookProduct[]
+  images   LookbookImage[]
+
+  @@index([isPublished])
+  @@index([gender])
+  @@index([brandId])
+  @@map("lookbooks")
+}
+
+model LookbookImage {
+  id         String @id @default(cuid())
+  lookbookId String
+  url        String
+  caption    String?
+  sortOrder  Int    @default(0)
+
+  lookbook Lookbook @relation(fields: [lookbookId], references: [id], onDelete: Cascade)
+
+  @@index([lookbookId])
+  @@map("lookbook_images")
+}
+
+model LookbookProduct {
+  id         String @id @default(cuid())
+  lookbookId String
+  productId  String
+  sortOrder  Int    @default(0)
+
+  lookbook Lookbook @relation(fields: [lookbookId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([lookbookId, productId])
+  @@map("lookbook_products")
+}
+
+// ═══════════════════════════════════════════════
+// 16. REPAIR REQUEST (수선 신청/진행조회)
+// ═══════════════════════════════════════════════
+
+model RepairRequest {
+  id             String             @id @default(cuid())
+  requestNumber  String             @unique // RPxxxxx
+  userId         String
+  orderNumber    String? // 관련 주문번호
+  productName    String // 상품명 (스냅샷)
+  brandName      String? // 브랜드명 (스냅샷)
+  issue          String             @db.Text // 수선 요청 내용
+  imageUrls      String[] // 문제 부위 이미지
+  status         RepairStatus       @default(RECEIVED)
+  estimatedCost  Int? // 예상 비용
+  finalCost      Int? // 실제 청구 비용
+  pickupAddress  String? // 수거 주소
+  deliveryCarrier String? // 반송 택배사
+  deliveryNumber String? // 반송 송장번호
+  adminNote      String?            @db.Text
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("repair_requests")
+}
+
+enum RepairStatus {
+  RECEIVED // 접수
+  INSPECTING // 검수중
+  QUOTED // 견적 발송
+  IN_PROGRESS // 수선중
+  SHIPPING // 반송중
+  COMPLETED // 완료
+  CANCELLED // 취소/반려
 }

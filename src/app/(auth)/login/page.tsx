@@ -53,9 +53,17 @@ function LoginForm() {
       </form>
 
       <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-400">
-        <Link href="#" className="hover:text-black transition-colors">비밀번호 찾기</Link>
+        <Link href="/find-id" className="hover:text-black transition-colors">아이디 찾기</Link>
+        <span>|</span>
+        <Link href="/forgot-password" className="hover:text-black transition-colors">비밀번호 찾기</Link>
         <span>|</span>
         <Link href="/register" className="hover:text-black transition-colors">회원가입</Link>
+      </div>
+
+      <div className="text-center mt-3">
+        <Link href="/order-lookup" className="text-xs text-gray-400 hover:text-black underline">
+          비회원 주문조회
+        </Link>
       </div>
 
       <div className="relative my-8">

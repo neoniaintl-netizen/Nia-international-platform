@@ -1,4 +1,4 @@
-import { ChevronRight, Package, RotateCcw, Bell, Eye, Heart, Gift, Settings, Truck, CheckCircle } from "lucide-react";
+import { ChevronRight, Package, RotateCcw, Bell, Eye, Heart, Gift, Settings, Truck, CheckCircle, Wrench, Bookmark } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getUserOrders, getOrderStatusCounts, getUserPoints, getUserCouponCount, getUserWishlist } from "@/lib/queries";
@@ -127,7 +127,10 @@ export default async function MyPage() {
         <MenuItem href="/my/orders" icon={RotateCcw} label="취소/반품/교환 내역" />
         <MenuItem href="/my/addresses" icon={Truck} label="배송지 관리" />
         <MenuItem href="/wishlist" icon={Heart} label="좋아요" />
-        <MenuItem href="/event/payment" icon={Gift} label="이벤트/회원혜택" badge="신규" />
+        <MenuItem href="/my/brands" icon={Bookmark} label="팔로우 브랜드" />
+        <MenuItem href="/my/repair" icon={Wrench} label="수선 진행조회" />
+        <MenuItem href="/membership" icon={Gift} label="멤버십 혜택" badge="NEW" />
+        <MenuItem href="/event/payment" icon={Gift} label="이벤트/회원혜택" />
         <MenuItem href="/my/profile" icon={Settings} label="설정" />
       </div>
     </div>

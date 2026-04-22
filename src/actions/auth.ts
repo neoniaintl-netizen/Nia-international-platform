@@ -110,3 +110,121 @@ export async function socialLoginAction(provider: "kakao" | "naver") {
 export async function logoutAction() {
   await signOut({ redirectTo: "/" });
 }
+
+// ─── 아이디(이메일) 찾기 ───
+
+/** 이메일을 *****로 마스킹 */
+function maskEmail(email: string) {
+  const [local, domain] = email.split("@");
+  if (!local || !domain) return email;
+  if (local.length <= 2) return `${local[0]}***@${domain}`;
+  return `${local.slice(0, 2)}${"*".repeat(Math.max(3, local.length - 2))}@${domain}`;
+}
+
+export async function findIdAction(_prevState: any, formData: FormData) {
+  const name = (formData.get("name") as string)?.trim();
+  const phone = (formData.get("phone") as string)?.trim();
+
+  if (!name || !phone) {
+    return { error: "이름과 휴대폰 번호를 입력해주세요." };
+  }
+
+  const user = await prisma.user.findFirst({
+    where: { name, phone },
+    select: { email: true, createdAt: true },
+  });
+
+  if (!user) {
+    return { error: "일치하는 회원 정보가 없습니다." };
+  }
+
+  return {
+    success: true,
+    email: maskEmail(user.email),
+    createdAt: user.createdAt.toISOString().split("T")[0],
+  };
+}
+
+// ─── 비밀번호 재설정 요청 ───
+
+export async function requestPasswordResetAction(
+  _prevState: any,
+  formData: FormData
+) {
+  const email = (formData.get("email") as string)?.trim();
+
+  if (!email) {
+    return { error: "이메일을 입력해주세요." };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  // 사용자 존재 여부와 관계없이 동일한 응답(보안상 열거 방지)
+  if (!user) {
+    return {
+      success: true,
+      message:
+        "입력하신 이메일로 비밀번호 재설정 안내가 발송됩니다. 메일이 오지 않으면 고객센터(1544-7199)로 문의해주세요.",
+    };
+  }
+
+  // 실제 구현에서는 VerificationToken 생성 + 이메일 발송
+  // MVP: 토큰 생성하여 DB에 저장, 로그에만 출력 (프로덕션은 이메일 연동 필요)
+  const token =
+    Math.random().toString(36).slice(2) +
+    Math.random().toString(36).slice(2);
+  const expires = new Date(Date.now() + 1000 * 60 * 60); // 1시간
+
+  await prisma.verificationToken.create({
+    data: { identifier: email, token, expires },
+  });
+
+  console.log(
+    `[비밀번호 재설정 토큰] ${email} → /reset-password?token=${token}`
+  );
+
+  return {
+    success: true,
+    message:
+      "입력하신 이메일로 비밀번호 재설정 안내를 발송했습니다. 1시간 내에 메일의 링크를 클릭해주세요.",
+  };
+}
+
+// ─── 비밀번호 재설정 ───
+
+export async function resetPasswordAction(
+  _prevState: any,
+  formData: FormData
+) {
+  const token = formData.get("token") as string;
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (!token) return { error: "유효하지 않은 접근입니다." };
+  if (!password || password.length < 8 || password.length > 30) {
+    return { error: "비밀번호는 8~30자로 입력해주세요." };
+  }
+  if (password !== confirmPassword) {
+    return { error: "비밀번호가 일치하지 않습니다." };
+  }
+
+  const vt = await prisma.verificationToken.findUnique({ where: { token } });
+  if (!vt || vt.expires < new Date()) {
+    return {
+      error:
+        "링크가 만료되었거나 유효하지 않습니다. 비밀번호 찾기를 다시 요청해주세요.",
+    };
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { email: vt.identifier },
+      data: { passwordHash },
+    }),
+    prisma.verificationToken.delete({ where: { token } }),
+  ]);
+
+  return { success: true, message: "비밀번호가 재설정되었습니다. 로그인해주세요." };
+}

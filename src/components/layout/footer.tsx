@@ -272,19 +272,22 @@ export function Footer() {
 
         {/* Policy links */}
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
-          <Link href="#" className="font-bold text-gray-700 hover:text-black">
+          <Link
+            href="/policy/privacy"
+            className="font-bold text-gray-700 hover:text-black"
+          >
             개인정보처리방침
           </Link>
-          <Link href="#" className="text-gray-500 hover:text-black">
+          <Link href="/policy/terms" className="text-gray-500 hover:text-black">
             이용약관
           </Link>
-          <Link href="#" className="text-gray-500 hover:text-black">
+          <Link href="/policy/payment" className="text-gray-500 hover:text-black">
             결제대행 위탁사
           </Link>
-          <Link href="#" className="text-gray-500 hover:text-black">
+          <Link href="/policy/dispute" className="text-gray-500 hover:text-black">
             분쟁해결기준
           </Link>
-          <Link href="#" className="text-gray-500 hover:text-black">
+          <Link href="/policy/cctv" className="text-gray-500 hover:text-black">
             영상정보처리기기 운영·관리방침
           </Link>
         </div>

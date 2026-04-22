@@ -9,6 +9,8 @@ export function toProductCard(p: {
   salePrice: number | null;
   isNew: boolean;
   isBest: boolean;
+  status?: string;
+  dealEndsAt?: Date | null;
   reviewCount: number;
   reviewAvg: number;
   rankPosition: number | null;
@@ -20,11 +22,16 @@ export function toProductCard(p: {
     name: p.name,
     slug: p.slug,
     brandName: p.brand.name,
-    imageUrl: p.images[0]?.url ?? "https://placehold.co/400x533/c0c0c0/444?text=No+Image",
+    imageUrl:
+      p.images[0]?.url ??
+      "https://placehold.co/400x533/c0c0c0/444?text=No+Image",
     basePrice: p.originalPrice,
     salePrice: p.salePrice,
     isNew: p.isNew,
+    isBest: p.isBest,
     isFeatured: p.isBest,
+    isSoldOut: p.status === "SOLDOUT",
+    dealEndsAt: p.dealEndsAt ? p.dealEndsAt.toISOString() : null,
     reviewCount: p.reviewCount,
     averageRating: p.reviewAvg,
   };

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Header } from "@/components/layout/header";
 import { MobileNav } from "@/components/layout/mobile-nav";
-import { Package, User, MapPin, Tag, Coins, Heart, ChevronRight, Settings } from "lucide-react";
+import { Package, User, MapPin, Tag, Coins, Heart, ChevronRight, Settings, Wrench, Bookmark } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { getUserPoints, getUserCouponCount, getCartCount } from "@/lib/queries";
 
@@ -12,6 +12,8 @@ const SIDEBAR_ITEMS = [
   { label: "쿠폰", href: "/my/coupons", icon: Tag },
   { label: "적립금", href: "/my/points", icon: Coins },
   { label: "좋아요", href: "/wishlist", icon: Heart },
+  { label: "팔로우 브랜드", href: "/my/brands", icon: Bookmark },
+  { label: "수선 진행조회", href: "/my/repair", icon: Wrench },
   { label: "설정", href: "/my/profile", icon: Settings },
 ];
 

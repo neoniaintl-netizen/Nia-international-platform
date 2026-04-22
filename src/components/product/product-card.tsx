@@ -6,9 +6,44 @@ import { Heart } from "lucide-react";
 import { PriceDisplay } from "@/components/shared/price-display";
 import { Badge } from "@/components/ui/badge";
 import { toggleWishlist } from "@/actions/wishlist";
-import { useTransition } from "react";
+import { useTransition, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+
+function CountdownBadge({ endsAt }: { endsAt: string }) {
+  const [label, setLabel] = useState("");
+  useEffect(() => {
+    const target = new Date(endsAt).getTime();
+    function update() {
+      const now = Date.now();
+      const diff = target - now;
+      if (diff <= 0) {
+        setLabel("종료");
+        return;
+      }
+      const h = Math.floor(diff / 3_600_000);
+      const m = Math.floor((diff % 3_600_000) / 60_000);
+      const s = Math.floor((diff % 60_000) / 1000);
+      if (h >= 24) {
+        const d = Math.floor(h / 24);
+        setLabel(`${d}일 남음`);
+      } else {
+        setLabel(
+          `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+        );
+      }
+    }
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, [endsAt]);
+  if (!label) return null;
+  return (
+    <Badge className="bg-orange-500 text-white text-[10px] px-1.5 rounded font-mono">
+      ⏱ {label}
+    </Badge>
+  );
+}
 
 export interface ProductCardData {
   id: string;
@@ -20,6 +55,9 @@ export interface ProductCardData {
   salePrice?: number | null;
   isNew?: boolean;
   isFeatured?: boolean;
+  isBest?: boolean;
+  isSoldOut?: boolean;
+  dealEndsAt?: string | null; // ISO date string
   reviewCount?: number;
   averageRating?: number;
   wishCount?: number;
@@ -64,10 +102,28 @@ export function ProductCard({ product, rank, wishlisted = false }: ProductCardPr
             {rank}
           </div>
         )}
+        {/* Sold out overlay */}
+        {product.isSoldOut && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <span className="bg-white text-black text-xs font-bold px-3 py-1.5 rounded">
+              SOLD OUT
+            </span>
+          </div>
+        )}
         {/* Badges */}
-        <div className="absolute top-2 right-2 flex flex-col gap-1">
+        <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
           {product.isNew && (
-            <Badge className="bg-black text-white text-[10px] px-1.5">NEW</Badge>
+            <Badge className="bg-black text-white text-[10px] px-1.5 rounded">
+              NEW
+            </Badge>
+          )}
+          {product.isBest && (
+            <Badge className="bg-red-600 text-white text-[10px] px-1.5 rounded">
+              BEST
+            </Badge>
+          )}
+          {product.dealEndsAt && !product.isSoldOut && (
+            <CountdownBadge endsAt={product.dealEndsAt} />
           )}
         </div>
         {/* Wishlist button */}

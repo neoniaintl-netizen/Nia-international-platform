@@ -14,8 +14,12 @@ export const NAV_TABS = [
   { label: "추천", href: "/" },
   { label: "랭킹", href: "/ranking" },
   { label: "세일", href: "/products?sort=sale" },
+  { label: "기획전", href: "/events" },
+  { label: "룩북", href: "/lookbook" },
   { label: "발매", href: "/release" },
   { label: "매거진", href: "/magazine" },
+  { label: "아울렛", href: "/outlet" },
+  { label: "GIFTS", href: "/gifts" },
 ] as const;
 
 /** 대분류 카테고리 + 하위 카테고리 */
