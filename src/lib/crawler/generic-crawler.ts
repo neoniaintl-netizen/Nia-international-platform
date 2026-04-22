@@ -166,17 +166,37 @@ export class GenericCrawler extends BaseCrawler {
       $(".brand-name, .brand, [class*=brand]").first().text().trim() ||
       "Unknown";
 
-    // 가격
+    // 가격 — 다양한 OG/product 태그 폴백
     const priceAmount =
       this.parsePrice(
         $('meta[property="product:price:amount"]').attr("content")
       ) ||
       this.parsePrice(
         $('meta[property="og:price:amount"]').attr("content")
+      ) ||
+      this.parsePrice(
+        $('meta[property="product:sale_price:amount"]').attr("content")
+      ) ||
+      this.parsePrice($('meta[name="price"]').attr("content")) ||
+      this.parsePrice($('meta[itemprop="price"]').attr("content")) ||
+      this.parsePrice(
+        $('[itemprop="price"]').attr("content") ||
+          $('[itemprop="price"]').text()
+      ) ||
+      // 일반 HTML 클래스에서 가격 추출
+      this.parsePrice(
+        $(".product-price, .price, .goods-price, [class*='price']")
+          .first()
+          .text()
       );
-    const normalPrice = this.parsePrice(
-      $('meta[property="product:price:normal_price"]').attr("content")
-    );
+
+    const normalPrice =
+      this.parsePrice(
+        $('meta[property="product:price:normal_price"]').attr("content")
+      ) ||
+      this.parsePrice(
+        $('meta[property="product:original_price:amount"]').attr("content")
+      );
 
     const originalPrice = normalPrice || priceAmount || 0;
     const salePrice =
@@ -207,6 +227,9 @@ export class GenericCrawler extends BaseCrawler {
 
     const categoryName =
       $('meta[property="product:category"]').attr("content") || undefined;
+
+    // 가격이 0이면 이 상품은 skip (상세 파싱 실패로 간주)
+    if (originalPrice === 0) return null;
 
     return {
       name: name
