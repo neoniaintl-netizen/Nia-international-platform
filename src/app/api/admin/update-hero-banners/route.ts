@@ -15,9 +15,20 @@ const NEW_BANNERS = [
     title: "2026 S/S Golf Edit",
     subtitle: "Premium Performance · Refined Silhouette",
     imageUrl: "/banners/hero-golf-polo.png",
+    imageAlignment: "left", // 모델이 왼쪽, 텍스트는 오른쪽
     linkUrl: "/category/golf",
     position: "HOME_MAIN",
     sortOrder: 0,
+    isActive: true,
+  },
+  {
+    title: "Women's Golf Edit",
+    subtitle: "Powerful. Playful. Precise.",
+    imageUrl: "/banners/hero-golf-women.png",
+    imageAlignment: "right", // 모델이 오른쪽, 텍스트는 왼쪽
+    linkUrl: "/category/women",
+    position: "HOME_MAIN",
+    sortOrder: 1,
     isActive: true,
   },
 ];

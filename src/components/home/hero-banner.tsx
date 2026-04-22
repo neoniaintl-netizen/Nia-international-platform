@@ -11,6 +11,7 @@ export interface BannerData {
   title: string;
   subtitle?: string;
   imageUrl: string;
+  imageAlignment?: "left" | "right"; // 이미지 내 모델 위치 (반대쪽에 텍스트)
   linkUrl?: string;
   bgColor?: string;
 }
@@ -75,6 +76,7 @@ export function HeroBanner({
     setCurrent((c) => (c - 1 + banners.length) % banners.length);
 
   const banner = banners[current];
+  const isRight = banner.imageAlignment === "right";
 
   return (
     <div
@@ -88,12 +90,22 @@ export function HeroBanner({
             src={banner.imageUrl}
             alt={banner.title}
             fill
-            className="object-cover object-left"
+            className={cn(
+              "object-cover",
+              isRight ? "object-right" : "object-left"
+            )}
             priority
             sizes="100vw"
           />
-          {/* 오른쪽 가독성 확보용 그라디언트 */}
-          <div className="absolute inset-0 bg-gradient-to-l from-black/55 via-black/10 to-transparent pointer-events-none" />
+          {/* 반대쪽 가독성 확보용 그라디언트 */}
+          <div
+            className={cn(
+              "absolute inset-0 pointer-events-none",
+              isRight
+                ? "bg-gradient-to-r from-black/55 via-black/10 to-transparent"
+                : "bg-gradient-to-l from-black/55 via-black/10 to-transparent"
+            )}
+          />
         </>
       )}
 
@@ -102,7 +114,7 @@ export function HeroBanner({
           <div
             className={cn(
               "max-w-2xl",
-              banner.imageUrl && "ml-auto text-right"
+              banner.imageUrl && (isRight ? "text-left" : "ml-auto text-right")
             )}
           >
             <p className="eyebrow text-white/60 mb-6">

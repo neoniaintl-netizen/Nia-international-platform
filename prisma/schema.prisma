@@ -584,17 +584,18 @@ enum PointType {
 // ═══════════════════════════════════════════════
 
 model Banner {
-  id        String    @id @default(cuid())
-  title     String
-  subtitle  String?
-  imageUrl  String
-  linkUrl   String?
-  position  String    @default("HOME_MAIN") // HOME_MAIN, HOME_SUB, CATEGORY
-  sortOrder Int       @default(0)
-  isActive  Boolean   @default(true)
-  startsAt  DateTime?
-  endsAt    DateTime?
-  createdAt DateTime  @default(now())
+  id             String    @id @default(cuid())
+  title          String
+  subtitle       String?
+  imageUrl       String
+  imageAlignment String    @default("left") // "left" | "right" — 모델 위치, 반대쪽에 텍스트 배치
+  linkUrl        String?
+  position       String    @default("HOME_MAIN") // HOME_MAIN, HOME_SUB, CATEGORY
+  sortOrder      Int       @default(0)
+  isActive       Boolean   @default(true)
+  startsAt       DateTime?
+  endsAt         DateTime?
+  createdAt      DateTime  @default(now())
 
   @@map("banners")
 }

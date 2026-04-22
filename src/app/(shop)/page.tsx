@@ -41,6 +41,9 @@ export default async function HomePage() {
                 title: b.title,
                 subtitle: b.subtitle ?? "",
                 imageUrl: b.imageUrl,
+                imageAlignment:
+                  ((b as any).imageAlignment as "left" | "right" | undefined) ??
+                  "left",
                 linkUrl: b.linkUrl ?? "/",
               }))
             : undefined
