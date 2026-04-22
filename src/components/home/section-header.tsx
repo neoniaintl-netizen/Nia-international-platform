@@ -21,7 +21,7 @@ export function SectionHeader({
   linkLabel = "See All",
 }: SectionHeaderProps) {
   return (
-    <div className="flex items-end justify-between mb-8 lg:mb-10 pb-4 border-b border-[var(--line)]">
+    <div className="flex items-end justify-between mb-6 lg:mb-10 pb-3 lg:pb-4 border-b border-[var(--line)]">
       <div>
         {eyebrow && (
           <p className="eyebrow text-[var(--champagne)] mb-2">{eyebrow}</p>

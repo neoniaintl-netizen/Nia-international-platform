@@ -7,7 +7,7 @@ interface NewArrivalsProps {
 
 export function NewArrivals({ products }: NewArrivalsProps) {
   return (
-    <section className="py-14 lg:py-20">
+    <section className="py-10 lg:py-20">
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
         <SectionHeader
           eyebrow="Just In"

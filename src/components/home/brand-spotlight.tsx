@@ -18,7 +18,7 @@ interface BrandSpotlightProps {
 
 export function BrandSpotlight({ brands }: BrandSpotlightProps) {
   return (
-    <section className="py-14 lg:py-20 bg-[var(--paper)]">
+    <section className="py-10 lg:py-20 bg-[var(--paper)]">
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
         <SectionHeader
           eyebrow="Curated Houses"

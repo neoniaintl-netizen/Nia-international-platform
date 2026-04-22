@@ -65,8 +65,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const sizes = [...new Set(product.variants.map((v) => v.size).filter(Boolean))] as string[];
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-8 lg:py-10">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+    <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-4 lg:py-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16">
         {/* Image gallery */}
         <ProductImageGallery
           images={product.images.map((img) => ({
@@ -164,17 +164,19 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {/* Product detail tabs */}
-      <div className="mt-20">
+      <div className="mt-10 lg:mt-20">
         <Tabs defaultValue="detail">
           <TabsList className="w-full grid grid-cols-3 h-12 border-b border-[var(--line)]">
-            <TabsTrigger value="detail" className="text-[11px] uppercase tracking-[0.2em] font-medium">
+            <TabsTrigger value="detail" className="text-[10px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.2em] font-medium">
               Details
             </TabsTrigger>
-            <TabsTrigger value="reviews" className="text-[11px] uppercase tracking-[0.2em] font-medium">
-              Reviews <span className="num ml-1">({product.reviewCount.toLocaleString()})</span>
+            <TabsTrigger value="reviews" className="text-[10px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.2em] font-medium">
+              Reviews
+              <span className="num ml-1 hidden sm:inline">({product.reviewCount.toLocaleString()})</span>
+              <span className="num ml-1 sm:hidden">{product.reviewCount}</span>
             </TabsTrigger>
-            <TabsTrigger value="qna" className="text-[11px] uppercase tracking-[0.2em] font-medium">
-              Q&A <span className="num ml-1">({inquiryData.total})</span>
+            <TabsTrigger value="qna" className="text-[10px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.2em] font-medium">
+              Q&amp;A <span className="num ml-1">({inquiryData.total})</span>
             </TabsTrigger>
           </TabsList>
           <TabsContent value="detail" className="py-12">
