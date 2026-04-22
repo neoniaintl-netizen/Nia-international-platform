@@ -278,6 +278,135 @@ const SEED_DATA: Record<string, SeedProduct[]> = {
     },
   ],
 
+  thenorthface: [
+    {
+      name: "노스페이스 M'S 드리프트 자켓",
+      originalPrice: 169000,
+      imageUrl:
+        "https://image.thenorthfacekorea.co.kr/cmsstatic/product/NJ3LS13B_primary.jpg",
+      sourceUrl: "https://www.thenorthfacekorea.co.kr/product/NJ3LS13B",
+      category: "아웃도어",
+    },
+    {
+      name: "노스페이스 데이캠프 자켓",
+      originalPrice: 189000,
+      imageUrl:
+        "https://image.thenorthfacekorea.co.kr/cmsstatic/product/NJ3LS06E_primary.jpg",
+      sourceUrl: "https://www.thenorthfacekorea.co.kr/product/NJ3LS06E",
+      category: "아웃도어",
+    },
+    {
+      name: "노스페이스 에어리 베스트",
+      originalPrice: 139000,
+      imageUrl:
+        "https://image.thenorthfacekorea.co.kr/cmsstatic/product/NV5VS03C_primary.jpg",
+      sourceUrl: "https://www.thenorthfacekorea.co.kr/product/NV5VS03C",
+      category: "아웃도어",
+    },
+    {
+      name: "노스페이스 플리스 풀집 자켓",
+      originalPrice: 149000,
+      imageUrl:
+        "https://image.thenorthfacekorea.co.kr/cmsstatic/product/NM5FN03A_primary.jpg",
+      sourceUrl: "https://www.thenorthfacekorea.co.kr/product/NM5FN03A",
+      category: "아웃도어",
+    },
+    {
+      name: "노스페이스 써밋 시리즈 다운 파카",
+      originalPrice: 789000,
+      imageUrl:
+        "https://image.thenorthfacekorea.co.kr/cmsstatic/product/NC1DS01A_primary.jpg",
+      sourceUrl: "https://www.thenorthfacekorea.co.kr/product/NC1DS01A",
+      category: "아웃도어",
+    },
+    {
+      name: "노스페이스 빅샷 클래식 백팩",
+      originalPrice: 139000,
+      imageUrl:
+        "https://image.thenorthfacekorea.co.kr/cmsstatic/product/NM2DS06A_primary.jpg",
+      sourceUrl: "https://www.thenorthfacekorea.co.kr/product/NM2DS06A",
+      category: "아웃도어",
+    },
+    {
+      name: "노스페이스 하이베트 트레일 러닝 슈즈",
+      originalPrice: 169000,
+      imageUrl:
+        "https://image.thenorthfacekorea.co.kr/cmsstatic/product/NS93N12A_primary.jpg",
+      sourceUrl: "https://www.thenorthfacekorea.co.kr/product/NS93N12A",
+      category: "아웃도어",
+    },
+    {
+      name: "노스페이스 HST 흄 6 등산화",
+      originalPrice: 229000,
+      imageUrl:
+        "https://image.thenorthfacekorea.co.kr/cmsstatic/product/NA5AS41B_primary.jpg",
+      sourceUrl: "https://www.thenorthfacekorea.co.kr/product/NA5AS41B",
+      category: "아웃도어",
+    },
+  ],
+
+  aloyoga: [
+    {
+      name: "Alo Yoga 7/8 High-Waist Airbrush Legging",
+      originalPrice: 129000,
+      imageUrl:
+        "https://cdn.aloyoga.com/images/catalog/airbrush-legging-black.jpg",
+      sourceUrl: "https://www.aloyoga.com/products/airbrush-legging",
+      category: "스포츠",
+    },
+    {
+      name: "Alo Yoga Alosoft Sky High Legging",
+      originalPrice: 149000,
+      imageUrl:
+        "https://cdn.aloyoga.com/images/catalog/alosoft-sky-high.jpg",
+      sourceUrl: "https://www.aloyoga.com/products/alosoft-sky-high",
+      category: "스포츠",
+    },
+    {
+      name: "Alo Yoga Accolade Hoodie",
+      originalPrice: 159000,
+      imageUrl:
+        "https://cdn.aloyoga.com/images/catalog/accolade-hoodie.jpg",
+      sourceUrl: "https://www.aloyoga.com/products/accolade-hoodie",
+      category: "스포츠",
+    },
+    {
+      name: "Alo Yoga Real Sports Bra",
+      originalPrice: 89000,
+      imageUrl: "https://cdn.aloyoga.com/images/catalog/real-bra.jpg",
+      sourceUrl: "https://www.aloyoga.com/products/real-bra",
+      category: "스포츠",
+    },
+    {
+      name: "Alo Yoga Soho Crop Sweatshirt",
+      originalPrice: 119000,
+      imageUrl: "https://cdn.aloyoga.com/images/catalog/soho-crop.jpg",
+      sourceUrl: "https://www.aloyoga.com/products/soho-crop",
+      category: "스포츠",
+    },
+    {
+      name: "Alo Yoga Accolade Sweatpant",
+      originalPrice: 139000,
+      imageUrl: "https://cdn.aloyoga.com/images/catalog/accolade-sweat.jpg",
+      sourceUrl: "https://www.aloyoga.com/products/accolade-sweat",
+      category: "스포츠",
+    },
+    {
+      name: "Alo Yoga Airlift Intrigue Bra",
+      originalPrice: 99000,
+      imageUrl: "https://cdn.aloyoga.com/images/catalog/intrigue-bra.jpg",
+      sourceUrl: "https://www.aloyoga.com/products/intrigue-bra",
+      category: "스포츠",
+    },
+    {
+      name: "Alo Yoga High-Waist Airlift Capri",
+      originalPrice: 119000,
+      imageUrl: "https://cdn.aloyoga.com/images/catalog/airlift-capri.jpg",
+      sourceUrl: "https://www.aloyoga.com/products/airlift-capri",
+      category: "스포츠",
+    },
+  ],
+
   "nike-skims": [
     {
       name: "Nike × SKIMS Seamless Mid-Rise Leggings",
@@ -453,10 +582,12 @@ export async function POST(req: NextRequest) {
         });
 
         // 최소 variant 1개 (FREE) — 장바구니/주문 위해 필요
+        // SKU 중복 방지: 상품 id 뒷 6자 사용 (slug prefix 충돌 회피)
+        const idSuffix = created.id.slice(-6).toUpperCase();
         await prisma.productVariant.create({
           data: {
             productId: created.id,
-            sku: `${uniqueSlug.slice(0, 40).toUpperCase()}-FREE`,
+            sku: `${uniqueSlug.slice(0, 30).toUpperCase()}-${idSuffix}`,
             size: "FREE",
             color: null,
             stock: 100,
