@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "pretendard/dist/web/variable/pretendardvariable.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -41,6 +42,13 @@
   --color-card: var(--card);
   --color-sale: var(--sale);
   --color-nkbus-red: var(--nkbus-red);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-paper: var(--paper);
+  --color-stone: var(--stone);
+  --color-line: var(--line);
+  --color-champagne: var(--champagne);
+  --color-champagne-soft: var(--champagne-soft);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -69,14 +77,25 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
-  --sale: #FF3B3B;
-  --nkbus-red: #FF0000;
+
+  /* === NKBUS Premium Design Tokens === */
+  --ink: #0A0A0A;
+  --ink-muted: #6B6B6B;
+  --paper: #FAFAF7;
+  --stone: #F5F2EC;
+  --line: #E8E6E1;
+  --champagne: #B8935C;
+  --champagne-soft: #D4B88A;
+  /* --sale은 champagne으로 alias — 기존 코드 호환 */
+  --sale: #B8935C;
+  --nkbus-red: #B8935C;
+
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.5rem;
+  --radius: 0.125rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -85,6 +104,11 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Pretendard Variable as primary font, Geist Mono for numbers */
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system,
+    BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI",
+    "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
 
 @layer base {
@@ -93,8 +117,26 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* === Premium utility classes === */
+@layer utilities {
+  .eyebrow {
+    @apply text-[11px] uppercase tracking-[0.2em] font-medium;
+  }
+  .label-caps {
+    @apply uppercase tracking-[0.15em] font-medium;
+  }
+  .num {
+    font-family: var(--font-geist-mono), "SF Mono", Menlo, Monaco, Consolas,
+      monospace;
+    font-feature-settings: "tnum";
   }
 }

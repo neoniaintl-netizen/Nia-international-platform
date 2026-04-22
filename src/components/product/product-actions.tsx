@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { Heart, ShoppingBag } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { addToCart } from "@/actions/cart";
 import { toggleWishlist } from "@/actions/wishlist";
 import { useSession } from "next-auth/react";
@@ -42,14 +41,15 @@ export function ProductActions({
     colors.length === 1 ? colors[0] : null
   );
   const [selectedSize, setSelectedSize] = useState<string | null>(
-    sizes.length === 1 || (sizes.length === 1 && sizes[0] === "ONE SIZE") ? sizes[0] : null
+    sizes.length === 1 || (sizes.length === 1 && sizes[0] === "ONE SIZE")
+      ? sizes[0]
+      : null
   );
   const [wishlisted, setWishlisted] = useState(isWishlisted);
   const [isPending, startTransition] = useTransition();
   const { status } = useSession();
   const router = useRouter();
 
-  // Find matching variant based on selection
   function findVariant() {
     return variants.find((v) => {
       const colorMatch = !selectedColor || v.color === selectedColor;
@@ -63,17 +63,9 @@ export function ProductActions({
       router.push("/login");
       return;
     }
-
     const variant = findVariant();
-    if (!variant) {
-      toast.error("옵션을 선택해주세요");
-      return;
-    }
-
-    if (variant.stock <= 0) {
-      toast.error("품절된 상품입니다");
-      return;
-    }
+    if (!variant) return toast.error("옵션을 선택해주세요");
+    if (variant.stock <= 0) return toast.error("품절된 상품입니다");
 
     startTransition(async () => {
       await addToCart(productId, variant.id);
@@ -91,12 +83,8 @@ export function ProductActions({
       router.push("/login");
       return;
     }
-
     const variant = findVariant();
-    if (!variant) {
-      toast.error("옵션을 선택해주세요");
-      return;
-    }
+    if (!variant) return toast.error("옵션을 선택해주세요");
 
     startTransition(async () => {
       await addToCart(productId, variant.id);
@@ -109,34 +97,43 @@ export function ProductActions({
       router.push("/login");
       return;
     }
-
     startTransition(async () => {
       const result = await toggleWishlist(productId);
       setWishlisted(result.wishlisted);
-      toast(result.wishlisted ? "좋아요에 추가되었습니다" : "좋아요에서 삭제되었습니다");
+      toast(
+        result.wishlisted
+          ? "위시리스트에 추가되었습니다"
+          : "위시리스트에서 삭제되었습니다"
+      );
     });
   }
 
   const needsSelection =
-    (colors.length > 1 && !selectedColor) || (sizes.length > 1 && !selectedSize);
+    (colors.length > 1 && !selectedColor) ||
+    (sizes.length > 1 && !selectedSize);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       {/* Color selection */}
       {colors.length > 0 && (
         <div>
-          <p className="text-sm font-medium mb-3">
-            컬러 {selectedColor && <span className="text-gray-400 font-normal">· {selectedColor}</span>}
+          <p className="eyebrow text-[var(--ink)] mb-3">
+            Color
+            {selectedColor && (
+              <span className="ml-2 text-[var(--ink-muted)] normal-case tracking-normal font-normal">
+                · {selectedColor}
+              </span>
+            )}
           </p>
           <div className="flex gap-2 flex-wrap">
             {colors.map((color) => (
               <button
                 key={color}
                 onClick={() => setSelectedColor(color)}
-                className={`px-3 h-8 border rounded-full text-xs font-medium transition-colors ${
+                className={`px-4 h-9 border rounded-none text-[12px] font-medium transition-colors ${
                   selectedColor === color
-                    ? "border-black bg-black text-white"
-                    : "hover:border-black hover:bg-gray-50"
+                    ? "border-[var(--ink)] bg-[var(--ink)] text-white"
+                    : "border-[var(--line)] text-[var(--ink)] hover:border-[var(--ink)]"
                 }`}
               >
                 {color}
@@ -150,8 +147,13 @@ export function ProductActions({
       {sizes.length > 0 && sizes[0] !== "ONE SIZE" && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-medium">
-              사이즈 {selectedSize && <span className="text-gray-400 font-normal">· {selectedSize}</span>}
+            <p className="eyebrow text-[var(--ink)]">
+              Size
+              {selectedSize && (
+                <span className="ml-2 text-[var(--ink-muted)] normal-case tracking-normal font-normal">
+                  · {selectedSize}
+                </span>
+              )}
             </p>
             <SizeGuideModal categorySlug={categorySlug} />
           </div>
@@ -168,12 +170,12 @@ export function ProductActions({
                   key={size}
                   onClick={() => setSelectedSize(size)}
                   disabled={!hasStock}
-                  className={`min-w-[48px] h-10 px-4 border rounded-lg text-sm font-medium transition-colors ${
+                  className={`min-w-[52px] h-11 px-4 border rounded-none text-sm font-medium transition-colors ${
                     selectedSize === size
-                      ? "border-black bg-black text-white"
+                      ? "border-[var(--ink)] bg-[var(--ink)] text-white"
                       : hasStock
-                        ? "hover:border-black hover:bg-gray-50"
-                        : "opacity-30 line-through cursor-not-allowed"
+                        ? "border-[var(--line)] text-[var(--ink)] hover:border-[var(--ink)]"
+                        : "opacity-30 line-through cursor-not-allowed border-[var(--line)]"
                   }`}
                 >
                   {size}
@@ -186,38 +188,47 @@ export function ProductActions({
 
       {/* Selection hint */}
       {needsSelection && (
-        <p className="text-xs text-orange-500">옵션을 선택해주세요</p>
+        <p className="text-[11px] text-[var(--champagne)] uppercase tracking-[0.15em]">
+          Please select options
+        </p>
       )}
 
       {/* Action buttons */}
-      <div className="flex gap-3">
-        <Button
-          variant="outline"
-          size="icon"
-          className={`shrink-0 w-12 h-12 ${wishlisted ? "text-red-500 border-red-200 bg-red-50 hover:bg-red-100" : ""}`}
+      <div className="flex gap-2 pt-2">
+        <button
+          className={`shrink-0 w-12 h-12 border transition-colors ${
+            wishlisted
+              ? "border-[var(--champagne)] text-[var(--champagne)]"
+              : "border-[var(--line)] text-[var(--ink)] hover:border-[var(--ink)]"
+          }`}
           onClick={handleWishlist}
           disabled={isPending}
+          aria-label="위시리스트"
         >
-          <Heart className={`w-5 h-5 ${wishlisted ? "fill-red-500" : ""}`} />
-        </Button>
-        <Button
-          className="flex-1 h-12 bg-black hover:bg-gray-800 text-white font-bold text-base gap-2"
+          <Heart
+            className="w-5 h-5 mx-auto"
+            fill={wishlisted ? "currentColor" : "none"}
+            strokeWidth={1.5}
+          />
+        </button>
+        <button
+          className="flex-1 h-12 bg-[var(--ink)] text-white text-[13px] font-medium uppercase tracking-[0.15em] hover:bg-[var(--ink-muted)] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           onClick={handleAddToCart}
           disabled={isPending}
         >
-          <ShoppingBag className="w-5 h-5" />
-          장바구니
-        </Button>
+          <ShoppingBag className="w-4 h-4" strokeWidth={1.5} />
+          Add to Bag
+        </button>
         <ShareButton url={"/products/" + productId} title={productName} />
       </div>
 
-      <Button
-        className="w-full h-14 bg-[var(--sale)] hover:bg-red-600 text-white font-bold text-lg"
+      <button
+        className="w-full h-14 bg-[var(--champagne)] hover:bg-[var(--champagne-soft)] text-white text-[13px] font-medium uppercase tracking-[0.2em] transition-colors disabled:opacity-50"
         onClick={handleBuyNow}
         disabled={isPending}
       >
-        바로 구매
-      </Button>
+        Buy Now
+      </button>
     </div>
   );
 }

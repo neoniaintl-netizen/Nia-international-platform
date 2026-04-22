@@ -4,7 +4,15 @@ import { Dumbbell, Mountain, Sparkles, Shirt } from "lucide-react";
 /** 골프 아이콘 (커스텀 SVG) */
 function GolfIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="12" cy="18" r="2" />
       <path d="M12 2v14" />
       <path d="M12 2l6 4-6 4" />
@@ -13,30 +21,38 @@ function GolfIcon({ className }: { className?: string }) {
 }
 
 const categories = [
-  { label: "골프", slug: "golf", icon: GolfIcon },
-  { label: "스포츠", slug: "sports", icon: Dumbbell },
-  { label: "아웃도어", slug: "outdoor", icon: Mountain },
-  { label: "뷰티", slug: "beauty", icon: Sparkles },
-  { label: "여성의류", slug: "women", icon: Shirt },
+  { label: "Golf", sub: "골프", slug: "golf", icon: GolfIcon },
+  { label: "Sports", sub: "스포츠", slug: "sports", icon: Dumbbell },
+  { label: "Outdoor", sub: "아웃도어", slug: "outdoor", icon: Mountain },
+  { label: "Beauty", sub: "뷰티", slug: "beauty", icon: Sparkles },
+  { label: "Women", sub: "여성의류", slug: "women", icon: Shirt },
 ];
 
 export function CategoryNav() {
   return (
-    <section className="py-6">
+    <section className="py-10 lg:py-14 border-b border-[var(--line)]">
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
-        <div className="grid grid-cols-5 gap-4">
-          {categories.map(({ label, slug, icon: Icon }) => (
+        <div className="grid grid-cols-5 gap-3 md:gap-6">
+          {categories.map(({ label, sub, slug, icon: Icon }) => (
             <Link
               key={slug}
               href={`/category/${slug}`}
-              className="flex flex-col items-center gap-2 group"
+              className="group flex flex-col items-center gap-3"
             >
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gray-50 flex items-center justify-center group-hover:bg-gray-100 transition-colors">
-                <Icon className="w-6 h-6 text-gray-600" strokeWidth={1.5} />
+              <div className="w-16 h-16 md:w-20 md:h-20 border border-[var(--line)] flex items-center justify-center group-hover:border-[var(--ink)] transition-colors">
+                <Icon
+                  className="w-6 h-6 md:w-7 md:h-7 text-[var(--ink)]"
+                  strokeWidth={1.2}
+                />
               </div>
-              <span className="text-xs text-gray-600 group-hover:text-black transition-colors">
-                {label}
-              </span>
+              <div className="text-center">
+                <p className="text-[11px] uppercase tracking-[0.15em] font-medium text-[var(--ink)]">
+                  {label}
+                </p>
+                <p className="text-[10px] text-[var(--ink-muted)] mt-0.5 hidden md:block">
+                  {sub}
+                </p>
+              </div>
             </Link>
           ))}
         </div>

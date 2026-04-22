@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import { ProductCard, type ProductCardData } from "@/components/product/product-card";
+import { SectionHeader } from "@/components/home/section-header";
 
 interface NewArrivalsProps {
   products: ProductCardData[];
@@ -8,19 +7,15 @@ interface NewArrivalsProps {
 
 export function NewArrivals({ products }: NewArrivalsProps) {
   return (
-    <section className="py-8">
+    <section className="py-14 lg:py-20">
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold">신상품</h2>
-          <Link
-            href="/products?sort=newest"
-            className="text-xs text-gray-400 flex items-center gap-0.5 hover:text-black transition-colors"
-          >
-            더보기
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-3 gap-y-6">
+        <SectionHeader
+          eyebrow="Just In"
+          title="New Arrivals"
+          subtitle="가장 먼저 만나는 신상품"
+          linkHref="/products?sort=newest"
+        />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-10">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

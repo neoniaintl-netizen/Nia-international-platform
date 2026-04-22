@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { SectionHeader } from "@/components/home/section-header";
 
 interface BrandItem {
   name: string;
@@ -9,7 +9,8 @@ interface BrandItem {
   followerCount: number;
 }
 
-const BG_COLORS = ["#1a1a1a", "#2d3436", "#636e72", "#111", "#000", "#2C2C2C"];
+// 2가지 다크톤 교차 사용 (검정, 다크 네이비) — 에디토리얼 균일성
+const BG_COLORS = ["#0A0A0A", "#0F1C2E"];
 
 interface BrandSpotlightProps {
   brands: BrandItem[];
@@ -17,34 +18,42 @@ interface BrandSpotlightProps {
 
 export function BrandSpotlight({ brands }: BrandSpotlightProps) {
   return (
-    <section className="py-8">
+    <section className="py-14 lg:py-20 bg-[var(--paper)]">
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold">브랜드 추천</h2>
-          <Link
-            href="/brands"
-            className="text-xs text-gray-400 flex items-center gap-0.5 hover:text-black transition-colors"
-          >
-            전체 브랜드
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <SectionHeader
+          eyebrow="Curated Houses"
+          title="Featured Brands"
+          subtitle="엄선된 브랜드 큐레이션"
+          linkHref="/brands"
+          linkLabel="All Brands"
+        />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           {brands.map((brand, i) => (
             <Link
               key={brand.slug}
               href={`/brands/${brand.slug}`}
-              className="group rounded-xl overflow-hidden"
+              className="group block overflow-hidden aspect-[4/5] relative"
               style={{ backgroundColor: BG_COLORS[i % BG_COLORS.length] }}
             >
-              <div className="p-4 md:p-5 flex flex-col justify-between aspect-square">
+              <div className="absolute inset-0 p-5 md:p-6 flex flex-col justify-between">
                 <div>
-                  <p className="text-white font-bold text-sm">{brand.name}</p>
-                  <p className="text-white/50 text-xs mt-0.5">{brand.nameKo}</p>
+                  <p className="eyebrow text-white/60">No.{String(i + 1).padStart(2, "0")}</p>
                 </div>
-                <p className="text-white/60 text-xs group-hover:text-white/80 transition-colors">
-                  팔로워 {(brand.followerCount / 10000).toFixed(1)}만
-                </p>
+                <div>
+                  <p className="text-white font-medium text-[15px] tracking-[0.02em]">
+                    {brand.name}
+                  </p>
+                  <p className="text-white/50 text-[11px] mt-1">{brand.nameKo}</p>
+                  <div className="mt-4 pt-4 border-t border-white/20 flex items-center justify-between text-[10px] uppercase tracking-[0.15em] text-white/60 group-hover:text-white transition-colors">
+                    <span>
+                      <span className="num">
+                        {brand.followerCount.toLocaleString()}
+                      </span>{" "}
+                      Followers
+                    </span>
+                    <span>→</span>
+                  </div>
+                </div>
               </div>
             </Link>
           ))}

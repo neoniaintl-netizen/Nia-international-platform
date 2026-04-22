@@ -82,7 +82,7 @@ const PAYMENT_BENEFITS = [
 
 export function Footer() {
   return (
-    <footer className="bg-gray-50 border-t mt-auto">
+    <footer className="bg-[var(--paper)] border-t border-[var(--line)] mt-auto">
       {/* ── 채널 + 공지 + 결제혜택 ── */}
       <div className="bg-white border-b">
         <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
@@ -92,7 +92,7 @@ export function Footer() {
               <Link
                 key={ch.label}
                 href={ch.href}
-                className="shrink-0 px-4 py-2 text-xs font-bold text-gray-500 border border-gray-200 rounded hover:text-black hover:border-gray-400 transition-colors"
+                className="shrink-0 px-4 py-2 text-[11px] uppercase tracking-[0.15em] font-medium text-[var(--ink-muted)] border border-[var(--line)] rounded-none hover:text-[var(--ink)] hover:border-[var(--ink)] transition-colors"
               >
                 {ch.label}
               </Link>
@@ -147,7 +147,7 @@ export function Footer() {
           {/* 4개 일반 컬럼 */}
           {FOOTER_NAV.map((section) => (
             <div key={section.title}>
-              <h3 className="text-sm font-bold text-gray-900 mb-4">
+              <h3 className="text-[11px] uppercase tracking-[0.2em] font-medium text-[var(--ink)] mb-4">
                 {section.title}
               </h3>
               <ul className="space-y-2.5">
@@ -167,7 +167,7 @@ export function Footer() {
 
           {/* 고객 지원 컬럼 */}
           <div>
-            <h3 className="text-sm font-bold text-gray-900 mb-4">
+            <h3 className="text-[11px] uppercase tracking-[0.2em] font-medium text-[var(--ink)] mb-4">
               {CUSTOMER_SUPPORT.title}
             </h3>
             <ul className="space-y-2">
@@ -248,7 +248,7 @@ export function Footer() {
             ].map((method) => (
               <span
                 key={method}
-                className="inline-block px-2 py-0.5 text-[10px] font-medium border border-gray-300 rounded text-gray-500"
+                className="inline-block px-2 py-0.5 text-[10px] font-medium border border-[var(--line)] rounded-none text-[var(--ink-muted)] uppercase tracking-[0.1em]"
               >
                 {method}
               </span>
@@ -298,7 +298,7 @@ export function Footer() {
             윤리·준법경영 국제 표준 통합 인증 · 안전보건경영시스템 국제 인증
           </p>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 border border-gray-300 rounded px-2 py-1 text-[10px] font-bold text-gray-500">
+            <span className="inline-flex items-center gap-1.5 border border-[var(--line)] rounded-none px-2 py-1 text-[10px] font-medium text-[var(--ink-muted)] uppercase tracking-[0.15em]">
               <svg
                 className="w-3.5 h-3.5"
                 viewBox="0 0 24 24"

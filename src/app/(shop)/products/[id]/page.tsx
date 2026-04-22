@@ -1,4 +1,4 @@
-import { Star, Truck, RotateCcw, Shield } from "lucide-react";
+import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ProductImageGallery } from "@/components/product/product-image-gallery";
 import { Separator } from "@/components/ui/separator";
@@ -65,8 +65,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const sizes = [...new Set(product.variants.map((v) => v.size).filter(Boolean))] as string[];
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+    <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-8 lg:py-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
         {/* Image gallery */}
         <ProductImageGallery
           images={product.images.map((img) => ({
@@ -80,58 +80,69 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         />
 
         {/* Product info */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Brand & Name */}
-          <div>
-            <Link href={`/brands/${product.brand.slug}`} className="text-sm font-bold hover:underline">
+          <div className="space-y-3">
+            <Link
+              href={`/brands/${product.brand.slug}`}
+              className="eyebrow text-[var(--ink)] hover:text-[var(--champagne)] transition-colors"
+            >
               {product.brand.nameKo ?? product.brand.name}
             </Link>
-            <h1 className="text-xl font-medium mt-1">{product.name}</h1>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-0.5">
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{product.reviewAvg.toFixed(1)}</span>
+            <h1 className="text-2xl lg:text-[28px] font-normal leading-tight text-[var(--ink)] tracking-[-0.01em]">
+              {product.name}
+            </h1>
+            <div className="flex items-center gap-2 pt-1">
+              <div className="flex items-center gap-1">
+                <Star className="w-3.5 h-3.5 fill-[var(--champagne)] text-[var(--champagne)]" />
+                <span className="text-[12px] font-medium num">
+                  {product.reviewAvg.toFixed(1)}
+                </span>
               </div>
-              <span className="text-xs text-gray-400">
-                리뷰 {product.reviewCount.toLocaleString()}
+              <span className="text-[11px] text-[var(--ink-muted)] uppercase tracking-[0.1em] num">
+                · Review {product.reviewCount.toLocaleString()}
               </span>
             </div>
           </div>
 
-          <Separator />
+          <div className="h-px bg-[var(--line)]" />
 
           {/* Price */}
-          <div>
-            <PriceDisplay basePrice={product.originalPrice} salePrice={product.salePrice} size="lg" />
+          <div className="space-y-3">
+            <PriceDisplay
+              basePrice={product.originalPrice}
+              salePrice={product.salePrice}
+              size="lg"
+            />
             {product.salePrice && (
-              <div className="flex items-center gap-2 mt-2">
-                <Badge variant="outline" className="text-xs text-[var(--sale)] border-[var(--sale)]">
-                  멤버스데이 쿠폰 적용가{" "}
-                  {Math.floor(product.salePrice * 0.85).toLocaleString()}원
-                </Badge>
+              <div className="inline-block">
+                <span className="text-[11px] uppercase tracking-[0.15em] border border-[var(--champagne)] text-[var(--champagne)] px-2.5 py-1 num">
+                  Member Price{" "}
+                  {Math.floor(product.salePrice * 0.85).toLocaleString()}₩
+                </span>
               </div>
             )}
           </div>
 
-          <Separator />
+          <div className="h-px bg-[var(--line)]" />
 
-          {/* Delivery info */}
-          <div className="space-y-2.5">
-            <div className="flex items-center gap-3 text-sm">
-              <Truck className="w-4 h-4 text-gray-400 shrink-0" />
+          {/* Delivery info — editorial list */}
+          <ul className="space-y-2 text-[12px] text-[var(--ink-muted)]">
+            <li className="flex items-baseline gap-3">
+              <span className="eyebrow text-[var(--ink)] min-w-[90px]">Shipping</span>
               <span>무료배송 · 내일 도착 예정</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <RotateCcw className="w-4 h-4 text-gray-400 shrink-0" />
+            </li>
+            <li className="flex items-baseline gap-3">
+              <span className="eyebrow text-[var(--ink)] min-w-[90px]">Returns</span>
               <span>30일 이내 무료 반품</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <Shield className="w-4 h-4 text-gray-400 shrink-0" />
+            </li>
+            <li className="flex items-baseline gap-3">
+              <span className="eyebrow text-[var(--ink)] min-w-[90px]">Authentic</span>
               <span>NKBUS 정품 보증 · 해외배송 지원</span>
-            </div>
-          </div>
+            </li>
+          </ul>
 
-          <Separator />
+          <div className="h-px bg-[var(--line)]" />
 
           {/* Options + Actions (Client Component) */}
           <ProductActions
@@ -153,33 +164,33 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {/* Product detail tabs */}
-      <div className="mt-12">
+      <div className="mt-20">
         <Tabs defaultValue="detail">
-          <TabsList className="w-full grid grid-cols-3 h-12">
-            <TabsTrigger value="detail" className="text-sm font-medium">
-              상품 상세
+          <TabsList className="w-full grid grid-cols-3 h-12 border-b border-[var(--line)]">
+            <TabsTrigger value="detail" className="text-[11px] uppercase tracking-[0.2em] font-medium">
+              Details
             </TabsTrigger>
-            <TabsTrigger value="reviews" className="text-sm font-medium">
-              리뷰 ({product.reviewCount.toLocaleString()})
+            <TabsTrigger value="reviews" className="text-[11px] uppercase tracking-[0.2em] font-medium">
+              Reviews <span className="num ml-1">({product.reviewCount.toLocaleString()})</span>
             </TabsTrigger>
-            <TabsTrigger value="qna" className="text-sm font-medium">
-              문의 ({inquiryData.total})
+            <TabsTrigger value="qna" className="text-[11px] uppercase tracking-[0.2em] font-medium">
+              Q&A <span className="num ml-1">({inquiryData.total})</span>
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="detail" className="py-8">
-            <div className="prose max-w-none">
-              <div className="bg-gray-50 rounded-xl p-8 text-center text-gray-400 text-sm">
+          <TabsContent value="detail" className="py-12">
+            <div className="max-w-2xl mx-auto">
+              <div className="border border-[var(--line)] bg-[var(--paper)] p-10 text-center text-[13px] text-[var(--ink-muted)] leading-relaxed">
                 {product.description ? (
                   <p>{product.description}</p>
                 ) : (
                   <p>상품 상세 이미지가 이곳에 표시됩니다.</p>
                 )}
-                <p className="mt-2">소재: 면 100% | 제조국: 대한민국</p>
-                <p className="mt-2">세탁: 단독 손세탁 권장</p>
+                <p className="mt-3">소재: 면 100% &nbsp;·&nbsp; 제조국: 대한민국</p>
+                <p className="mt-1.5">세탁: 단독 손세탁 권장</p>
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="reviews" className="py-8">
+          <TabsContent value="reviews" className="py-12">
             <ReviewStats
               total={reviewStats.total}
               avg={reviewStats.avg}
@@ -197,7 +208,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               currentUserId={session?.user?.id}
             />
           </TabsContent>
-          <TabsContent value="qna" className="py-8">
+          <TabsContent value="qna" className="py-12">
             {session?.user?.id && (
               <div className="mb-6">
                 <InquiryForm productId={product.id} />

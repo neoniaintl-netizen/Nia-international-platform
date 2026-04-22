@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface ProductImage {
@@ -27,43 +26,47 @@ export function ProductImageGallery({
   const [selectedImage, setSelectedImage] = useState(mainImage);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* 메인 이미지 */}
-      <div className="relative aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden">
+      <div className="relative aspect-[4/5] bg-[var(--stone)] overflow-hidden">
         <Image
-          src={selectedImage?.url ?? "https://placehold.co/800x1067/c0c0c0/444?text=No+Image"}
+          src={
+            selectedImage?.url ??
+            "https://placehold.co/800x1000/F5F2EC/6B6B6B?text=No+Image"
+          }
           alt={selectedImage?.alt ?? productName}
           fill
-          className="object-cover transition-opacity duration-200"
+          className="object-cover transition-opacity duration-300"
           priority
           key={selectedImage?.id}
         />
         {isNew && (
-          <Badge className="absolute top-4 left-4 bg-black text-white">NEW</Badge>
+          <span className="absolute top-4 left-4 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.15em] border border-[var(--ink)] bg-white text-[var(--ink)]">
+            New
+          </span>
         )}
       </div>
 
-      {/* 썸네일 목록 */}
+      {/* 썸네일 가로 스트립 */}
       {images.length > 1 && (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
           {images.map((img) => (
             <button
               key={img.id}
               type="button"
               onClick={() => setSelectedImage(img)}
               className={cn(
-                "aspect-square bg-gray-100 rounded-lg overflow-hidden transition-all",
+                "relative shrink-0 w-20 aspect-[4/5] bg-[var(--stone)] overflow-hidden transition-all",
                 selectedImage?.id === img.id
-                  ? "ring-2 ring-black"
-                  : "hover:ring-2 ring-gray-300"
+                  ? "ring-1 ring-[var(--ink)] ring-offset-2 ring-offset-background"
+                  : "opacity-60 hover:opacity-100"
               )}
             >
               <Image
                 src={img.url}
                 alt={img.alt ?? productName}
-                width={200}
-                height={200}
-                className="object-cover w-full h-full"
+                fill
+                className="object-cover"
               />
             </button>
           ))}

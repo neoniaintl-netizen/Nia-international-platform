@@ -48,28 +48,43 @@ export default async function MyPageLayout({
           {/* 데스크톱 사이드바 */}
           <aside className="hidden lg:block">
             <div className="sticky top-20">
-              <div className="p-4 bg-black text-white rounded-xl mb-4">
-                <p className="font-bold">{userName}님</p>
-                <p className="text-xs text-white/60 mt-1">BRONZE 회원</p>
-                <div className="flex items-center justify-between mt-3 text-xs">
-                  <span className="text-white/60">적립금</span>
-                  <span className="font-bold">{points.toLocaleString()}원</span>
+              <div className="p-5 bg-[var(--ink)] text-white rounded-none mb-4">
+                <p className="eyebrow text-[var(--champagne)] mb-1">Member</p>
+                <p className="font-medium text-[15px] tracking-tight">
+                  {userName}
+                </p>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-white/60 mt-1">
+                  Bronze · Lv.1
+                </p>
+                <div className="h-px bg-white/20 my-4" />
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="uppercase tracking-[0.1em] text-white/60">
+                    Points
+                  </span>
+                  <span className="font-medium num">
+                    {points.toLocaleString()}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between mt-1 text-xs">
-                  <span className="text-white/60">쿠폰</span>
-                  <span className="font-bold">{couponCount}장</span>
+                <div className="flex items-center justify-between mt-1.5 text-[11px]">
+                  <span className="uppercase tracking-[0.1em] text-white/60">
+                    Coupons
+                  </span>
+                  <span className="font-medium num">{couponCount}</span>
                 </div>
               </div>
-              <nav className="space-y-1">
+              <nav className="space-y-0 border-t border-[var(--line)]">
                 {SIDEBAR_ITEMS.map(({ label, href, icon: Icon }) => (
                   <Link
                     key={href + label}
                     href={href}
-                    className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg hover:bg-gray-100 transition-colors"
+                    className="flex items-center gap-3 px-3 py-3 text-[13px] border-b border-[var(--line)] hover:text-[var(--champagne)] transition-colors"
                   >
-                    <Icon className="w-4 h-4 text-gray-400" />
+                    <Icon
+                      className="w-4 h-4 text-[var(--ink-muted)]"
+                      strokeWidth={1.5}
+                    />
                     {label}
-                    <ChevronRight className="w-3.5 h-3.5 ml-auto text-gray-300" />
+                    <ChevronRight className="w-3.5 h-3.5 ml-auto text-[var(--ink-muted)]/50" />
                   </Link>
                 ))}
               </nav>

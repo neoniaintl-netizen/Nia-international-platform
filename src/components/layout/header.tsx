@@ -41,7 +41,7 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
 
               {/* 로고 */}
               <Link href="/" className="flex items-center shrink-0">
-                <span className="text-[22px] font-black tracking-[-0.02em] text-black">
+                <span className="text-[22px] font-bold tracking-[0.18em] text-[var(--ink)]">
                   NKBUS
                 </span>
               </Link>
@@ -60,15 +60,15 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
                       key={channel.slug}
                       href={channel.slug === "nkbus" ? "/" : `/category/${channel.slug}`}
                       className={cn(
-                        "relative px-3 py-2 text-[15px] font-semibold whitespace-nowrap transition-colors",
+                        "relative px-3 py-2 text-[13px] font-medium tracking-[0.1em] whitespace-nowrap transition-colors",
                         isActive
-                          ? "text-black"
-                          : "text-gray-400 hover:text-black"
+                          ? "text-[var(--ink)]"
+                          : "text-[var(--ink-muted)]/70 hover:text-[var(--ink)]"
                       )}
                     >
                       {channel.displayName}
                       {isActive && (
-                        <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-black rounded-full" />
+                        <span className="absolute bottom-0 left-3 right-3 h-[1px] bg-[var(--ink)]" />
                       )}
                     </Link>
                   );
@@ -95,10 +95,10 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
                   <input
                     ref={searchRef}
                     name="q"
-                    placeholder="검색"
+                    placeholder="Search"
                     onFocus={() => setSearchFocused(true)}
                     onBlur={() => setSearchFocused(false)}
-                    className="w-full h-10 pl-10 pr-4 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400 focus:bg-white transition-all"
+                    className="w-full h-10 pl-10 pr-4 bg-[var(--paper)] border border-[var(--line)] rounded-none text-sm text-[var(--ink)] placeholder:text-[var(--ink-muted)]/60 placeholder:uppercase placeholder:tracking-[0.1em] placeholder:text-[11px] focus:outline-none focus:border-[var(--ink)] focus:bg-white transition-all"
                   />
                 </form>
 
@@ -199,7 +199,7 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
                 ref={searchRef}
                 name="q"
                 placeholder="브랜드, 상품, 스타일 검색"
-                className="w-full h-10 pl-10 pr-10 bg-gray-50 border border-gray-200 rounded-xl text-sm placeholder:text-gray-400 focus:outline-none focus:border-gray-400 focus:bg-white transition-all"
+                className="w-full h-10 pl-10 pr-10 bg-[var(--paper)] border border-[var(--line)] rounded-none text-sm placeholder:text-[var(--ink-muted)]/60 focus:outline-none focus:border-[var(--ink)] focus:bg-white transition-all"
               />
               <button
                 type="button"

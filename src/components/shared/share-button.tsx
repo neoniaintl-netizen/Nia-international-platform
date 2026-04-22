@@ -38,8 +38,17 @@ export function ShareButton({ url, title, size = "icon" }: { url: string; title?
   }
 
   return (
-    <Button type="button" variant="outline" size="icon" onClick={handleShare}>
-      {copied ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
-    </Button>
+    <button
+      type="button"
+      onClick={handleShare}
+      className="shrink-0 w-12 h-12 border border-[var(--line)] text-[var(--ink)] hover:border-[var(--ink)] transition-colors flex items-center justify-center"
+      aria-label="공유"
+    >
+      {copied ? (
+        <Check className="w-5 h-5" strokeWidth={1.5} />
+      ) : (
+        <Share2 className="w-5 h-5" strokeWidth={1.5} />
+      )}
+    </button>
   );
 }

@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Heart } from "lucide-react";
 import { PriceDisplay } from "@/components/shared/price-display";
-import { Badge } from "@/components/ui/badge";
 import { toggleWishlist } from "@/actions/wishlist";
 import { useTransition, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -18,7 +17,7 @@ function CountdownBadge({ endsAt }: { endsAt: string }) {
       const now = Date.now();
       const diff = target - now;
       if (diff <= 0) {
-        setLabel("종료");
+        setLabel("ENDED");
         return;
       }
       const h = Math.floor(diff / 3_600_000);
@@ -26,7 +25,7 @@ function CountdownBadge({ endsAt }: { endsAt: string }) {
       const s = Math.floor((diff % 60_000) / 1000);
       if (h >= 24) {
         const d = Math.floor(h / 24);
-        setLabel(`${d}일 남음`);
+        setLabel(`${d}D LEFT`);
       } else {
         setLabel(
           `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
@@ -39,9 +38,9 @@ function CountdownBadge({ endsAt }: { endsAt: string }) {
   }, [endsAt]);
   if (!label) return null;
   return (
-    <Badge className="bg-orange-500 text-white text-[10px] px-1.5 rounded font-mono">
-      ⏱ {label}
-    </Badge>
+    <span className="px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] bg-[var(--ink)] text-white num">
+      {label}
+    </span>
   );
 }
 
@@ -69,7 +68,11 @@ interface ProductCardProps {
   wishlisted?: boolean;
 }
 
-export function ProductCard({ product, rank, wishlisted = false }: ProductCardProps) {
+export function ProductCard({
+  product,
+  rank,
+  wishlisted = false,
+}: ProductCardProps) {
   const [isPending, startTransition] = useTransition();
   const { status } = useSession();
   const router = useRouter();
@@ -88,65 +91,81 @@ export function ProductCard({ product, rank, wishlisted = false }: ProductCardPr
 
   return (
     <Link href={`/products/${product.slug}`} className="group block">
-      <div className="relative aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden mb-2">
+      <div className="relative aspect-[4/5] bg-[var(--stone)] overflow-hidden mb-3">
         <Image
           src={product.imageUrl}
           alt={product.name}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          className="object-cover group-hover:scale-[1.02] transition-transform duration-[600ms] ease-out"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
         {/* Rank badge */}
         {rank && (
-          <div className="absolute top-2 left-2 w-7 h-7 bg-black/80 text-white rounded-full flex items-center justify-center text-xs font-bold">
-            {rank}
+          <div className="absolute top-3 left-3 text-[11px] font-medium uppercase tracking-[0.15em] text-[var(--ink)] bg-white/90 px-2 py-1 num">
+            No.{String(rank).padStart(2, "0")}
           </div>
         )}
         {/* Sold out overlay */}
         {product.isSoldOut && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="bg-white text-black text-xs font-bold px-3 py-1.5 rounded">
-              SOLD OUT
+          <div className="absolute inset-0 bg-[var(--ink)]/40 flex items-center justify-center">
+            <span className="text-white text-[11px] font-medium uppercase tracking-[0.3em] border border-white/60 px-4 py-1.5">
+              Sold Out
             </span>
           </div>
         )}
-        {/* Badges */}
-        <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+        {/* Badges (top-right) */}
+        <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
           {product.isNew && (
-            <Badge className="bg-black text-white text-[10px] px-1.5 rounded">
-              NEW
-            </Badge>
+            <span className="px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] border border-[var(--ink)] bg-white text-[var(--ink)]">
+              New
+            </span>
           )}
           {product.isBest && (
-            <Badge className="bg-red-600 text-white text-[10px] px-1.5 rounded">
-              BEST
-            </Badge>
+            <span className="px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] border border-[var(--champagne)] bg-white text-[var(--champagne)]">
+              Best
+            </span>
           )}
           {product.dealEndsAt && !product.isSoldOut && (
             <CountdownBadge endsAt={product.dealEndsAt} />
           )}
         </div>
-        {/* Wishlist button */}
+        {/* Wishlist button — outlined only, no bg */}
         <button
-          className={`absolute bottom-2 right-2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center transition-opacity ${
+          className={`absolute bottom-3 right-3 transition-opacity ${
             wishlisted ? "opacity-100" : "opacity-0 group-hover:opacity-100"
           } ${isPending ? "animate-pulse" : ""}`}
           onClick={handleWishlist}
           disabled={isPending}
+          aria-label={wishlisted ? "위시리스트 제거" : "위시리스트 추가"}
         >
           <Heart
-            className={`w-4 h-4 ${wishlisted ? "fill-red-500 text-red-500" : ""}`}
+            className={`w-5 h-5 transition-colors drop-shadow ${
+              wishlisted
+                ? "fill-[var(--champagne)] text-[var(--champagne)]"
+                : "text-white"
+            }`}
+            strokeWidth={1.5}
           />
         </button>
       </div>
       {/* Info */}
-      <div className="space-y-1">
-        <p className="text-xs font-bold text-gray-900 truncate">{product.brandName}</p>
-        <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">{product.name}</p>
-        <PriceDisplay basePrice={product.basePrice} salePrice={product.salePrice} size="sm" />
+      <div className="space-y-1.5">
+        <p className="text-[11px] font-medium uppercase tracking-[0.15em] text-[var(--ink)] truncate">
+          {product.brandName}
+        </p>
+        <p className="text-[13px] font-normal leading-relaxed line-clamp-2 text-[var(--ink-muted)]">
+          {product.name}
+        </p>
+        <div className="pt-1">
+          <PriceDisplay
+            basePrice={product.basePrice}
+            salePrice={product.salePrice}
+            size="sm"
+          />
+        </div>
         {product.reviewCount != null && product.reviewCount > 0 && (
-          <p className="text-[10px] text-gray-400">
-            리뷰 {product.reviewCount.toLocaleString()}
+          <p className="text-[10px] text-[var(--ink-muted)]/70 tracking-wide num pt-0.5">
+            REVIEW {product.reviewCount.toLocaleString()}
           </p>
         )}
       </div>

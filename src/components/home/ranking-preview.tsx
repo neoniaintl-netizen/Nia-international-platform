@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import { ProductCard, type ProductCardData } from "@/components/product/product-card";
+import { SectionHeader } from "@/components/home/section-header";
 
 interface RankingPreviewProps {
   products: ProductCardData[];
@@ -8,19 +7,15 @@ interface RankingPreviewProps {
 
 export function RankingPreview({ products }: RankingPreviewProps) {
   return (
-    <section className="py-8">
+    <section className="py-14 lg:py-20">
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold">실시간 랭킹</h2>
-          <Link
-            href="/ranking"
-            className="text-xs text-gray-400 flex items-center gap-0.5 hover:text-black transition-colors"
-          >
-            더보기
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-3 gap-y-6">
+        <SectionHeader
+          eyebrow="Curated Rankings"
+          title="실시간 랭킹"
+          subtitle="Trending Now"
+          linkHref="/ranking"
+        />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-10">
           {products.map((product, index) => (
             <ProductCard key={product.id} product={product} rank={index + 1} />
           ))}
