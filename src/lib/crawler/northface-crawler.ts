@@ -192,7 +192,10 @@ export class NorthFaceCrawler extends BaseCrawler {
       );
     }
 
-    return Array.from(images).slice(0, 6);
+    // 쿼리 파라미터(?thumbnail 등) 제거 — 원본 고해상도 버전 사용
+    return Array.from(images)
+      .map((u) => u.split("?")[0])
+      .slice(0, 6);
   }
 
   private resolveImageUrl(src: string): string {
