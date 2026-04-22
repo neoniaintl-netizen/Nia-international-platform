@@ -3,6 +3,7 @@ import { Cm29Crawler } from "./cm29-crawler";
 import { Cafe24Crawler } from "./cafe24-crawler";
 import { WConceptCrawler } from "./wconcept-crawler";
 import { ShopifyCrawler } from "./shopify-crawler";
+import { NorthFaceCrawler } from "./northface-crawler";
 import { GenericCrawler } from "./generic-crawler";
 import type { ICrawler } from "./types";
 
@@ -22,6 +23,7 @@ export const SUPPORTED_SITES = [
   { id: "29cm", name: "29CM", url: "https://shop.29cm.co.kr", category: "platform" },
   { id: "wconcept", name: "W Concept", url: "https://www.wconcept.co.kr", category: "platform" },
   { id: "shopify", name: "Shopify 기반 브랜드몰", url: "", category: "brand", description: "Salomon, Wilson, Alo Yoga 등" },
+  { id: "northface", name: "The North Face Korea", url: "https://www.thenorthfacekorea.co.kr", category: "brand" },
   { id: "cafe24", name: "Cafe24 자사몰", url: "", category: "brand", description: "Cafe24 기반 브랜드몰 (국내 자사몰 70%+)" },
   { id: "generic", name: "기타 (자동감지)", url: "", category: "generic", description: "OpenGraph / JSON-LD 기반 범용 크롤러" },
 ] as const;
@@ -37,6 +39,8 @@ export function getCrawler(sourceSite: string): ICrawler {
       return new WConceptCrawler();
     case "shopify":
       return new ShopifyCrawler();
+    case "northface":
+      return new NorthFaceCrawler();
     case "cafe24":
       return new Cafe24Crawler();
     case "generic":
@@ -63,6 +67,11 @@ export function detectSite(url: string): string {
     hostname.includes("aloyoga.com")
   ) {
     return "shopify";
+  }
+
+  // The North Face Korea
+  if (hostname.includes("thenorthfacekorea.co.kr")) {
+    return "northface";
   }
 
   return "generic";

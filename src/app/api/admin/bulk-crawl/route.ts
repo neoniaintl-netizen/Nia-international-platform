@@ -61,20 +61,20 @@ const CRAWL_TARGETS = [
   // ── The North Face (Generic 3개 카테고리) ──
   {
     brandSlug: "thenorthface",
-    sourceSite: "generic",
+    sourceSite: "northface",
     targetUrl:
       "https://www.thenorthfacekorea.co.kr/category/n/men/jacket-vest",
     note: "Generic SSR — 남성 재킷/베스트",
   },
   {
     brandSlug: "thenorthface",
-    sourceSite: "generic",
+    sourceSite: "northface",
     targetUrl: "https://www.thenorthfacekorea.co.kr/category/n/men/tops",
     note: "Generic SSR — 남성 상의",
   },
   {
     brandSlug: "thenorthface",
-    sourceSite: "generic",
+    sourceSite: "northface",
     targetUrl:
       "https://www.thenorthfacekorea.co.kr/category/n/women/jacket-vest",
     note: "Generic SSR — 여성 재킷/베스트",

@@ -59,16 +59,105 @@ export class ShopifyCrawler extends BaseCrawler {
   // ─────────────────────────────────────
 
   parseProductDetail(html: string, url: string): CrawledProduct | null {
-    // 1) JSON-LD 우선
+    // 1) JSON-LD 우선 (가격/이름/기본 이미지)
     const jsonLd = this.parseJsonLd(html, url);
-    if (jsonLd && jsonLd.originalPrice > 0) return jsonLd;
+    let result: CrawledProduct | null = null;
 
-    // 2) OpenGraph 태그 폴백
-    const og = this.parseMetaTags(html, url);
-    if (og) return og;
+    if (jsonLd && jsonLd.originalPrice > 0) {
+      result = jsonLd;
+    } else {
+      // 2) OpenGraph 태그 폴백
+      const og = this.parseMetaTags(html, url);
+      if (og) {
+        result = og;
+      } else {
+        // 3) ShopifyAnalytics 전역 변수 (마지막 수단)
+        result = this.parseShopifyAnalytics(html, url);
+      }
+    }
 
-    // 3) ShopifyAnalytics 전역 변수 (마지막 수단)
-    return this.parseShopifyAnalytics(html, url);
+    if (!result) return null;
+
+    // === 이미지 다중 수집 ===
+    // 어떤 파서를 썼든, 상세 페이지 DOM에서 추가 이미지를 모두 긁어와 합친다
+    const extraImages = this.extractAllProductImages(html, url);
+    const mergedImages = Array.from(
+      new Set([...(result.imageUrls ?? []), ...extraImages])
+    ).slice(0, 8);
+    result.imageUrls = mergedImages;
+
+    return result;
+  }
+
+  /** 상세 페이지의 모든 제품 이미지 수집 (Shopify 표준 + fallback) */
+  private extractAllProductImages(html: string, url: string): string[] {
+    const $ = cheerio.load(html);
+    const images = new Set<string>();
+
+    // Shopify 표준 셀렉터
+    const selectors = [
+      ".product__media img",
+      ".product-single__photo img",
+      ".product-gallery img",
+      "[id^='ProductMedia-'] img",
+      ".product-form__media img",
+      "[data-product-image]",
+      "img[src*='/cdn/shop/']",
+      "img[src*='shopifycdn']",
+    ];
+    for (const sel of selectors) {
+      $(sel).each((_, el) => {
+        let src =
+          $(el).attr("src") ||
+          $(el).attr("data-src") ||
+          $(el).attr("data-srcset")?.split(",")[0]?.trim().split(" ")[0] ||
+          $(el).attr("srcset")?.split(",")[0]?.trim().split(" ")[0];
+        if (!src) return;
+        const normalized = this.normalizeImageUrl(src);
+        // 품질 필터: 2000x, 1600x, 1200x 같은 대형 이미지 우선
+        if (
+          normalized.includes("/cdn/shop/") ||
+          normalized.includes("shopifycdn")
+        ) {
+          // 크기 축소된 버전을 큰 버전으로 업그레이드
+          const upgraded = normalized.replace(
+            /_(\d+)x(\d+)?\./,
+            "_2000x."
+          );
+          images.add(upgraded);
+        }
+      });
+    }
+
+    // JSON-LD image 배열 전체
+    $('script[type="application/ld+json"]').each((_, el) => {
+      try {
+        const data = JSON.parse($(el).html() || "");
+        const product = this.findProductInJsonLd(data);
+        if (product?.image) {
+          const imgs = Array.isArray(product.image)
+            ? product.image
+            : [product.image];
+          for (const img of imgs) {
+            const u = typeof img === "string" ? img : img?.url;
+            if (u) images.add(this.normalizeImageUrl(u));
+          }
+        }
+      } catch {}
+    });
+
+    return Array.from(images);
+  }
+
+  private findProductInJsonLd(data: any): any {
+    if (data["@type"] === "Product") return data;
+    if (data["@graph"]) {
+      return data["@graph"].find((i: any) => i["@type"] === "Product");
+    }
+    if (Array.isArray(data)) {
+      return data.find((i: any) => i["@type"] === "Product");
+    }
+    return null;
   }
 
   // ─── JSON-LD 파서 ───
