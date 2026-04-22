@@ -39,9 +39,14 @@ export async function getWeeklyRankedProducts(limit = 8) {
 }
 
 export async function getSaleProducts(limit = 4) {
+  // 실제 크롤링 상품(고화질 이미지) 우선 — seed-fallback은 마지막
   return prisma.product.findMany({
     where: { status: "ACTIVE", salePrice: { not: null } },
-    orderBy: { updatedAt: "desc" },
+    orderBy: [
+      // sourceSite = 'seed-fallback'이면 뒤로, 실제 크롤링(salomon/wilson/northface/shopify)이 앞
+      { sourceSite: "asc" },
+      { updatedAt: "desc" },
+    ],
     take: limit,
     include: {
       brand: { select: { name: true, slug: true } },
@@ -51,15 +56,40 @@ export async function getSaleProducts(limit = 4) {
 }
 
 export async function getNewProducts(limit = 8) {
-  return prisma.product.findMany({
-    where: { status: "ACTIVE", isNew: true },
-    orderBy: { createdAt: "desc" },
+  // 실제 크롤링 상품(고화질 이미지)을 먼저 보여주고, 부족하면 수동 시드로 보충
+  const realProducts = await prisma.product.findMany({
+    where: {
+      status: "ACTIVE",
+      sourceSite: { notIn: ["seed-fallback"] },
+      NOT: { sourceSite: null },
+    },
+    orderBy: [{ isNew: "desc" }, { createdAt: "desc" }],
     take: limit,
     include: {
       brand: { select: { name: true, slug: true } },
       images: { where: { isMain: true }, take: 1 },
     },
   });
+
+  if (realProducts.length >= limit) return realProducts;
+
+  // 부족분을 수동 시드로 채움
+  const fillCount = limit - realProducts.length;
+  const fallbackProducts = await prisma.product.findMany({
+    where: {
+      status: "ACTIVE",
+      isNew: true,
+      id: { notIn: realProducts.map((p) => p.id) },
+    },
+    orderBy: { createdAt: "desc" },
+    take: fillCount,
+    include: {
+      brand: { select: { name: true, slug: true } },
+      images: { where: { isMain: true }, take: 1 },
+    },
+  });
+
+  return [...realProducts, ...fallbackProducts];
 }
 
 export async function getAllProducts(options?: {
