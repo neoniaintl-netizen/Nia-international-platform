@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import type { CrawledProduct } from "./types";
+import { inferCategoryFromBrandName } from "./brand-category-map";
 
 /**
  * 크롤링된 상품 데이터를 DB에 저장
@@ -45,7 +46,7 @@ async function importSingleProduct(item: CrawledProduct, crawlJobId: string) {
     },
   });
 
-  // 2) 카테고리 – 이름으로 검색, 없으면 기본 카테고리 사용
+  // 2) 카테고리 – (1) categoryName 매칭 → (2) 브랜드 기반 추론 → (3) "기타" 폴백
   let categoryId: string;
   if (item.categoryName) {
     const category = await prisma.category.findFirst({
@@ -53,9 +54,13 @@ async function importSingleProduct(item: CrawledProduct, crawlJobId: string) {
         name: { contains: item.categoryName, mode: "insensitive" },
       },
     });
-    categoryId = category?.id ?? await getDefaultCategoryId();
+    if (category?.id) {
+      categoryId = category.id;
+    } else {
+      categoryId = await resolveBrandCategoryId(item.brandName);
+    }
   } else {
-    categoryId = await getDefaultCategoryId();
+    categoryId = await resolveBrandCategoryId(item.brandName);
   }
 
   // 3) 상품 slug 생성 (중복 방지)
@@ -157,6 +162,19 @@ async function getDefaultCategoryId(): Promise<string> {
 
   defaultCategoryId = cat.id;
   return cat.id;
+}
+
+/** 브랜드 이름 기반으로 기본 카테고리를 찾아 id 반환. 실패 시 "기타". */
+async function resolveBrandCategoryId(brandName: string): Promise<string> {
+  const inferredSlug = inferCategoryFromBrandName(brandName);
+  if (inferredSlug) {
+    const cat = await prisma.category.findUnique({
+      where: { slug: inferredSlug },
+      select: { id: true },
+    });
+    if (cat) return cat.id;
+  }
+  return getDefaultCategoryId();
 }
 
 function slugify(text: string): string {

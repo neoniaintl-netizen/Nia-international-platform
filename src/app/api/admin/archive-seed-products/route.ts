@@ -33,20 +33,38 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // 랭킹에서 실제 크롤링 상품들에 rankPosition 부여 (리뷰 평점 기준 상위 6개)
-  const topActive = await prisma.product.findMany({
-    where: {
-      status: "ACTIVE",
-      sourceUrl: { not: null },
-    },
-    orderBy: [{ reviewAvg: "desc" }, { createdAt: "desc" }],
-    take: 6,
-    select: { id: true, name: true },
+  // 기존 rankPosition 전부 초기화 (수동 시드 상품 포함)
+  await prisma.product.updateMany({
+    where: { rankPosition: { not: null } },
+    data: { rankPosition: null },
   });
 
-  for (let i = 0; i < topActive.length; i++) {
+  // 실제 크롤링 브랜드만 랭킹 후보 (seed-fallback/seed 제외)
+  // 한 브랜드가 랭킹 전체 점유 방지 — 브랜드별 2개씩 분산
+  const realBrandSlugs = ["salomon", "wilson", "thenorthface"];
+  const rankingCandidates: { id: string; name: string; brandSlug: string }[] = [];
+
+  for (const slug of realBrandSlugs) {
+    const brandTop = await prisma.product.findMany({
+      where: {
+        status: "ACTIVE",
+        brand: { slug },
+        sourceSite: { notIn: ["seed-fallback"] },
+      },
+      orderBy: [{ reviewAvg: "desc" }, { createdAt: "desc" }],
+      take: 2, // 브랜드당 2개
+      select: { id: true, name: true },
+    });
+    for (const p of brandTop) {
+      rankingCandidates.push({ ...p, brandSlug: slug });
+    }
+  }
+
+  // rankPosition 1~6 부여
+  const finalRanking = rankingCandidates.slice(0, 6);
+  for (let i = 0; i < finalRanking.length; i++) {
     await prisma.product.update({
-      where: { id: topActive[i].id },
+      where: { id: finalRanking[i].id },
       data: { rankPosition: i + 1, isBest: true },
     });
   }
@@ -54,7 +72,11 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     success: true,
     archived: updated.count,
-    rankedNew: topActive.map((p, i) => ({ rank: i + 1, name: p.name })),
+    rankedNew: finalRanking.map((p, i) => ({
+      rank: i + 1,
+      brand: p.brandSlug,
+      name: p.name,
+    })),
     archivedProducts: seedProducts.map((p) => ({
       brand: p.brand.slug,
       name: p.name.slice(0, 40),
