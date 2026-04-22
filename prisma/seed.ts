@@ -178,6 +178,11 @@ async function main() {
     prisma.category.create({ data: { name: "가방", slug: "bags", depth: 0, sortOrder: 6 } }),
     prisma.category.create({ data: { name: "시계/주얼리", slug: "accessories-jewelry", depth: 0, sortOrder: 7 } }),
     prisma.category.create({ data: { name: "모자/액세서리", slug: "hats-accessories", depth: 0, sortOrder: 8 } }),
+    prisma.category.create({ data: { name: "골프", slug: "golf", depth: 0, sortOrder: 9 } }),
+    prisma.category.create({ data: { name: "스포츠", slug: "sports", depth: 0, sortOrder: 10 } }),
+    prisma.category.create({ data: { name: "아웃도어", slug: "outdoor", depth: 0, sortOrder: 11 } }),
+    prisma.category.create({ data: { name: "뷰티", slug: "beauty", depth: 0, sortOrder: 12 } }),
+    prisma.category.create({ data: { name: "여성의류", slug: "women", depth: 0, sortOrder: 13 } }),
   ]);
 
   // 상의 하위
