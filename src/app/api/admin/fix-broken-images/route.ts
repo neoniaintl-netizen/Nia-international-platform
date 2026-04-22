@@ -12,14 +12,14 @@ import { prisma } from "@/lib/db";
  * 이미지 깨짐 상태를 프리미엄 톤의 프레임 이미지로 전환.
  */
 
-// 브랜드별 색상 (placehold.co 배경/텍스트)
+// 브랜드별 색상 — 그린 계열 + 흰색 텍스트 (골드/크림 완전 제거)
 const BRAND_STYLE: Record<string, { bg: string; fg: string; label: string }> = {
-  patagonia: { bg: "1a3a2e", fg: "ffffff", label: "PATAGONIA" },
-  arcteryx: { bg: "0a0a0a", fg: "d4b88a", label: "ARC'TERYX" },
-  kolonsport: { bg: "4a3324", fg: "d4b88a", label: "KOLON+SPORT" },
-  descente: { bg: "c8102e", fg: "ffffff", label: "DESCENTE" },
-  "nike-skims": { bg: "f5e6d3", fg: "0a0a0a", label: "NIKE+x+SKIMS" },
-  aloyoga: { bg: "2c2c2c", fg: "d4b88a", label: "ALO+YOGA" },
+  patagonia: { bg: "2D5E3F", fg: "ffffff", label: "PATAGONIA" },
+  arcteryx: { bg: "1F3F2F", fg: "ffffff", label: "ARC'TERYX" },
+  kolonsport: { bg: "3A5F3F", fg: "ffffff", label: "KOLON+SPORT" },
+  descente: { bg: "2A4D3A", fg: "ffffff", label: "DESCENTE" },
+  "nike-skims": { bg: "4A7C59", fg: "ffffff", label: "NIKE+x+SKIMS" },
+  aloyoga: { bg: "345E46", fg: "ffffff", label: "ALO+YOGA" },
 };
 
 function placeholderUrl(

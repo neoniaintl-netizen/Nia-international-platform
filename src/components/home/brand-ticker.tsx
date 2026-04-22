@@ -43,8 +43,8 @@ export function BrandTicker({
               <span
                 className={`text-[13px] lg:text-[15px] uppercase tracking-[0.2em] font-medium transition-colors ${
                   b.highlight
-                    ? "text-[var(--champagne)]"
-                    : "text-white/70 group-hover:text-white"
+                    ? "text-white"
+                    : "text-white/60 group-hover:text-white"
                 }`}
               >
                 {b.name}

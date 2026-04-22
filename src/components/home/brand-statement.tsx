@@ -35,8 +35,8 @@ export function BrandStatement() {
     <section className="relative overflow-hidden bg-[var(--ink)] text-white">
       {/* 배경 그라디언트 + 샴페인 블러 글로우 */}
       <div className="absolute inset-0 bg-gradient-to-br from-[var(--ink)] via-[#0F1C2E] to-[#0A0A0A] pointer-events-none" />
-      <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-[var(--champagne)]/10 blur-[180px] pointer-events-none" />
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-[var(--champagne)]/5 blur-[160px] pointer-events-none" />
+      <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-white/10 blur-[180px] pointer-events-none" />
+      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-white/5 blur-[160px] pointer-events-none" />
 
       {/* 배경 대형 숫자 장식 */}
       <div
@@ -51,8 +51,8 @@ export function BrandStatement() {
           {/* 좌측 */}
           <div>
             <div className="flex items-center gap-3 mb-8">
-              <span className="h-px w-10 bg-[var(--champagne)]" />
-              <p className="eyebrow text-[var(--champagne)]">
+              <span className="h-px w-10 bg-white" />
+              <p className="eyebrow text-white">
                 NKBUS Membership
               </p>
             </div>
@@ -62,7 +62,7 @@ export function BrandStatement() {
               <br />
               <span className="inline-block relative">
                 세계로
-                <span className="text-[var(--champagne)]">.</span>
+                <span className="text-white">.</span>
               </span>
             </h2>
 
@@ -75,7 +75,7 @@ export function BrandStatement() {
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="/membership"
-                className="group inline-flex items-center gap-3 px-8 h-14 bg-[var(--champagne)] text-[var(--ink)] text-[11px] font-semibold uppercase tracking-[0.25em] hover:bg-white transition-colors"
+                className="group inline-flex items-center gap-3 px-8 h-14 bg-white text-[var(--ink)] text-[11px] font-semibold uppercase tracking-[0.25em] hover:bg-white transition-colors"
               >
                 Join Membership
                 <ArrowRight
@@ -99,7 +99,7 @@ export function BrandStatement() {
           {/* 우측: 혜택 리스트 */}
           <div className="lg:pl-8">
             <div className="relative">
-              <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[var(--champagne)]/30 to-transparent hidden lg:block" />
+              <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent hidden lg:block" />
 
               <ul className="space-y-6 lg:space-y-8 lg:pl-10">
                 {BENEFITS.map((b, idx) => (
@@ -107,9 +107,9 @@ export function BrandStatement() {
                     key={b.title}
                     className="group flex items-start gap-5 lg:gap-6"
                   >
-                    <div className="shrink-0 w-12 h-12 flex items-center justify-center border border-white/20 bg-white/[0.03] group-hover:border-[var(--champagne)] group-hover:bg-[var(--champagne)]/10 transition-colors">
+                    <div className="shrink-0 w-12 h-12 flex items-center justify-center border border-white/20 bg-white/[0.03] group-hover:border-white group-hover:bg-white/10 transition-colors">
                       <b.icon
-                        className="w-5 h-5 text-[var(--champagne)]"
+                        className="w-5 h-5 text-white"
                         strokeWidth={1.5}
                       />
                     </div>
@@ -142,8 +142,8 @@ export function BrandStatement() {
                 Silver
               </span>
               <span className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--champagne)]" />
-                Gold
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                Platinum
               </span>
             </div>
           </div>

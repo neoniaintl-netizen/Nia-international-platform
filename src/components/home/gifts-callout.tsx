@@ -13,7 +13,7 @@ export function GiftsCallout() {
       subLabel: "그를 위한 선물",
       href: "/gifts?audience=him",
       imageUrl:
-        "https://placehold.co/1200x900/1F3F2F/f5e9d3?font=inter&text=GIFTS+FOR+HIM",
+        "https://placehold.co/1200x900/1F3F2F/ffffff?font=inter&text=GIFTS+FOR+HIM",
     },
     {
       label: "Gifts for Her",

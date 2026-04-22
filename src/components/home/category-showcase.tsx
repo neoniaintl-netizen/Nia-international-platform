@@ -16,7 +16,7 @@ const DEFAULT_CATEGORIES: CategoryCard[] = [
     subLabel: "아웃도어",
     href: "/category/outdoor",
     imageUrl:
-      "https://placehold.co/1000x1300/1F3F2F/f5e9d3?font=inter&text=OUTDOOR",
+      "https://placehold.co/1000x1300/1F3F2F/ffffff?font=inter&text=OUTDOOR",
     badge: "Featured",
   },
   {
@@ -24,14 +24,14 @@ const DEFAULT_CATEGORIES: CategoryCard[] = [
     subLabel: "스포츠",
     href: "/category/sports",
     imageUrl:
-      "https://placehold.co/1000x1300/2A4D3A/f5e9d3?font=inter&text=SPORTS",
+      "https://placehold.co/1000x1300/2A4D3A/ffffff?font=inter&text=SPORTS",
   },
   {
     label: "Golf",
     subLabel: "골프",
     href: "/category/golf",
     imageUrl:
-      "https://placehold.co/1000x1300/2D5E3F/f5e9d3?font=inter&text=GOLF",
+      "https://placehold.co/1000x1300/2D5E3F/ffffff?font=inter&text=GOLF",
     badge: "New",
   },
   {

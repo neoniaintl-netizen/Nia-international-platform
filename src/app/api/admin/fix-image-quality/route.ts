@@ -12,12 +12,13 @@ import { prisma } from "@/lib/db";
 
 // 골프 그린 팔레트 — 브랜드별 미묘한 톤 차이로 아이덴티티 유지
 const BRAND_STYLE: Record<string, { bg: string; fg: string; label: string }> = {
-  patagonia: { bg: "2D5E3F", fg: "f5e9d3", label: "PATAGONIA" },      // 클래식 골프 그린
-  arcteryx: { bg: "1F3F2F", fg: "d4b88a", label: "ARC'TERYX" },       // 다크 포레스트
-  kolonsport: { bg: "3A5F3F", fg: "f0ead6", label: "KOLON+SPORT" },   // 미드 페어웨이
-  descente: { bg: "2A4D3A", fg: "f5e9d3", label: "DESCENTE" },        // 딥 그린
-  "nike-skims": { bg: "4A7C59", fg: "0a0a0a", label: "NIKE+x+SKIMS" }, // 라이트 잔디
-  aloyoga: { bg: "345E46", fg: "d4b88a", label: "ALO+YOGA" },         // 모스 그린
+  // 모든 브랜드 그린 계열 + 흰색 텍스트 (금색/크림 완전 제거)
+  patagonia: { bg: "2D5E3F", fg: "ffffff", label: "PATAGONIA" },
+  arcteryx: { bg: "1F3F2F", fg: "ffffff", label: "ARC'TERYX" },
+  kolonsport: { bg: "3A5F3F", fg: "ffffff", label: "KOLON+SPORT" },
+  descente: { bg: "2A4D3A", fg: "ffffff", label: "DESCENTE" },
+  "nike-skims": { bg: "4A7C59", fg: "ffffff", label: "NIKE+x+SKIMS" },
+  aloyoga: { bg: "345E46", fg: "ffffff", label: "ALO+YOGA" },
 };
 
 function placeholderUrl(

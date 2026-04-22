@@ -84,11 +84,11 @@
   --paper: #FAFAF7;
   --stone: #F5F2EC;
   --line: #E8E6E1;
-  --champagne: #B8935C;
-  --champagne-soft: #D4B88A;
-  /* --sale은 champagne으로 alias — 기존 코드 호환 */
-  --sale: #B8935C;
-  --nkbus-red: #B8935C;
+  /* 금색/노란색 완전 제거 — 블랙&화이트 모노크롬 + 포인트만 */
+  --champagne: #0A0A0A;
+  --champagne-soft: #6B6B6B;
+  --sale: #0A0A0A;
+  --nkbus-red: #0A0A0A;
 
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
