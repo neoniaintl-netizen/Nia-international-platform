@@ -22,19 +22,19 @@ export interface BannerData {
 const DEFAULT_BANNERS: BannerData[] = [
   {
     id: "1",
+    title: "2026 S/S\nGolf Edit",
+    subtitle: "Premium Performance · Refined Silhouette",
+    imageUrl: "/banners/hero-golf-polo.png",
+    linkUrl: "/category/golf",
+    bgColor: "#6B8E4E",
+  },
+  {
+    id: "2",
     title: "The Art of\nKorean Fashion",
     subtitle: "A Curated Selection for the World",
     imageUrl: "",
     linkUrl: "/products?sort=newest",
     bgColor: "#0A0A0A",
-  },
-  {
-    id: "2",
-    title: "2026 S/S\nGolf Edit",
-    subtitle: "Premium Performance · Refined Silhouette",
-    imageUrl: "",
-    linkUrl: "/category/golf",
-    bgColor: "#1F3F2F",
   },
   {
     id: "3",
@@ -83,18 +83,28 @@ export function HeroBanner({
     >
       {/* 풀블리드 배경 이미지 (있을 경우) */}
       {banner.imageUrl && (
-        <Image
-          src={banner.imageUrl}
-          alt={banner.title}
-          fill
-          className="object-cover opacity-50"
-          priority
-        />
+        <>
+          <Image
+            src={banner.imageUrl}
+            alt={banner.title}
+            fill
+            className="object-cover object-left"
+            priority
+            sizes="100vw"
+          />
+          {/* 오른쪽 가독성 확보용 그라디언트 */}
+          <div className="absolute inset-0 bg-gradient-to-l from-black/55 via-black/10 to-transparent pointer-events-none" />
+        </>
       )}
 
       <Link href={banner.linkUrl || "#"} className="block relative">
         <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-24 md:py-32 lg:py-40 text-white">
-          <div className="max-w-2xl">
+          <div
+            className={cn(
+              "max-w-2xl",
+              banner.imageUrl && "ml-auto text-right"
+            )}
+          >
             <p className="eyebrow text-white/60 mb-6">
               NKBUS · {String(current + 1).padStart(2, "0")} /{" "}
               {String(banners.length).padStart(2, "0")}
