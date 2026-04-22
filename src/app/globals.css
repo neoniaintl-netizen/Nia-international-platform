@@ -139,4 +139,47 @@
       monospace;
     font-feature-settings: "tnum";
   }
+
+  /* === Hero 배너 애니메이션 === */
+  .animate-ken-burns {
+    animation: ken-burns 8s ease-out forwards;
+  }
+
+  .animate-progress-fill {
+    animation: progress-fill 7s linear forwards;
+  }
+
+  .animate-brand-ticker {
+    animation: brand-ticker 40s linear infinite;
+  }
+  .animate-brand-ticker:hover {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes ken-burns {
+  0% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes progress-fill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes brand-ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }

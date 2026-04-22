@@ -1,4 +1,5 @@
 import { HeroBanner } from "@/components/home/hero-banner";
+import { BrandTicker } from "@/components/home/brand-ticker";
 import { FeaturedGrid } from "@/components/home/featured-grid";
 import { CategoryShowcase } from "@/components/home/category-showcase";
 import { GiftsCallout } from "@/components/home/gifts-callout";
@@ -50,7 +51,10 @@ export default async function HomePage() {
         }
       />
 
-      {/* 2) What's New — 16개 상품 그리드 */}
+      {/* 2) 입점 브랜드 티커 — 자동 스크롤 (Hero 바로 아래) */}
+      <BrandTicker />
+
+      {/* 3) What's New — 16개 상품 그리드 */}
       <FeaturedGrid
         eyebrow="What's New"
         title="New Arrivals"
