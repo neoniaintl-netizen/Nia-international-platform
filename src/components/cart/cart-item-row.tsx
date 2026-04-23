@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PriceDisplay } from "@/components/shared/price-display";
@@ -55,12 +54,14 @@ export function CartItemRow({ item, checked, onToggle }: CartItemRowProps) {
         className="mt-1 shrink-0"
       />
       <div className="w-20 h-[106px] bg-gray-100 rounded-lg overflow-hidden shrink-0">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={imageUrl}
           alt={item.product.name}
           width={80}
           height={106}
           className="object-cover w-full h-full"
+          loading="lazy"
         />
       </div>
       <div className="flex-1 min-w-0">
