@@ -134,6 +134,20 @@ async function importSingleProduct(item: CrawledProduct, crawlJobId: string) {
         isActive: true,
       })),
     });
+  } else {
+    // variant 정보가 없으면 기본 ONE SIZE 단일 variant 생성 (장바구니 담기 가능하도록)
+    const existing = await prisma.productVariant.count({ where: { productId } });
+    if (existing === 0) {
+      await prisma.productVariant.create({
+        data: {
+          productId,
+          sku: `${slug}-ONESIZE`.toUpperCase(),
+          size: "ONE SIZE",
+          stock: 100,
+          isActive: true,
+        },
+      });
+    }
   }
 }
 
