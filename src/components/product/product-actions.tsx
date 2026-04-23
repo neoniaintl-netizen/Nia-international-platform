@@ -59,8 +59,9 @@ export function ProductActions({
   }
 
   function handleAddToCart() {
-    if (status !== "authenticated") {
-      router.push("/login");
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/products/${productId}`)}`);
       return;
     }
     const variant = findVariant();
@@ -68,43 +69,65 @@ export function ProductActions({
     if (variant.stock <= 0) return toast.error("품절된 상품입니다");
 
     startTransition(async () => {
-      await addToCart(productId, variant.id);
-      toast.success("장바구니에 추가되었습니다", {
-        action: {
-          label: "장바구니 보기",
-          onClick: () => router.push("/cart"),
-        },
-      });
+      try {
+        const result = await addToCart(productId, variant.id);
+        if (result?.error) {
+          toast.error(result.error);
+          return;
+        }
+        toast.success("장바구니에 추가되었습니다", {
+          action: {
+            label: "장바구니 보기",
+            onClick: () => router.push("/cart"),
+          },
+        });
+      } catch (e: any) {
+        toast.error(e?.message ?? "장바구니 추가에 실패했습니다");
+      }
     });
   }
 
   function handleBuyNow() {
-    if (status !== "authenticated") {
-      router.push("/login");
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/products/${productId}`)}`);
       return;
     }
     const variant = findVariant();
     if (!variant) return toast.error("옵션을 선택해주세요");
 
     startTransition(async () => {
-      await addToCart(productId, variant.id);
-      router.push("/checkout");
+      try {
+        const result = await addToCart(productId, variant.id);
+        if (result?.error) {
+          toast.error(result.error);
+          return;
+        }
+        router.push("/checkout");
+      } catch (e: any) {
+        toast.error(e?.message ?? "처리에 실패했습니다");
+      }
     });
   }
 
   function handleWishlist() {
-    if (status !== "authenticated") {
-      router.push("/login");
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/products/${productId}`)}`);
       return;
     }
     startTransition(async () => {
-      const result = await toggleWishlist(productId);
-      setWishlisted(result.wishlisted);
-      toast(
-        result.wishlisted
-          ? "위시리스트에 추가되었습니다"
-          : "위시리스트에서 삭제되었습니다"
-      );
+      try {
+        const result = await toggleWishlist(productId);
+        setWishlisted(result.wishlisted);
+        toast(
+          result.wishlisted
+            ? "위시리스트에 추가되었습니다"
+            : "위시리스트에서 삭제되었습니다"
+        );
+      } catch (e: any) {
+        toast.error(e?.message ?? "위시리스트 처리에 실패했습니다");
+      }
     });
   }
 
