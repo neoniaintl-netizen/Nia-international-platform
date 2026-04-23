@@ -10,6 +10,7 @@ import { prisma } from "@/lib/db";
  */
 
 const HOST_TO_BRAND_SLUG: Array<{ match: RegExp; slug: string }> = [
+  // 아웃도어/스포츠 9
   { match: /salomon\.co\.kr/i, slug: "salomon" },
   { match: /wilson\.com/i, slug: "wilson" },
   { match: /aloyoga\.com/i, slug: "aloyoga" },
@@ -17,16 +18,33 @@ const HOST_TO_BRAND_SLUG: Array<{ match: RegExp; slug: string }> = [
   { match: /patagonia\.co\.kr/i, slug: "patagonia" },
   { match: /arcteryx\.co\.kr/i, slug: "arcteryx" },
   { match: /kolonsport\.com/i, slug: "kolonsport" },
-  { match: /dk-on\.com/i, slug: "descente" },
   { match: /nike\.com/i, slug: "nike-skims" },
+
+  // 골프 브랜드 10 (Phase 1)
+  { match: /markandlona-korea\.co\.kr/i, slug: "mark-lona" },
+  { match: /southcape\.shop/i, slug: "southcape" },
+  { match: /anewgolf\.com/i, slug: "anewgolf" },
+  { match: /iceberggolf\.com/i, slug: "iceberg-golf" },
+  { match: /utaagolf\.com/i, slug: "utaa" },
+  { match: /peltgolf\.com/i, slug: "pelt" },
+  { match: /gfore\.kr/i, slug: "gfore" },
+  { match: /thecart\.co\.kr/i, slug: "thecart" },
+  { match: /pxg\.co\.kr/i, slug: "pxg" },
+  // dk-on은 DESCENTEGOLF 경로면 descente-golf, 그 외는 descente
+  {
+    match: /dk-on\.com\/DESCENTEGOLF/i,
+    slug: "descente-golf",
+  },
+  { match: /dk-on\.com/i, slug: "descente" },
 ];
 
 function inferBrandSlugFromUrl(url: string | null): string | null {
   if (!url) return null;
   try {
-    const host = new URL(url).hostname.toLowerCase();
+    const u = new URL(url);
+    const hostPath = `${u.hostname}${u.pathname}`.toLowerCase();
     for (const { match, slug } of HOST_TO_BRAND_SLUG) {
-      if (match.test(host)) return slug;
+      if (match.test(hostPath)) return slug;
     }
   } catch {}
   return null;
