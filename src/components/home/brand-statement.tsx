@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Crown, Truck, Sparkles, Clock } from "lucide-react";
 
 /**
@@ -33,8 +34,18 @@ const BENEFITS = [
 export function BrandStatement() {
   return (
     <section className="relative overflow-hidden bg-[var(--ink)] text-white">
-      {/* 배경 그라디언트 + 샴페인 블러 글로우 */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--ink)] via-[#0F1C2E] to-[#0A0A0A] pointer-events-none" />
+      {/* 배경 이미지 */}
+      <Image
+        src="/banners/앨범 1.png"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center pointer-events-none select-none"
+      />
+      {/* 어두운 오버레이 (텍스트 가독성) */}
+      <div className="absolute inset-0 bg-black/70 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/70 pointer-events-none" />
       <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-white/10 blur-[180px] pointer-events-none" />
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-white/5 blur-[160px] pointer-events-none" />
 

@@ -74,11 +74,48 @@ const NOTICES = [
   { title: "봄 시즌 프로모션 안내", date: "2026.03.15" },
 ];
 
-const PAYMENT_BENEFITS = [
-  { icon: "💳", text: "NKBUSPay 첫 결제 시 5천원 할인" },
-  { icon: "🟡", text: "카카오페이 × 페이머니 10만원 이상 결제 시 4천원 할인" },
-  { icon: "🔵", text: "AliPay 결제 시 위안화 직결제 지원" },
+type PaymentLogo = "nkbuspay" | "kakaopay" | "alipay";
+
+const PAYMENT_BENEFITS: Array<{ logo: PaymentLogo; text: string }> = [
+  { logo: "nkbuspay", text: "NKBUSPay 첫 결제 시 5천원 할인" },
+  { logo: "kakaopay", text: "카카오페이 × 페이머니 10만원 이상 결제 시 4천원 할인" },
+  { logo: "alipay", text: "AliPay 결제 시 위안화 직결제 지원" },
 ];
+
+function PaymentLogoIcon({ logo }: { logo: PaymentLogo }) {
+  if (logo === "alipay") {
+    return (
+      <span
+        className="inline-flex h-5 w-5 items-center justify-center rounded-[4px] text-[11px] font-bold text-white"
+        style={{ backgroundColor: "#1677FF" }}
+        aria-label="Alipay"
+      >
+        支
+      </span>
+    );
+  }
+  if (logo === "kakaopay") {
+    return (
+      <span
+        className="inline-flex h-5 items-center justify-center gap-[2px] rounded-[4px] px-1 text-[9px] font-bold text-black"
+        style={{ backgroundColor: "#FFEB00" }}
+        aria-label="Kakao Pay"
+      >
+        <span className="inline-block h-[5px] w-[5px] rounded-full bg-black" />
+        pay
+      </span>
+    );
+  }
+  return (
+    <span
+      className="inline-flex h-5 w-5 items-center justify-center rounded-[4px] text-[10px] font-bold text-white"
+      style={{ backgroundColor: "#0A0A0A" }}
+      aria-label="NKBUS Pay"
+    >
+      N
+    </span>
+  );
+}
 
 export function Footer() {
   return (
@@ -131,7 +168,7 @@ export function Footer() {
               <ul className="space-y-2">
                 {PAYMENT_BENEFITS.map((benefit) => (
                   <li key={benefit.text} className="flex items-center gap-2">
-                    <span className="text-sm">{benefit.icon}</span>
+                    <PaymentLogoIcon logo={benefit.logo} />
                     <span className="text-[13px] text-gray-600">{benefit.text}</span>
                   </li>
                 ))}
