@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -29,17 +28,16 @@ export function ProductImageGallery({
     <div className="space-y-3 md:space-y-4">
       {/* 메인 이미지 — object-contain으로 상품 전체 노출, 잘림 방지 */}
       <div className="relative aspect-square md:aspect-[4/5] bg-[var(--stone)] overflow-hidden">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={
             selectedImage?.url ??
             "https://placehold.co/800x1000/F5F2EC/6B6B6B?text=No+Image"
           }
           alt={selectedImage?.alt ?? productName}
-          fill
-          className="object-contain transition-opacity duration-300 p-4 md:p-6"
-          priority
-          sizes="(max-width: 1024px) 100vw, 50vw"
+          className="absolute inset-0 w-full h-full object-contain transition-opacity duration-300 p-4 md:p-6"
           key={selectedImage?.id}
+          loading="eager"
         />
         {isNew && (
           <span className="absolute top-3 left-3 md:top-4 md:left-4 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.15em] border border-[var(--ink)] bg-white text-[var(--ink)]">
@@ -48,7 +46,7 @@ export function ProductImageGallery({
         )}
       </div>
 
-      {/* 썸네일 가로 스트립 — 모바일 축소 크기 + 스냅 스크롤 */}
+      {/* 썸네일 가로 스트립 */}
       {images.length > 1 && (
         <div className="flex gap-1.5 md:gap-2 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-1 -mx-1 px-1">
           {images.map((img) => (
@@ -64,12 +62,12 @@ export function ProductImageGallery({
               )}
               aria-label={`이미지 ${images.indexOf(img) + 1} 선택`}
             >
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={img.url}
                 alt={img.alt ?? productName}
-                fill
-                className="object-contain p-1.5"
-                sizes="88px"
+                className="absolute inset-0 w-full h-full object-contain p-1.5"
+                loading="lazy"
               />
             </button>
           ))}

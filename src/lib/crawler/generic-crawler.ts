@@ -204,42 +204,50 @@ export class GenericCrawler extends BaseCrawler {
         ? priceAmount
         : undefined;
 
-    // 이미지
-    const imageUrls: string[] = [];
-    const ogImage = $('meta[property="og:image"]').attr("content");
-    if (ogImage) imageUrls.push(ogImage);
-
-    // 추가 이미지 (일반적 패턴)
-    $(".product-image img, .detail-image img, .goods-image img").each(
-      (_, el) => {
-        const src =
-          $(el).attr("src") || $(el).attr("data-src") || $(el).attr("data-original");
-        if (src && !imageUrls.includes(src)) {
-          imageUrls.push(src);
-        }
-      }
-    );
+    const imageUrls = this.collectImages($, {
+      gallerySelectors: [
+        ".product-image img",
+        ".detail-image img",
+        ".goods-image img",
+        ".product img",
+        ".gallery img",
+        "[class*='product-image'] img",
+        "[class*='ProductImage'] img",
+      ],
+      detailContainers: [
+        ".product-description",
+        ".description",
+        ".detail",
+        "[class*='description']",
+        "[class*='ProductDetail']",
+        "[class*='detail']",
+      ],
+    });
 
     const description =
+      this.extractDescriptionHtml($, [
+        ".product-description",
+        ".description",
+        ".detail",
+        "[class*='description']",
+        "[class*='ProductDetail']",
+      ]) ||
       $('meta[property="og:description"]').attr("content") ||
       $('meta[name="description"]').attr("content") ||
-      "";
+      undefined;
 
     const categoryName =
       $('meta[property="product:category"]').attr("content") || undefined;
 
-    // 가격이 0이면 이 상품은 skip (상세 파싱 실패로 간주)
     if (originalPrice === 0) return null;
 
     return {
-      name: name
-        .replace(/\s*[\|–-]\s*.*$/, "") // "상품명 | 사이트명" 정리
-        .trim(),
+      name: name.replace(/\s*[\|–-]\s*.*$/, "").trim(),
       brandName,
       categoryName,
       originalPrice,
       salePrice,
-      description: description?.slice(0, 500) || undefined,
+      description,
       imageUrls,
       sourceUrl: url,
       sourceSite: this.sourceSite,

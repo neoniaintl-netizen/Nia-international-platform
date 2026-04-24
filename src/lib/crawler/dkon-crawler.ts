@@ -55,18 +55,26 @@ export class DkOnCrawler extends BaseCrawler {
 
     if (price === 0) return null;
 
-    const imgs = new Set<string>();
-    const og = $('meta[property="og:image"]').attr("content");
-    if (og) imgs.add(og);
-    $("img").each((_, el) => {
-      const src = $(el).attr("src") || $(el).attr("data-src");
-      if (!src) return;
-      if (src.includes("dk-on") || src.includes("descente")) {
-        imgs.add(src.startsWith("//") ? `https:${src}` : src);
-      }
+    const imageUrls = this.collectImages($, {
+      gallerySelectors: [
+        ".product-image img",
+        ".swiper-slide img",
+        "[class*='ProductImage'] img",
+        "img[src*='productimg']",
+        "img[src*='dk-on']",
+        "img[src*='descente']",
+      ],
+      detailContainers: [".product-detail-wrap", ".info-detail", "[class*='ProductDetail']", "[class*='DetailInfo']"],
+      baseUrl: "https://dk-on.com",
     });
 
-    // 브랜드 추론 (URL 경로에서)
+    const description = this.extractDescriptionHtml($, [
+      ".product-detail-wrap",
+      ".info-detail",
+      "[class*='ProductDetail']",
+      "[class*='DetailInfo']",
+    ]);
+
     let brand = "Descente Golf";
     const pathMatch = url.match(/\/([A-Z]+(?:GOLF|LX|KIDS)?)\//);
     if (pathMatch?.[1] === "DESCENTEGOLF") brand = "Descente Golf";
@@ -77,9 +85,8 @@ export class DkOnCrawler extends BaseCrawler {
       brandName: brand,
       originalPrice: price,
       salePrice: sale,
-      imageUrls: Array.from(imgs).slice(0, 6),
-      description:
-        $('meta[property="og:description"]').attr("content")?.slice(0, 500),
+      imageUrls,
+      description,
       sourceUrl: url,
       sourceSite: this.sourceSite,
     };

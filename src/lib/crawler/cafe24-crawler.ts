@@ -165,47 +165,37 @@ export class Cafe24Crawler extends BaseCrawler {
           "Unknown";
       }
 
-      // 이미지
-      const imageUrls: string[] = [];
-      const ogImage = $('meta[property="og:image"]').attr("content");
-      if (ogImage) imageUrls.push(ogImage);
-
-      // Cafe24 상품 이미지
-      $(
-        ".keyImg img, .product-image img, #mainImage, .thumb img"
-      ).each((_, el) => {
-        const src =
-          $(el).attr("src") ||
-          $(el).attr("data-src") ||
-          $(el).attr("data-original");
-        if (src) {
-          const fullSrc = src.startsWith("//")
-            ? `https:${src}`
-            : src.startsWith("/")
-              ? `${this.extractBaseUrl(html, $)}${src}`
-              : src;
-          if (!imageUrls.includes(fullSrc)) imageUrls.push(fullSrc);
-        }
+      const baseUrl = this.extractBaseUrl(html, $);
+      const imageUrls = this.collectImages($, {
+        gallerySelectors: [
+          ".keyImg img",
+          ".product-image img",
+          "#mainImage",
+          ".thumb img",
+          ".xans-product-image img",
+          ".xans-product-addimage img",
+          ".product-add-image img",
+          ".prdImgView img",
+          ".thumbnail-wrap img",
+          ".bigImage img",
+          "img[itemprop='image']",
+        ],
+        detailContainers: [
+          ".xans-product-detail",
+          "#prdDetail",
+          ".detailDesc",
+          ".cont",
+          ".product-description",
+          ".prd-detail",
+        ],
+        baseUrl,
       });
 
-      // 추가 이미지
-      $(
-        ".xans-product-addimage img, .product-add-image img, .prdImgView img"
-      ).each((_, el) => {
-        const src = $(el).attr("src") || $(el).attr("data-src");
-        if (src) {
-          const fullSrc = src.startsWith("//") ? `https:${src}` : src;
-          if (!imageUrls.includes(fullSrc)) imageUrls.push(fullSrc);
-        }
-      });
-
-      // 카테고리
       const categoryName =
         $('meta[property="product:category"]').attr("content") ||
         $(".location .current, .breadcrumb li:last-child").text().trim() ||
         undefined;
 
-      // 옵션/사이즈 추출
       const variants: CrawledProduct["variants"] = [];
       $("select[id*=option] option, select[name*=option] option").each(
         (_, el) => {
@@ -216,11 +206,17 @@ export class Cafe24Crawler extends BaseCrawler {
         }
       );
 
-      // 설명
       const description =
+        this.extractDescriptionHtml($, [
+          ".xans-product-detail",
+          "#prdDetail",
+          ".detailDesc",
+          ".cont",
+          ".product-description",
+          ".prd-detail",
+        ]) ||
         $('meta[property="og:description"]').attr("content") ||
-        $(".product-description, .prd-detail").text().trim().slice(0, 500) ||
-        "";
+        undefined;
 
       return {
         name,
@@ -228,8 +224,8 @@ export class Cafe24Crawler extends BaseCrawler {
         categoryName,
         originalPrice: originalPrice || this.parsePriceFromMeta($),
         salePrice,
-        description: description || undefined,
-        imageUrls: [...new Set(imageUrls)],
+        description,
+        imageUrls,
         sourceUrl: url,
         sourceSite: this.sourceSite,
         variants: variants.length > 0 ? variants : undefined,
@@ -270,20 +266,38 @@ export class Cafe24Crawler extends BaseCrawler {
     const offerItem = Array.isArray(offers) ? offers[0] : offers;
     const price = parseFloat(offerItem?.price || "0");
 
+    // 이미지는 공용 헬퍼로 JSON-LD + 갤러리 + 상세 이미지 전부 수집
+    const baseUrl = this.extractBaseUrl(html, $);
     let imageUrls: string[] = [];
     if (product.image) {
-      const images = Array.isArray(product.image)
-        ? product.image
-        : [product.image];
+      const images = Array.isArray(product.image) ? product.image : [product.image];
       imageUrls = images
         .map((img: any) => (typeof img === "string" ? img : img?.url || ""))
         .filter(Boolean);
     }
+    const extra = this.collectImages($, {
+      gallerySelectors: [
+        ".keyImg img",
+        ".xans-product-image img",
+        ".xans-product-addimage img",
+        ".prdImgView img",
+      ],
+      detailContainers: [".xans-product-detail", "#prdDetail", ".detailDesc"],
+      baseUrl,
+    });
+    imageUrls = Array.from(new Set([...imageUrls, ...extra]));
 
     const brand =
       typeof product.brand === "string"
         ? product.brand
         : product.brand?.name || "Unknown";
+
+    const description =
+      this.extractDescriptionHtml($, [
+        ".xans-product-detail",
+        "#prdDetail",
+        ".detailDesc",
+      ]) || (product.description ? String(product.description) : undefined);
 
     return {
       name: product.name,
@@ -293,7 +307,7 @@ export class Cafe24Crawler extends BaseCrawler {
           ? product.category
           : product.category?.name,
       originalPrice: Math.round(price),
-      description: (product.description || "").slice(0, 500),
+      description,
       imageUrls,
       sourceUrl: url,
       sourceSite: this.sourceSite,
@@ -314,17 +328,26 @@ export class Cafe24Crawler extends BaseCrawler {
       $('meta[property="product:brand"]').attr("content") || "Unknown";
     const originalPrice = this.parsePriceFromMeta($);
 
-    const imageUrls: string[] = [];
-    const ogImage = $('meta[property="og:image"]').attr("content");
-    if (ogImage) imageUrls.push(ogImage);
+    const imageUrls = this.collectImages($, {
+      gallerySelectors: [
+        ".keyImg img",
+        ".xans-product-image img",
+        ".xans-product-addimage img",
+      ],
+      detailContainers: [".xans-product-detail", "#prdDetail"],
+      baseUrl: this.extractBaseUrl(html, $),
+    });
+
+    const description =
+      this.extractDescriptionHtml($, [".xans-product-detail", "#prdDetail", ".detailDesc"]) ||
+      $('meta[property="og:description"]').attr("content") ||
+      undefined;
 
     return {
       name: name.replace(/\s*[\|–-]\s*.*$/, "").trim(),
       brandName,
       originalPrice,
-      description:
-        $('meta[property="og:description"]').attr("content")?.slice(0, 500) ||
-        undefined,
+      description,
       imageUrls,
       sourceUrl: url,
       sourceSite: this.sourceSite,

@@ -1,4 +1,3 @@
-import * as cheerio from "cheerio";
 import { BaseCrawler } from "./base-crawler";
 import type { CrawledProduct } from "./types";
 
@@ -22,7 +21,7 @@ export class PxgCrawler extends BaseCrawler {
   }
 
   parseProductDetail(html: string, url: string): CrawledProduct | null {
-    const $ = cheerio.load(html);
+    const $ = this.load(html);
 
     const name =
       $('meta[property="og:title"]').attr("content") ||
@@ -53,25 +52,33 @@ export class PxgCrawler extends BaseCrawler {
 
     if (price === 0) return null;
 
-    const imgs = new Set<string>();
-    const og = $('meta[property="og:image"]').attr("content");
-    if (og) imgs.add(og);
-    $("img").each((_, el) => {
-      const src = $(el).attr("src") || $(el).attr("data-src");
-      if (!src) return;
-      if (src.includes("pxg") || src.includes("/upload/")) {
-        imgs.add(src.startsWith("//") ? `https:${src}` : src);
-      }
-    });
+    const imageUrls = this.collectImages($, {
+      gallerySelectors: [
+        ".prd-img img",
+        ".view_image img",
+        "img[src*='ProductImages']",
+        "img[src*='/upload/']",
+        "img[src*='pxg']",
+      ],
+      detailContainers: [".prd-detail", ".view_detail", "#tab-detail", ".detail-wrap"],
+      baseUrl: "https://www.pxg.co.kr",
+    }).map((u) => u.replace(/^http:\/\//, "https://"));
+
+    const description = this.extractDescriptionHtml($, [
+      ".prd-detail",
+      ".view_detail",
+      "#tab-detail",
+      ".detail-wrap",
+      "#prd_detail",
+    ]);
 
     return {
       name: name.replace(/\s*[\|–\-—]\s*.*$/, "").trim(),
       brandName: "PXG",
       originalPrice: price,
       salePrice: sale,
-      imageUrls: Array.from(imgs).slice(0, 6),
-      description:
-        $('meta[property="og:description"]').attr("content")?.slice(0, 500),
+      imageUrls,
+      description,
       sourceUrl: url,
       sourceSite: this.sourceSite,
     };

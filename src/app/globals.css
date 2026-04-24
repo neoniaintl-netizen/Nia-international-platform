@@ -183,3 +183,49 @@
     transform: translateX(-50%);
   }
 }
+
+/* 크롤링된 상품 상세 HTML 렌더 스타일 */
+.product-description {
+  word-break: keep-all;
+}
+.product-description img,
+.product-description picture {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0.5rem auto;
+}
+.product-description table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+.product-description th,
+.product-description td {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: 13px;
+}
+.product-description th {
+  background: var(--paper);
+  font-weight: 600;
+}
+.product-description p {
+  margin: 0.75rem 0;
+}
+.product-description ul,
+.product-description ol {
+  padding-left: 1.25rem;
+  margin: 0.75rem 0;
+}
+.product-description h2,
+.product-description h3,
+.product-description h4 {
+  margin: 1.25rem 0 0.5rem;
+  font-weight: 600;
+}
+.product-description a {
+  color: var(--ink);
+  text-decoration: underline;
+}

@@ -57,10 +57,18 @@ export class NorthFaceCrawler extends BaseCrawler {
     const imageUrls = this.extractImages(html, url, $);
     if (imageUrls.length === 0) return null;
 
-    // ─── 설명 ───
+    // ─── 설명 (상세 HTML) ───
     const description =
-      $('meta[property="og:description"]').attr("content")?.slice(0, 500) ||
-      $('meta[name="description"]').attr("content")?.slice(0, 500) ||
+      this.extractDescriptionHtml($, [
+        ".product-detail",
+        ".detail-wrap",
+        "#prdDetail",
+        ".xans-product-detail",
+        "[class*='ProductDetail']",
+        "[class*='detail-content']",
+      ]) ||
+      $('meta[property="og:description"]').attr("content") ||
+      $('meta[name="description"]').attr("content") ||
       undefined;
 
     // 상품코드 추출 (URL에서)
@@ -192,10 +200,26 @@ export class NorthFaceCrawler extends BaseCrawler {
       );
     }
 
+    // 상세 컨테이너 내부 이미지도 포함
+    const extraFromDetail = this.collectImages($, {
+      gallerySelectors: [],
+      detailContainers: [
+        ".product-detail",
+        ".detail-wrap",
+        "#prdDetail",
+        ".xans-product-detail",
+        "[class*='ProductDetail']",
+      ],
+      baseUrl: "https://www.thenorthfacekorea.co.kr",
+    });
+    for (const u of extraFromDetail) {
+      if (u.includes("image.thenorthfacekorea.co.kr") || u.includes("/product/")) {
+        images.add(u);
+      }
+    }
+
     // 쿼리 파라미터(?thumbnail 등) 제거 — 원본 고해상도 버전 사용
-    return Array.from(images)
-      .map((u) => u.split("?")[0])
-      .slice(0, 6);
+    return Array.from(images).map((u) => u.split("?")[0]);
   }
 
   private resolveImageUrl(src: string): string {

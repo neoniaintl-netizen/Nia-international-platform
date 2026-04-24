@@ -56,25 +56,32 @@ export class TheCartCrawler extends BaseCrawler {
 
     if (price === 0) return null;
 
-    // 이미지
-    const imgs = new Set<string>();
-    const og = $('meta[property="og:image"]').attr("content");
-    if (og) imgs.add(og);
-    $('img').each((_, el) => {
-      const src = $(el).attr("src") || $(el).attr("data-src");
-      if (!src) return;
-      if (src.includes("thecart") || src.includes("/product/")) {
-        imgs.add(src.startsWith("//") ? `https:${src}` : src);
-      }
+    const imageUrls = this.collectImages($, {
+      gallerySelectors: [
+        ".product-image img",
+        ".product-gallery img",
+        "[class*='ProductImage'] img",
+        "img[alt*='product']",
+        "img[src*='thecart']",
+        "img[src*='/product/']",
+      ],
+      detailContainers: [".product-detail", "[data-detail]", "[class*='Detail']", "[class*='ProductDescription']"],
+      baseUrl: "https://www.thecart.co.kr",
     });
+
+    const description = this.extractDescriptionHtml($, [
+      ".product-detail",
+      "[class*='Detail']",
+      "[class*='ProductDescription']",
+      "[data-detail]",
+    ]);
 
     return {
       name: name.replace(/\s*[\|–\-—]\s*.*$/, "").trim(),
       brandName: "THE CART",
       originalPrice: price,
-      imageUrls: Array.from(imgs).slice(0, 6),
-      description:
-        $('meta[property="og:description"]').attr("content")?.slice(0, 500),
+      imageUrls,
+      description,
       sourceUrl: url,
       sourceSite: this.sourceSite,
     };

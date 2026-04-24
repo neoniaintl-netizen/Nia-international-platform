@@ -180,16 +180,18 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </TabsTrigger>
           </TabsList>
           <TabsContent value="detail" className="py-12">
-            <div className="max-w-2xl mx-auto">
-              <div className="border border-[var(--line)] bg-[var(--paper)] p-10 text-center text-[13px] text-[var(--ink-muted)] leading-relaxed">
-                {product.description ? (
-                  <p>{product.description}</p>
-                ) : (
+            <div className="max-w-3xl mx-auto">
+              {product.description ? (
+                <div
+                  className="product-description text-[14px] leading-relaxed text-[var(--ink)]"
+                  dangerouslySetInnerHTML={{ __html: product.description }}
+                />
+              ) : (
+                <div className="border border-[var(--line)] bg-[var(--paper)] p-10 text-center text-[13px] text-[var(--ink-muted)] leading-relaxed">
                   <p>상품 상세 이미지가 이곳에 표시됩니다.</p>
-                )}
-                <p className="mt-3">소재: 면 100% &nbsp;·&nbsp; 제조국: 대한민국</p>
-                <p className="mt-1.5">세탁: 단독 손세탁 권장</p>
-              </div>
+                  <p className="mt-3">소재 · 제조국 · 세탁 정보는 상품 업데이트 후 표시됩니다.</p>
+                </div>
+              )}
             </div>
           </TabsContent>
           <TabsContent value="reviews" className="py-12">

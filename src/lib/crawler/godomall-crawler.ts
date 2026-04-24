@@ -51,11 +51,28 @@ export class GodomallCrawler extends BaseCrawler {
     const price = this.extractPrice($);
     if (price.original === 0) return null;
 
-    // 이미지
-    const imageUrls = this.extractImages($, url);
+    // 이미지 — BaseCrawler 공용 헬퍼
+    const baseHost = this.extractBaseHost($);
+    const imageUrls = this.collectImages($, {
+      gallerySelectors: [
+        ".item_photo_big img",
+        ".item_photo_slide img",
+        ".goods_thumbs img",
+        ".goods-image img",
+        "img[src*='/data/goods/']",
+      ],
+      detailContainers: [".goods_description", ".item_detail", "#detailArea", ".detail_explain"],
+      baseUrl: baseHost,
+    });
     if (imageUrls.length === 0) return null;
 
-    // 브랜드
+    const description = this.extractDescriptionHtml($, [
+      ".goods_description",
+      ".item_detail",
+      "#detailArea",
+      ".detail_explain",
+    ]);
+
     const brand = this.inferBrandFromUrl(url);
 
     return {
@@ -64,8 +81,7 @@ export class GodomallCrawler extends BaseCrawler {
       originalPrice: price.original,
       salePrice: price.sale,
       imageUrls,
-      description:
-        $('meta[property="og:description"]').attr("content")?.slice(0, 500),
+      description,
       sourceUrl: url,
       sourceSite: this.sourceSite,
     };

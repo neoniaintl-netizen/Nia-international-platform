@@ -1,4 +1,7 @@
+import * as cheerio from "cheerio";
+import type { CheerioAPI } from "cheerio";
 import type { CrawlConfig, CrawlResult, CrawledProduct, ICrawler } from "./types";
+import { sanitizeProductHtml } from "./sanitize";
 
 const DEFAULT_HEADERS = {
   "User-Agent":
@@ -40,6 +43,127 @@ export abstract class BaseCrawler implements ICrawler {
   /** 딜레이 */
   protected delay(ms: number) {
     return new Promise((r) => setTimeout(r, ms));
+  }
+
+  /**
+   * 상품 이미지 통합 수집
+   * - og:image
+   * - itemprop=image
+   * - 지정된 갤러리 selector들
+   * - 상세 컨테이너 내부 <img>
+   * - 중복 제거 + 절대경로화
+   */
+  protected collectImages(
+    $: CheerioAPI,
+    opts: {
+      gallerySelectors?: string[];
+      detailContainers?: string[];
+      hostPatterns?: RegExp[];
+      baseUrl?: string;
+      minBytesHint?: number;
+    } = {}
+  ): string[] {
+    const {
+      gallerySelectors = [],
+      detailContainers = [],
+      hostPatterns,
+      baseUrl,
+    } = opts;
+    const found = new Set<string>();
+
+    const push = (raw: string | undefined) => {
+      if (!raw) return;
+      let src = raw.trim();
+      if (src.startsWith("data:")) return;
+      if (src.startsWith("//")) src = `https:${src}`;
+      else if (src.startsWith("/") && baseUrl) {
+        const b = baseUrl.replace(/\/$/, "");
+        src = `${b}${src}`;
+      }
+      if (!/^https?:\/\//.test(src)) return;
+      if (hostPatterns && hostPatterns.length) {
+        if (!hostPatterns.some((r) => r.test(src))) return;
+      }
+      found.add(src);
+    };
+
+    const og = $('meta[property="og:image"]').attr("content");
+    if (og) push(og);
+    $('meta[property="og:image:secure_url"]').each((_, el) => push($(el).attr("content")));
+    $('meta[itemprop="image"], [itemprop="image"]').each((_, el) => {
+      push($(el).attr("content") || $(el).attr("src") || $(el).attr("href"));
+    });
+
+    const allGallerySelectors = [
+      ...gallerySelectors,
+      'img[itemprop="image"]',
+      '[class*="gallery"] img',
+      '[class*="thumb"] img',
+      '[class*="swiper"] img',
+      '[class*="slider"] img',
+    ];
+    for (const sel of allGallerySelectors) {
+      $(sel).each((_, el) => {
+        const $el = $(el);
+        push(
+          $el.attr("src") ||
+            $el.attr("data-src") ||
+            $el.attr("data-original") ||
+            $el.attr("data-lazy") ||
+            $el.attr("data-srcset")?.split(",")[0]?.trim().split(" ")[0]
+        );
+        const srcset = $el.attr("srcset");
+        if (srcset) {
+          srcset.split(",").forEach((part) => {
+            const u = part.trim().split(" ")[0];
+            if (u) push(u);
+          });
+        }
+      });
+    }
+
+    for (const containerSel of detailContainers) {
+      $(containerSel)
+        .find("img")
+        .each((_, el) => {
+          const $el = $(el);
+          push(
+            $el.attr("src") ||
+              $el.attr("data-src") ||
+              $el.attr("data-original") ||
+              $el.attr("data-lazy")
+          );
+        });
+    }
+
+    return Array.from(found)
+      .filter((u) => !/icon|logo|sprite|blank|1x1|spacer/i.test(u))
+      .filter((u) => !/\.svg(\?|$)/i.test(u));
+  }
+
+  /**
+   * 상세 설명 HTML 추출 + sanitize.
+   * 컨테이너 selector들 중 가장 긴 HTML을 반환.
+   */
+  protected extractDescriptionHtml(
+    $: CheerioAPI,
+    containers: string[]
+  ): string | undefined {
+    let best = "";
+    for (const sel of containers) {
+      $(sel).each((_, el) => {
+        const html = $.html(el) || "";
+        if (html.length > best.length) best = html;
+      });
+    }
+    if (!best) return undefined;
+    const cleaned = sanitizeProductHtml(best);
+    return cleaned && cleaned.length > 40 ? cleaned : undefined;
+  }
+
+  /** HTML 문자열을 CheerioAPI로 로드 (shorthand) */
+  protected load(html: string): CheerioAPI {
+    return cheerio.load(html);
   }
 
   /** 메인 크롤 실행 */

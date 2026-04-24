@@ -79,12 +79,30 @@ export class ShopifyCrawler extends BaseCrawler {
     if (!result) return null;
 
     // === 이미지 다중 수집 ===
-    // 어떤 파서를 썼든, 상세 페이지 DOM에서 추가 이미지를 모두 긁어와 합친다
     const extraImages = this.extractAllProductImages(html, url);
+    const $dom = this.load(html);
+    const helperImages = this.collectImages($dom, {
+      gallerySelectors: [
+        ".product__media img",
+        ".product-single__photo img",
+        ".product-gallery img",
+        "[id^='ProductMedia-'] img",
+        ".product-form__media img",
+      ],
+      detailContainers: [".product__description", ".rte", "[class*='product-description']"],
+    });
     const mergedImages = Array.from(
-      new Set([...(result.imageUrls ?? []), ...extraImages])
-    ).slice(0, 8);
+      new Set([...(result.imageUrls ?? []), ...extraImages, ...helperImages])
+    );
     result.imageUrls = mergedImages;
+
+    // 상세 설명 HTML
+    const richDesc = this.extractDescriptionHtml($dom, [
+      ".product__description",
+      ".rte",
+      "[class*='product-description']",
+    ]);
+    if (richDesc) result.description = richDesc;
 
     return result;
   }

@@ -76,24 +76,35 @@ export class GForeCrawler extends BaseCrawler {
 
     if (price === 0) return null;
 
-    // 이미지
-    const imgs = new Set<string>();
-    const og = $('meta[property="og:image"]').attr("content");
-    if (og) imgs.add(og);
-    $('img[src*="kolonmall"], img[src*="gfore"]').each((_, el) => {
-      const src = $(el).attr("src") || $(el).attr("data-src");
-      if (src) imgs.add(src.startsWith("//") ? `https:${src}` : src);
+    const imageUrls = this.collectImages($, {
+      gallerySelectors: [
+        "picture img",
+        "[data-testid*='product'] img",
+        "img[src*='kolonmall']",
+        "img[src*='gfore']",
+        "img[src*='/product/']",
+      ],
+      detailContainers: ["[class*='Description']", "[class*='description']", "[class*='detail']"],
+      baseUrl: "https://www.gfore.kr",
     });
 
-    if (imgs.size === 0) return null;
+    if (imageUrls.length === 0) return null;
+
+    const description =
+      this.extractDescriptionHtml($, [
+        "[class*='Description']",
+        "[class*='description']",
+        "[class*='ProductDetail']",
+        "[class*='detail-content']",
+      ]) || desc;
 
     return {
       name: name.replace(/\s*[\|–\-—]\s*.*$/, "").trim(),
       brandName: "G/FORE",
       originalPrice: price,
       salePrice: sale,
-      imageUrls: Array.from(imgs).slice(0, 6),
-      description: desc.slice(0, 500),
+      imageUrls,
+      description,
       sourceUrl: url,
       sourceSite: this.sourceSite,
     };
