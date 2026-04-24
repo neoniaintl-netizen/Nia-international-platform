@@ -57,12 +57,27 @@ export class PxgCrawler extends BaseCrawler {
         ".prd-img img",
         ".view_image img",
         "img[src*='ProductImages']",
-        "img[src*='/upload/']",
-        "img[src*='pxg']",
       ],
-      detailContainers: [".prd-detail", ".view_detail", "#tab-detail", ".detail-wrap"],
+      detailContainers: [
+        ".prd-detail",
+        ".view_detail",
+        "#tab-detail",
+        ".detail-wrap",
+        "#prd_detail",
+        ".productInfo",
+        ".product-detail-area",
+        "#detailArea",
+        ".tab-content",
+      ],
       baseUrl: "https://www.pxg.co.kr",
-    }).map((u) => u.replace(/^http:\/\//, "https://"));
+    })
+      .map((u) => u.replace(/^http:\/\//, "https://"))
+      .filter(
+        (u) =>
+          !/\/banner\//i.test(u) &&
+          !/\/colorchip\//i.test(u) &&
+          !/pxg_top|pxg_bottom|tab_/i.test(u)
+      );
 
     const description = this.extractDescriptionHtml($, [
       ".prd-detail",
@@ -70,6 +85,10 @@ export class PxgCrawler extends BaseCrawler {
       "#tab-detail",
       ".detail-wrap",
       "#prd_detail",
+      ".productInfo",
+      "#detailArea",
+      ".tab-content",
+      ".product-detail-area",
     ]);
 
     return {
