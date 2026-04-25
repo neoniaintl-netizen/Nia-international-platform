@@ -29,7 +29,7 @@ function placeholderUrl(
 ): string {
   const style = BRAND_STYLE[brandSlug];
   if (!style) {
-    return `https://placehold.co/800x1000/F5F2EC/6B6B6B?text=${encodeURIComponent(productName.slice(0, 20))}`;
+    return `https://placehold.co/800x1000/FFFFFF/9B9B9B?text=${encodeURIComponent(productName.slice(0, 20))}`;
   }
   // 여러 이미지 슬롯을 위한 약간씩 다른 이미지
   const variantSuffix = variant > 1 ? `+0${variant}` : "";

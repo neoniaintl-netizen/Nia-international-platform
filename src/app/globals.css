@@ -81,9 +81,9 @@
   /* === NKBUS Premium Design Tokens === */
   --ink: #0A0A0A;
   --ink-muted: #6B6B6B;
-  --paper: #FAFAF7;
-  --stone: #F5F2EC;
-  --line: #E8E6E1;
+  --paper: #FFFFFF;
+  --stone: #FFFFFF;
+  --line: #EAEAEA;
   /* 금색/노란색 완전 제거 — 블랙&화이트 모노크롬 + 포인트만 */
   --champagne: #0A0A0A;
   --champagne-soft: #6B6B6B;

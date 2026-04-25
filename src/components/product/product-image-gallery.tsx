@@ -32,7 +32,7 @@ export function ProductImageGallery({
         <img
           src={
             selectedImage?.url ??
-            "https://placehold.co/800x1000/F5F2EC/6B6B6B?text=No+Image"
+            "https://placehold.co/800x1000/FFFFFF/9B9B9B?text=No+Image"
           }
           alt={selectedImage?.alt ?? productName}
           className="absolute inset-0 w-full h-full object-contain transition-opacity duration-300 p-4 md:p-6"
