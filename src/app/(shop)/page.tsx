@@ -2,7 +2,7 @@ import { HeroBanner } from "@/components/home/hero-banner";
 import { BrandTicker } from "@/components/home/brand-ticker";
 import { FeaturedGrid } from "@/components/home/featured-grid";
 import { CategoryShowcase } from "@/components/home/category-showcase";
-import { GiftsCallout } from "@/components/home/gifts-callout";
+import { SpringCollection } from "@/components/home/spring-collection";
 import { BrandStatement } from "@/components/home/brand-statement";
 import { BrandSpotlight } from "@/components/home/brand-spotlight";
 import {
@@ -80,8 +80,10 @@ export default async function HomePage() {
         />
       )}
 
-      {/* 5) GIFTS 2-card */}
-      <GiftsCallout />
+      {/* 5) Spring Collection — 봄 코디 추천 자동 슬라이드 */}
+      <SpringCollection
+        products={whatsNew.slice(0, 12).map(toProductCard)}
+      />
 
       {/* 6) Brand Statement — Membership & Stores */}
       <BrandStatement />
