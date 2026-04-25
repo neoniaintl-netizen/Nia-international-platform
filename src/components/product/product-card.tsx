@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Heart } from "lucide-react";
 import { PriceDisplay } from "@/components/shared/price-display";
 import { toggleWishlist } from "@/actions/wishlist";
@@ -92,12 +91,13 @@ export function ProductCard({
   return (
     <Link href={`/products/${product.slug}`} className="group block">
       <div className="relative aspect-[4/5] bg-[var(--stone)] overflow-hidden mb-3">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={product.imageUrl}
           alt={product.name}
-          fill
-          className="object-cover group-hover:scale-[1.02] transition-transform duration-[600ms] ease-out"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[600ms] ease-out"
+          loading="lazy"
+          decoding="async"
         />
         {/* Rank badge */}
         {rank && (
