@@ -7,6 +7,7 @@ import { toggleWishlist } from "@/actions/wishlist";
 import { useTransition, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { thumbUrl } from "@/lib/image-url";
 
 function CountdownBadge({ endsAt }: { endsAt: string }) {
   const [label, setLabel] = useState("");
@@ -65,12 +66,15 @@ interface ProductCardProps {
   product: ProductCardData;
   rank?: number;
   wishlisted?: boolean;
+  /** 첫 화면(above-the-fold) 카드면 true → 즉시 로드, 그 외엔 lazy */
+  priority?: boolean;
 }
 
 export function ProductCard({
   product,
   rank,
   wishlisted = false,
+  priority = false,
 }: ProductCardProps) {
   const [isPending, startTransition] = useTransition();
   const { status } = useSession();
@@ -93,10 +97,14 @@ export function ProductCard({
       <div className="relative aspect-[4/5] bg-[var(--stone)] overflow-hidden mb-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={product.imageUrl}
+          src={thumbUrl(product.imageUrl, 500)}
           alt={product.name}
+          width={500}
+          height={625}
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[600ms] ease-out"
+          loading={priority ? "eager" : "lazy"}
           decoding="async"
+          fetchPriority={priority ? "high" : "auto"}
         />
         {/* Rank badge */}
         {rank && (
