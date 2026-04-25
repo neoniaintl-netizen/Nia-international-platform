@@ -96,7 +96,6 @@ export function ProductCard({
           src={product.imageUrl}
           alt={product.name}
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[600ms] ease-out"
-          loading="lazy"
           decoding="async"
         />
         {/* Rank badge */}
