@@ -102,7 +102,6 @@ export function ProductCard({
           width={500}
           height={625}
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[600ms] ease-out"
-          loading={priority ? "eager" : "lazy"}
           decoding="async"
           fetchPriority={priority ? "high" : "auto"}
         />
