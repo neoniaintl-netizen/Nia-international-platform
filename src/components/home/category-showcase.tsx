@@ -15,31 +15,27 @@ const DEFAULT_CATEGORIES: CategoryCard[] = [
     label: "Outdoor",
     subLabel: "아웃도어",
     href: "/category/outdoor",
-    imageUrl:
-      "https://placehold.co/1000x1300/1F3F2F/ffffff?font=inter&text=OUTDOOR",
+    imageUrl: "/categories/outdoor.png",
     badge: "Featured",
   },
   {
     label: "Sports",
     subLabel: "스포츠",
     href: "/category/sports",
-    imageUrl:
-      "https://placehold.co/1000x1300/2A4D3A/ffffff?font=inter&text=SPORTS",
+    imageUrl: "/categories/sports.png",
   },
   {
     label: "Golf",
     subLabel: "골프",
     href: "/category/golf",
-    imageUrl:
-      "https://placehold.co/1000x1300/2D5E3F/ffffff?font=inter&text=GOLF",
+    imageUrl: "/categories/golf.png",
     badge: "New",
   },
   {
     label: "Women",
     subLabel: "여성의류",
     href: "/category/women",
-    imageUrl:
-      "https://placehold.co/1000x1300/4A7C59/0a0a0a?font=inter&text=WOMEN",
+    imageUrl: "/categories/women.png",
   },
 ];
 
@@ -66,6 +62,8 @@ export function CategoryShowcase({
                 src={cat.imageUrl}
                 alt={cat.label}
                 fill
+                priority
+                unoptimized
                 className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
