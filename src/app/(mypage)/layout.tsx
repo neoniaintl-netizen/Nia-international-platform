@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Header } from "@/components/layout/header";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { Package, User, MapPin, Tag, Coins, Heart, ChevronRight, Settings, Wrench, Bookmark } from "lucide-react";
@@ -25,13 +26,15 @@ export default async function MyPageLayout({
   const session = await auth();
   const userId = session?.user?.id;
 
-  const [points, couponCount, cartCount] = userId
-    ? await Promise.all([
-        getUserPoints(userId),
-        getUserCouponCount(userId),
-        getCartCount(userId),
-      ])
-    : [0, 0, 0];
+  if (!userId) {
+    redirect("/login?callbackUrl=/my");
+  }
+
+  const [points, couponCount, cartCount] = await Promise.all([
+    getUserPoints(userId),
+    getUserCouponCount(userId),
+    getCartCount(userId),
+  ]);
 
   const userName = session?.user?.name ?? "회원";
 
