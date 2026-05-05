@@ -58,7 +58,7 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 rounded-xl p-6">
           {[
             ["상호명", "니아인터내셔널"],
-            ["대표자", "윤지현"],
+            ["대표자", "윤지언"],
             ["설립일", "2022년"],
             ["소재지", "서울특별시 강남구 논현로102길 5(역삼동) 4층"],
             ["사업자등록번호", "291-81-0245"],
