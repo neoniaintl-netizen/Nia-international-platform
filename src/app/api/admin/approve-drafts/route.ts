@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 
 /**
  * POST /api/admin/approve-drafts
- *   Headers: { x-crawl-key: nkbus2026 }
  *   Body (optional): { jobId?: string, brandSlug?: string, minImages?: number }
  *
  * DRAFT 상품을 ACTIVE로 일괄 전환.
@@ -13,10 +13,8 @@ import { prisma } from "@/lib/db";
  * - minImages: 이미지 개수 이상인 상품만 (기본 1)
  */
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
   let body: any = {};
   try {
@@ -82,10 +80,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key") || req.nextUrl.searchParams.get("key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
   // 각 브랜드별 상태 요약
   const stats = await prisma.product.groupBy({

@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth-guards";
 
 /**
  * POST /api/admin/purge-seed-products
- *   Headers: { x-crawl-key: nkbus2026 }
  *   Body: { brands: string[] }
  *
  * 특정 브랜드의 seed-fallback sourceSite 상품 삭제 (관련 이미지/옵션 cascade).
  * 실제 크롤링 상품으로 교체하기 위한 정리 작업.
  */
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
   let body: any = {};
   try {

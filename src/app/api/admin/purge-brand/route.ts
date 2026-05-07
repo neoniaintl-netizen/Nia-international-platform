@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 
 /**
  * POST /api/admin/purge-brand
- *   Headers: { x-crawl-key: nkbus2026 }
  *   Body: { brands: string[] }  // slug 배열 (예: ["musinsa-standard"])
  *
  * 특정 브랜드의 모든 상품/이미지/옵션/장바구니/위시리스트 항목을 cascade 삭제.
@@ -15,10 +15,8 @@ import { prisma } from "@/lib/db";
  *   → 이름에 포함된 모든 브랜드 soft delete
  */
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
   let body: any = {};
   try {

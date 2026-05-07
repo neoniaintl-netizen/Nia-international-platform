@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCrawler, detectSite } from "@/lib/crawler";
+import { requireAdmin } from "@/lib/auth-guards";
 
 /**
  * POST /api/admin/refresh-product-images
- *   Headers: { x-crawl-key: nkbus2026 }
  *   Body: { brands?: string[] }  // 미지정 시 sourceUrl 있는 모든 상품
  *
  * 기존 상품의 sourceUrl을 재방문해 **이미지 URL만** 새로 수집 & 저장.
@@ -12,10 +12,8 @@ import { getCrawler, detectSite } from "@/lib/crawler";
  * ACTIVE 상품이면 ACTIVE 유지.
  */
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
   let body: any = {};
   try {
@@ -129,10 +127,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key") || req.nextUrl.searchParams.get("key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
   const stats = await prisma.product.findMany({
     where: { sourceUrl: { not: null } },

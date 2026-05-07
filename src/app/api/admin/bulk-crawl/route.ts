@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 import { getCrawler } from "@/lib/crawler";
 import { importCrawledProducts } from "@/lib/crawler/product-importer";
 
 /**
  * POST /api/admin/bulk-crawl
- *   Headers: { x-crawl-key: nkbus2026 }
  *   Body (optional): { brands?: string[], maxItems?: number }
  *
  * 9개 브랜드 사이트를 일괄 크롤링 (병렬 fire-and-forget).
@@ -127,10 +127,8 @@ async function runCrawlInBackground(
 }
 
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
   let body: any = {};
   try {
@@ -187,10 +185,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key") || req.nextUrl.searchParams.get("key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
   // 9개 브랜드 최근 Job 상태 조회
   const recent = await prisma.crawlJob.findMany({

@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 
 /**
  * POST /api/admin/archive-seed-products
- *   Headers: { x-crawl-key: nkbus2026 }
  *
  * seed.ts로 들어간 데모 상품(sourceUrl 없는 상품)을 ARCHIVED로 전환.
  * 한글 깨지는 placehold 이미지 숨기고, 실제 크롤링 상품만 노출.
  */
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
   // sourceUrl이 없는 상품 = seed 데모
   const seedProducts = await prisma.product.findMany({
@@ -85,10 +83,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key") || req.nextUrl.searchParams.get("key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
   const stats = await prisma.product.groupBy({
     by: ["status"],

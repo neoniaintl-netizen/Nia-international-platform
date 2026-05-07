@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 import { MusinsaCrawler } from "@/lib/crawler/musinsa-crawler";
 
@@ -9,6 +10,9 @@ import { MusinsaCrawler } from "@/lib/crawler/musinsa-crawler";
  * Railway 서버에서 실행되므로 internal DB 접속 가능
  */
 export async function GET(req: NextRequest) {
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
+
   const url = req.nextUrl.searchParams.get("url");
 
   if (!url || !url.includes("musinsa.com/products/")) {

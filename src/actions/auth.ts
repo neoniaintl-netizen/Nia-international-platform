@@ -3,6 +3,7 @@
 import { signIn, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 
@@ -168,20 +169,17 @@ export async function requestPasswordResetAction(
     };
   }
 
-  // 실제 구현에서는 VerificationToken 생성 + 이메일 발송
-  // MVP: 토큰 생성하여 DB에 저장, 로그에만 출력 (프로덕션은 이메일 연동 필요)
-  const token =
-    Math.random().toString(36).slice(2) +
-    Math.random().toString(36).slice(2);
+  // 토큰 생성 — 암호학적으로 안전한 randomBytes 사용
+  const token = randomBytes(32).toString("hex");
   const expires = new Date(Date.now() + 1000 * 60 * 60); // 1시간
 
   await prisma.verificationToken.create({
     data: { identifier: email, token, expires },
   });
 
-  console.log(
-    `[비밀번호 재설정 토큰] ${email} → /reset-password?token=${token}`
-  );
+  // TODO: 실제 이메일 발송 연동 (현재는 토큰만 DB에 저장)
+  // 보안상 토큰을 stdout/로그에 출력하지 않음 — Railway 로그 영구 보관 위험
+  // 메일 연동 전까지는 관리자가 DB의 verificationToken 테이블에서 직접 조회
 
   return {
     success: true,
