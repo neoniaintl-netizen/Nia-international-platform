@@ -408,7 +408,8 @@ model Payment {
   method        PaymentMethod
   amount        Int
   status        PaymentStatus @default(PENDING)
-  transactionId String? // PG사 거래 ID
+  transactionId String?       @unique // PG사 거래 ID — webhook 멱등성 보장
+  isTest        Boolean       @default(false) // 테스트 모드 결제 구분
   paidAt        DateTime?
   cancelledAt   DateTime?
   createdAt     DateTime      @default(now())

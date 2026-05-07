@@ -1,7 +1,10 @@
 "use server";
 
+import { randomBytes } from "crypto";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { IS_PAYMENT_TEST_MODE, verifyPayment } from "@/lib/payment";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -14,26 +17,68 @@ async function getUserId() {
 function generateOrderNumber() {
   const now = new Date();
   const date = now.toISOString().slice(0, 10).replace(/-/g, "");
-  const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
+  const rand = randomBytes(4).toString("base64url").toUpperCase().slice(0, 5);
   return `ORD-${date}-${rand}`;
 }
+
+const ALLOWED_PAYMENT_METHODS = [
+  "CARD",
+  "BANK_TRANSFER",
+  "VIRTUAL_ACCOUNT",
+  "KAKAO_PAY",
+  "NAVER_PAY",
+  "TOSS_PAY",
+] as const;
+
+const CreateOrderSchema = z.object({
+  recipient: z.string().min(1).max(100),
+  phone: z.string().min(1).max(40),
+  zipCode: z.string().min(1).max(20),
+  address1: z.string().min(1).max(200),
+  address2: z.string().max(200).optional().nullable(),
+  memo: z.string().max(500).optional().nullable(),
+  paymentMethod: z.enum(ALLOWED_PAYMENT_METHODS).default("CARD"),
+  couponCode: z.string().max(100).optional().nullable(),
+  usedPoints: z.number().int().min(0).max(10_000_000),
+  paymentId: z.string().max(200).optional().nullable(),
+  merchantUid: z.string().max(200).optional().nullable(),
+});
 
 export async function createOrder(_prevState: any, formData: FormData) {
   const userId = await getUserId();
 
-  const recipient = formData.get("recipient") as string;
-  const phone = formData.get("phone") as string;
-  const zipCode = formData.get("zipCode") as string;
-  const address1 = formData.get("address1") as string;
-  const address2 = formData.get("address2") as string;
-  const memo = formData.get("memo") as string;
-  const paymentMethod = (formData.get("paymentMethod") as string) || "CARD";
-  const couponCode = (formData.get("couponCode") as string)?.trim() || null;
-  const usedPoints = parseInt(formData.get("usedPoints") as string) || 0;
-
-  // PG 결제 검증 데이터
-  const paymentId = (formData.get("paymentId") as string) || "";
-  const merchantUid = (formData.get("merchantUid") as string) || "";
+  // 입력 zod 검증 — 클라이언트 신뢰 X
+  const rawInput = {
+    recipient: (formData.get("recipient") as string) || "",
+    phone: (formData.get("phone") as string) || "",
+    zipCode: (formData.get("zipCode") as string) || "",
+    address1: (formData.get("address1") as string) || "",
+    address2: (formData.get("address2") as string) || null,
+    memo: (formData.get("memo") as string) || null,
+    paymentMethod: (formData.get("paymentMethod") as string) || "CARD",
+    couponCode:
+      ((formData.get("couponCode") as string) || "").trim() || null,
+    usedPoints: parseInt((formData.get("usedPoints") as string) || "0", 10) || 0,
+    paymentId: (formData.get("paymentId") as string) || null,
+    merchantUid: (formData.get("merchantUid") as string) || null,
+  };
+  const parsed = CreateOrderSchema.safeParse(rawInput);
+  if (!parsed.success) {
+    return { error: "잘못된 주문 정보입니다." };
+  }
+  const {
+    recipient,
+    phone,
+    zipCode,
+    address1,
+    address2,
+    memo,
+    paymentMethod,
+    couponCode,
+    usedPoints,
+    paymentId,
+    merchantUid,
+  } = parsed.data;
 
   if (!recipient || !phone || !zipCode || !address1) {
     return { error: "배송 정보를 모두 입력해주세요." };
@@ -116,6 +161,37 @@ export async function createOrder(_prevState: any, formData: FormData) {
   const discountAmount = couponDiscount + pointsDiscount;
   const finalAmount = totalAmount - discountAmount + shippingFee;
 
+  // --- Payment verification (PG round-trip) ---
+  // 운영 모드: paymentId 필수 + PortOne API로 금액/상태 재확인
+  // 테스트 모드: 검증 생략 (NEXT_PUBLIC_PAYMENT_TEST_MODE=true)
+  let verifiedTransactionId: string;
+  let verifiedPaidAt: Date;
+
+  if (IS_PAYMENT_TEST_MODE) {
+    verifiedTransactionId =
+      paymentId || merchantUid || `TEST-${randomBytes(6).toString("hex")}`;
+    verifiedPaidAt = new Date();
+  } else {
+    if (!paymentId) {
+      return { error: "결제 정보가 누락되었습니다." };
+    }
+    const verified = await verifyPayment(paymentId);
+    if (!verified.ok) {
+      return { error: "결제 정보를 조회할 수 없습니다." };
+    }
+    if (verified.status !== "PAID") {
+      return { error: "결제가 완료되지 않았습니다." };
+    }
+    if (verified.amount !== finalAmount) {
+      console.error(
+        `[createOrder] amount mismatch: portone=${verified.amount}, computed=${finalAmount}, userId=${userId}`
+      );
+      return { error: "결제 금액이 일치하지 않습니다." };
+    }
+    verifiedTransactionId = verified.paymentId;
+    verifiedPaidAt = verified.paidAt ? new Date(verified.paidAt) : new Date();
+  }
+
   // --- Stock validation ---
   for (const item of cartItems) {
     if (item.variantId && item.variant) {
@@ -177,7 +253,7 @@ export async function createOrder(_prevState: any, formData: FormData) {
         shippingFee,
         finalAmount,
         paymentMethod: paymentMethod as any,
-        paidAt: new Date(),
+        paidAt: verifiedPaidAt,
         note: memo || null,
         items: {
           create: cartItems.map((item) => ({
@@ -198,8 +274,9 @@ export async function createOrder(_prevState: any, formData: FormData) {
             method: paymentMethod as any,
             status: "COMPLETED",
             amount: finalAmount,
-            transactionId: paymentId || merchantUid || `TXN-${Date.now()}`,
-            paidAt: new Date(),
+            transactionId: verifiedTransactionId,
+            isTest: IS_PAYMENT_TEST_MODE,
+            paidAt: verifiedPaidAt,
           },
         },
       },
@@ -267,13 +344,13 @@ export async function createOrder(_prevState: any, formData: FormData) {
   redirect(`/checkout/complete?orderId=${order.id}`);
 }
 
-// --- Cancel order (with stock restoration) ---
-export async function cancelOrder(orderId: string) {
+// --- Cancel order (with stock restoration + PortOne refund) ---
+export async function cancelOrder(orderId: string, reason = "사용자 요청") {
   const userId = await getUserId();
 
   const order = await prisma.order.findFirst({
     where: { id: orderId, userId },
-    include: { items: true },
+    include: { items: true, payment: true },
   });
 
   if (!order) return { error: "주문을 찾을 수 없습니다." };
@@ -281,6 +358,30 @@ export async function cancelOrder(orderId: string) {
     return { error: "취소할 수 없는 주문 상태입니다." };
   }
 
+  // 1) PortOne 환불 우선 시도 (이미 결제된 주문일 경우)
+  // - DB 갱신 전에 PG round-trip 성공을 보장
+  // - 실패 시 DB 변경 없이 에러 반환 → 데이터/돈 불일치 방지
+  const payment = order.payment;
+  const needsPgRefund =
+    payment &&
+    payment.status === "COMPLETED" &&
+    payment.transactionId &&
+    !payment.isTest;
+
+  if (needsPgRefund) {
+    const { cancelPayment } = await import("@/lib/payment");
+    const refund = await cancelPayment(payment.transactionId!, reason);
+    if (!refund.ok) {
+      console.error(
+        `[cancelOrder] PortOne refund failed for orderId=${orderId}: ${refund.error}`
+      );
+      return {
+        error: "결제 취소에 실패했습니다. 잠시 후 다시 시도해주세요.",
+      };
+    }
+  }
+
+  // 2) DB 갱신 (PG 환불 성공 후 또는 결제 전 주문)
   await prisma.$transaction(async (tx) => {
     // Restore stock
     for (const item of order.items) {
@@ -303,10 +404,13 @@ export async function cancelOrder(orderId: string) {
       data: { status: "CANCELLED" },
     });
 
-    // Cancel payment
+    // Update payment status — REFUNDED if PG refund happened, CANCELLED if pre-payment
     await tx.payment.updateMany({
       where: { orderId },
-      data: { status: "CANCELLED", cancelledAt: new Date() },
+      data: {
+        status: needsPgRefund ? "REFUNDED" : "CANCELLED",
+        cancelledAt: new Date(),
+      },
     });
 
     // Restore points if used
