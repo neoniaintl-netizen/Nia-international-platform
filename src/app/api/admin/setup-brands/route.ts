@@ -113,7 +113,11 @@ export async function GET(req: NextRequest) {
       message: "브랜드 9개 등록 완료",
       brands: results,
     });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    console.error("[setup-brands]", err);
+    return NextResponse.json(
+      { error: "브랜드 등록에 실패했습니다." },
+      { status: 500 }
+    );
   }
 }

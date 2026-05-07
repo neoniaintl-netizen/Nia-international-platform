@@ -5,6 +5,7 @@ import {
   verifyPayment,
   verifyWebhookSignature,
 } from "@/lib/payment";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -22,6 +23,19 @@ export const runtime = "nodejs";
  * webhook secret을 설정해야 함. 미설정 시 모든 webhook은 403으로 거절.
  */
 export async function POST(req: NextRequest) {
+  // Rate limit — IP당 분당 60회 (PortOne 정상 트래픽보다 충분히 큼, 폭주만 차단)
+  const ip = getClientIp(req);
+  const rl = await rateLimit(`webhook:${ip}`, {
+    limit: 60,
+    windowMs: 60_000,
+  });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too Many Requests" },
+      { status: 429 }
+    );
+  }
+
   const secret = process.env.PORTONE_WEBHOOK_SECRET;
   if (!secret) {
     console.error("[webhook] PORTONE_WEBHOOK_SECRET not configured");

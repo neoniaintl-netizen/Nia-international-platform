@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { requireAdmin } from "@/lib/auth-guards";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 /**
  * POST /api/admin/setup
@@ -19,6 +20,19 @@ import { requireAdmin } from "@/lib/auth-guards";
  * - 운영에서 부트스트랩 후에는 Railway 환경변수에서 `ADMIN_SETUP_TOKEN`을 즉시 제거 권장
  */
 export async function POST(req: NextRequest) {
+  // 부트스트랩 라우트 — IP당 분당 5회로 엄격 제한
+  const ip = getClientIp(req);
+  const rl = await rateLimit(`admin-setup:${ip}`, {
+    limit: 5,
+    windowMs: 60_000,
+  });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too Many Requests" },
+      { status: 429 }
+    );
+  }
+
   const guard = await requireAdmin();
   if (!guard.ok) return guard.response;
 

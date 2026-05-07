@@ -81,13 +81,18 @@ export async function POST(req: NextRequest) {
         },
       });
 
+      console.error("[crawl] failed:", crawlError);
       return NextResponse.json(
-        { error: crawlError.message, jobId: job.id },
+        { error: "크롤링에 실패했습니다.", jobId: job.id },
         { status: 500 }
       );
     }
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    console.error("[crawl]", err);
+    return NextResponse.json(
+      { error: "요청 처리에 실패했습니다." },
+      { status: 500 }
+    );
   }
 }
 

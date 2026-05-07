@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 import { IS_PAYMENT_TEST_MODE, verifyPayment } from "@/lib/payment";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -29,6 +30,18 @@ export async function POST(req: NextRequest) {
   const guard = await requireUser();
   if (!guard.ok) return guard.response;
   const userId = guard.session.user!.id!;
+
+  // Rate limit — 사용자당 분당 10회
+  const rl = await rateLimit(`payment-verify:${userId}`, {
+    limit: 10,
+    windowMs: 60_000,
+  });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "너무 많은 요청입니다. 잠시 후 다시 시도해주세요." },
+      { status: 429 }
+    );
+  }
 
   // 2) 입력 검증
   let body: unknown;

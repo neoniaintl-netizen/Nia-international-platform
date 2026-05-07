@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
+import { rateLimit } from "@/lib/rate-limit";
 
 // ─── 로그인 ───
 
@@ -16,6 +17,17 @@ export async function loginAction(_prevState: any, formData: FormData) {
 
   if (!email || !password) {
     return { error: "이메일과 비밀번호를 입력해주세요." };
+  }
+
+  // Brute-force 방지: 이메일별 5회/분 + 글로벌 키별 안전마진
+  const rl = await rateLimit(`login:${email.toLowerCase()}`, {
+    limit: 5,
+    windowMs: 60_000,
+  });
+  if (!rl.ok) {
+    return {
+      error: "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.",
+    };
   }
 
   try {
@@ -156,6 +168,17 @@ export async function requestPasswordResetAction(
 
   if (!email) {
     return { error: "이메일을 입력해주세요." };
+  }
+
+  // 이메일별 분당 3회 제한 — 토큰 남발/스팸 방지
+  const rl = await rateLimit(`pwreset:${email.toLowerCase()}`, {
+    limit: 3,
+    windowMs: 60_000,
+  });
+  if (!rl.ok) {
+    return {
+      error: "잠시 후 다시 시도해주세요.",
+    };
   }
 
   const user = await prisma.user.findUnique({ where: { email } });

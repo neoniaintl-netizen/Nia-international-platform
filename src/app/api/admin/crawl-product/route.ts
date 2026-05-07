@@ -172,10 +172,10 @@ export async function GET(req: NextRequest) {
         images: product.imageUrls.length,
       },
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error("[Crawl Error]", err);
     return NextResponse.json(
-      { error: err.message || "크롤링 실패" },
+      { error: "크롤링에 실패했습니다." },
       { status: 500 }
     );
   }

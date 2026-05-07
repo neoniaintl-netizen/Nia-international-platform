@@ -41,7 +41,11 @@ export async function GET(req: NextRequest) {
       message: "확장 카테고리 5개 설정 완료",
       categories: results,
     });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    console.error("[setup-categories]", err);
+    return NextResponse.json(
+      { error: "카테고리 설정에 실패했습니다." },
+      { status: 500 }
+    );
   }
 }
