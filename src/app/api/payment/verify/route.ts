@@ -3,7 +3,8 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 import { IS_PAYMENT_TEST_MODE, verifyPayment } from "@/lib/payment";
-import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { rateLimit } from "@/lib/rate-limit";
+import { isSameOrigin } from "@/lib/origin-check";
 
 export const runtime = "nodejs";
 
@@ -26,6 +27,11 @@ const VerifySchema = z
  * 여전히 본인 주문/금액 검증은 수행함.
  */
 export async function POST(req: NextRequest) {
+  // 0) 동일 출처 검증 (CSRF 추가 방어)
+  if (!isSameOrigin(req)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   // 1) 로그인 확인
   const guard = await requireUser();
   if (!guard.ok) return guard.response;

@@ -3,6 +3,7 @@ import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import AuthSessionProvider from "@/components/providers/session-provider";
+import { ConsoleWarning } from "@/components/security/console-warning";
 
 // 한글: Pretendard Variable (globals.css에서 @import)
 // 숫자: Geist Mono (가격 표시용)
@@ -31,6 +32,7 @@ export default function RootLayout({
       className={`${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
+        <ConsoleWarning />
         <AuthSessionProvider>{children}</AuthSessionProvider>
         <Toaster position="bottom-center" />
       </body>

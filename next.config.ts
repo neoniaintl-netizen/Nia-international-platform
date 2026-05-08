@@ -65,6 +65,28 @@ const nextConfig: NextConfig = {
   },
 
   async headers() {
+    // Content-Security-Policy
+    // - default-src 'self': 기본은 동일 출처만
+    // - script-src: Next.js 인라인 스크립트 + PortOne SDK + 카카오/네이버페이 스크립트
+    // - frame-src: PortOne 결제창 iframe + 소셜 로그인
+    // - connect-src: API 호출 대상 (PortOne API + Naver/Kakao OAuth + 동일 출처)
+    // - img-src: 모든 https (브랜드별 CDN 다양성 때문)
+    // 'unsafe-inline'/'unsafe-eval'은 Next 16 production에서도 일부 인라인 스크립트가 필요해 허용
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.portone.io https://*.portone.io https://*.kakaocdn.net https://*.kakaopay.com https://*.naverpay.com https://*.tosspay.com https://*.tosspayments.com https://*.toss.im",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "connect-src 'self' https://api.portone.io https://*.portone.io https://*.kakao.com https://*.kakaopay.com https://*.naver.com https://*.naverpay.com https://*.tosspayments.com https://*.toss.im",
+      "frame-src 'self' https://*.portone.io https://*.kakaopay.com https://*.naverpay.com https://*.tosspay.com https://*.tosspayments.com https://*.toss.im https://*.kakao.com https://*.naver.com",
+      "frame-ancestors 'none'",
+      "form-action 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "upgrade-insecure-requests",
+    ].join("; ");
+
     return [
       {
         source: "/:path*",
@@ -83,6 +105,17 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
           },
+          { key: "Content-Security-Policy", value: csp },
+          { key: "X-DNS-Prefetch-Control", value: "off" },
+          // 검색엔진 스니펫에 너무 많이 노출되지 않도록 (정책 페이지 등)
+          { key: "X-Robots-Tag", value: "index, follow, noarchive, max-snippet:160" },
+        ],
+      },
+      {
+        // API 응답은 캐시하지 않음 — 프록시/CDN/브라우저 캐시 차단
+        source: "/api/:path*",
+        headers: [
+          { key: "Cache-Control", value: "private, no-store, max-age=0" },
         ],
       },
     ];

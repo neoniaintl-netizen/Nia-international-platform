@@ -241,6 +241,25 @@ export function Footer() {
 
       {/* ── 하단 정보 ── */}
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-8">
+        {/* Honeypot 트랩 — 사람 눈/스크린리더에 안 보이고 봇만 따라감.
+            middleware가 이 경로 접근을 자동으로 404로 처리. */}
+        <a
+          href="/__hp_admin_secret"
+          aria-hidden="true"
+          tabIndex={-1}
+          style={{
+            position: "absolute",
+            left: "-9999px",
+            width: "1px",
+            height: "1px",
+            overflow: "hidden",
+            opacity: 0,
+            pointerEvents: "none",
+          }}
+        >
+          internal
+        </a>
+
         <p className="text-sm font-bold text-gray-900">
           엔큐버스 | &copy; NKBUS ALL RIGHTS RESERVED
         </p>
