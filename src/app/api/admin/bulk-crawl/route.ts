@@ -45,17 +45,19 @@ const CRAWL_TARGETS = [
   },
 
   // ── Alo Yoga (Shopify 다중 URL 폴백) ──
+  // 글로벌 사이트(www.aloyoga.com/collections)는 한국 IP에서 403 차단되므로
+  // /ko-kr/ 한국어 페이지로 사용
   {
     brandSlug: "aloyoga",
     sourceSite: "shopify",
-    targetUrl: "https://www.aloyoga.com/collections/bestsellers",
-    note: "Shopify SSR — 글로벌 베스트셀러",
+    targetUrl: "https://www.aloyoga.com/ko-kr/collections/bestsellers",
+    note: "Shopify SSR — 한국 베스트셀러",
   },
   {
     brandSlug: "aloyoga",
     sourceSite: "shopify",
-    targetUrl: "https://www.aloyoga.com/collections/womens-leggings",
-    note: "Shopify SSR — 여성 레깅스",
+    targetUrl: "https://www.aloyoga.com/ko-kr/collections/leggings",
+    note: "Shopify SSR — 레깅스",
   },
 
   // ── The North Face (Generic 3개 카테고리) ──
