@@ -11,9 +11,9 @@
  * rate limit + behavioral 신호와 조합해서 사용.
  */
 
-/** 통과시킬 정상 봇 (검색엔진/소셜 미리보기) */
+/** 통과시킬 정상 봇 (검색엔진/소셜 미리보기/플랫폼 healthcheck) */
 const ALLOWED_BOTS_RE =
-  /(googlebot|adsbot-google|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|naverbot|yeti|daumoa|daum\/|kakao\b|twitterbot|facebookexternalhit|facebookcatalog|linkedinbot|whatsapp|telegrambot|skypeuripreview|applebot|discordbot|pinterestbot|line\/)/i;
+  /(googlebot|adsbot-google|google-inspectiontool|bingbot|slurp|duckduckbot|baiduspider|yandexbot|naverbot|yeti|daumoa|daum\/|kakao\b|twitterbot|facebookexternalhit|facebookcatalog|linkedinbot|whatsapp|telegrambot|skypeuripreview|applebot|discordbot|pinterestbot|line\/|railway|render|vercel|fly\.io|kube-probe|elb-healthchecker|gcp-health|aws-elb)/i;
 
 /** 차단할 스크래퍼/자동화 도구 UA 패턴 */
 const BLOCKED_UA_RE =
