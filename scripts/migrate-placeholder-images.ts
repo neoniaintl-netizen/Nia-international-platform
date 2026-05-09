@@ -11,11 +11,28 @@
  */
 
 import { PrismaClient } from "../src/generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { STATIC_BRAND_IMAGES } from "../src/lib/static-brand-images";
 
-const prisma = new PrismaClient();
+function createPrisma() {
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    console.error("[migrate-images] DATABASE_URL not set, skipping");
+    return null;
+  }
+  try {
+    const adapter = new PrismaPg({ connectionString: url });
+    return new PrismaClient({ adapter });
+  } catch (e) {
+    console.error("[migrate-images] PrismaClient init failed:", e);
+    return null;
+  }
+}
 
 async function main() {
+  const prisma = createPrisma();
+  if (!prisma) return; // exit 0 — next start 진행
+
   let totalUpdated = 0;
   const summary: Record<string, { updated: number; skipped: number; reason?: string }> = {};
 
@@ -111,9 +128,8 @@ async function main() {
 main()
   .catch((e) => {
     console.error("[migrate-images] FAILED (non-fatal):", e);
-    // 에러 나도 next start는 진행해야 하므로 exit 0
-    process.exit(0);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
+  .finally(() => {
+    // 에러 여부와 관계없이 next start 진행 — exit 0
+    process.exit(0);
   });
