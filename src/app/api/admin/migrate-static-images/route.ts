@@ -11,6 +11,11 @@ const BodySchema = z
   .object({
     brandSlug: z.string().min(1).max(100).optional(),
     dryRun: z.boolean().optional().default(true),
+    /**
+     * true면 hasReal 체크 없이 모든 상품 이미지를 정적 풀로 덮어씀.
+     * 이전 마이그가 hero/marketing 이미지를 박아놓은 상태를 정밀 이미지로 갱신할 때 사용.
+     */
+    force: z.boolean().optional().default(false),
   })
   .strict();
 
@@ -42,7 +47,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "잘못된 요청" }, { status: 400 });
   }
-  const { brandSlug, dryRun } = parsed.data;
+  const { brandSlug, dryRun, force } = parsed.data;
 
   const entries = brandSlug
     ? Object.entries(STATIC_BRAND_IMAGES).filter(([k]) => k === brandSlug)
@@ -107,12 +112,15 @@ export async function POST(req: NextRequest) {
     const targetIndices: number[] = [];
     for (let i = 0; i < products.length; i++) {
       const product = products[i];
-      const hasReal = product.images.some(
-        (img) =>
-          !img.url.includes("placehold.co") &&
-          !img.url.includes("placeholder")
-      );
-      if (hasReal && product.images.length > 0) continue;
+      // force=true면 모든 상품 대상. false면 placehold.co URL 가진 상품만.
+      if (!force) {
+        const hasReal = product.images.some(
+          (img) =>
+            !img.url.includes("placehold.co") &&
+            !img.url.includes("placeholder")
+        );
+        if (hasReal && product.images.length > 0) continue;
+      }
       targetIndices.push(i);
     }
 
@@ -165,6 +173,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     dryRun,
+    force,
     summary: {
       brandsProcessed: results.length,
       totalToUpdate: results.reduce((s, r) => s + r.productsToUpdate, 0),

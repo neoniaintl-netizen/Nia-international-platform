@@ -27,14 +27,14 @@ export default function MigrateImagesPage() {
   const [result, setResult] = useState<MigrationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function run(dryRun: boolean) {
+  async function run(dryRun: boolean, force: boolean = false) {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch("/api/admin/migrate-static-images", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dryRun }),
+        body: JSON.stringify({ dryRun, force }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -61,21 +61,45 @@ export default function MigrateImagesPage() {
         </p>
       </div>
 
-      <div className="flex gap-3">
-        <button
-          onClick={() => run(true)}
-          disabled={loading}
-          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium disabled:opacity-50"
-        >
-          {loading ? "실행 중..." : "1단계: dryRun 미리보기"}
-        </button>
-        <button
-          onClick={() => run(false)}
-          disabled={loading}
-          className="px-4 py-2 bg-black hover:bg-gray-800 text-white rounded text-sm font-medium disabled:opacity-50"
-        >
-          {loading ? "실행 중..." : "2단계: 실제 적용"}
-        </button>
+      <div className="space-y-3">
+        <div className="flex gap-3 items-center flex-wrap">
+          <button
+            onClick={() => run(true, false)}
+            disabled={loading}
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium disabled:opacity-50"
+          >
+            {loading ? "실행 중..." : "dryRun (placeholder만)"}
+          </button>
+          <button
+            onClick={() => run(false, false)}
+            disabled={loading}
+            className="px-4 py-2 bg-black hover:bg-gray-800 text-white rounded text-sm font-medium disabled:opacity-50"
+          >
+            적용 (placeholder만)
+          </button>
+          <span className="text-xs text-gray-400 ml-2">|</span>
+          <button
+            onClick={() => run(true, true)}
+            disabled={loading}
+            className="px-4 py-2 bg-yellow-50 border border-yellow-300 hover:bg-yellow-100 rounded text-sm font-medium disabled:opacity-50"
+          >
+            dryRun (force: 모든 상품)
+          </button>
+          <button
+            onClick={() => run(false, true)}
+            disabled={loading}
+            className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded text-sm font-medium disabled:opacity-50"
+          >
+            🔄 force 적용 (정밀 이미지로 모두 갱신)
+          </button>
+        </div>
+        <p className="text-xs text-gray-500">
+          <strong>placeholder만</strong>: placehold.co URL을 가진 상품만 교체
+          (수동 등록한 진짜 이미지 보호) ·{" "}
+          <strong>force</strong>: 모든 상품 이미지를 정적 풀로 갱신 (이전
+          마이그가 hero/marketing 이미지를 박아놓은 경우 정밀 이미지로 교체할 때
+          사용)
+        </p>
       </div>
 
       {error && (
