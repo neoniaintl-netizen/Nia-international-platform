@@ -22,10 +22,36 @@ interface MigrationResult {
   }>;
 }
 
+interface RefreshResult {
+  ok: boolean;
+  dryRun: boolean;
+  summary: {
+    processed: number;
+    withImages: number;
+    updated: number;
+    errors: number;
+  };
+  results: Array<{
+    productId: string;
+    productName: string;
+    brandSlug: string | null;
+    sourceUrl: string;
+    extracted?: number;
+    extractedSample?: string[];
+    updated?: boolean;
+    error?: string;
+  }>;
+}
+
 export default function MigrateImagesPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<MigrationResult | null>(null);
+  const [refreshResult, setRefreshResult] = useState<RefreshResult | null>(
+    null
+  );
   const [error, setError] = useState<string | null>(null);
+  const [refreshLimit, setRefreshLimit] = useState(30);
+  const [refreshBrand, setRefreshBrand] = useState("");
 
   async function run(dryRun: boolean, force: boolean = false) {
     setLoading(true);
@@ -42,6 +68,30 @@ export default function MigrateImagesPage() {
         return;
       }
       setResult(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function runRefresh(dryRun: boolean) {
+    setLoading(true);
+    setError(null);
+    try {
+      const body: Record<string, unknown> = { dryRun, limit: refreshLimit };
+      if (refreshBrand.trim()) body.brandSlug = refreshBrand.trim();
+      const res = await fetch("/api/admin/refresh-from-source", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(JSON.stringify(data));
+        return;
+      }
+      setRefreshResult(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -194,6 +244,116 @@ export default function MigrateImagesPage() {
           )}
         </div>
       )}
+
+      {/* ── 정밀 매핑: sourceUrl 기반 ── */}
+      <div className="mt-10 pt-8 border-t space-y-4">
+        <div>
+          <h2 className="text-xl font-bold">정밀: sourceUrl로 og:image 갱신</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            각 상품의 <code>sourceUrl</code>(원본 상품 페이지 URL)을 직접 fetch해서
+            og:image 또는 JSON-LD product 이미지를 추출. 1:1 정확 매칭.
+            PXG 등 9개 brand에 없는 brand의 mismatch를 해결할 때 유용.
+          </p>
+          <p className="mt-2 text-xs text-gray-500">
+            한 번에 limit 개만 처리 (timeout 방지). 더 많은 상품은 여러 번 호출.
+          </p>
+        </div>
+
+        <div className="flex gap-3 items-center flex-wrap">
+          <label className="text-sm">
+            limit:{" "}
+            <input
+              type="number"
+              value={refreshLimit}
+              min={1}
+              max={100}
+              onChange={(e) => setRefreshLimit(Number(e.target.value) || 30)}
+              className="border rounded px-2 py-1 w-20 ml-1"
+            />
+          </label>
+          <label className="text-sm">
+            brandSlug (선택):{" "}
+            <input
+              type="text"
+              value={refreshBrand}
+              placeholder="예: pxg, peltgolf"
+              onChange={(e) => setRefreshBrand(e.target.value)}
+              className="border rounded px-2 py-1 w-40 ml-1"
+            />
+          </label>
+        </div>
+
+        <div className="flex gap-3 items-center flex-wrap">
+          <button
+            onClick={() => runRefresh(true)}
+            disabled={loading}
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium disabled:opacity-50"
+          >
+            {loading ? "실행 중..." : "dryRun (sourceUrl 미리보기)"}
+          </button>
+          <button
+            onClick={() => runRefresh(false)}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium disabled:opacity-50"
+          >
+            🔍 sourceUrl 적용
+          </button>
+        </div>
+
+        {refreshResult && (
+          <div className="space-y-3">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded">
+              <p className="font-medium text-blue-900">
+                {refreshResult.dryRun ? "🔍 dryRun" : "✅ 적용 완료"}
+              </p>
+              <p className="text-sm text-blue-800 mt-1">
+                처리 {refreshResult.summary.processed}개 / 이미지 추출{" "}
+                {refreshResult.summary.withImages}개 / 업데이트{" "}
+                {refreshResult.summary.updated}개 / 에러{" "}
+                {refreshResult.summary.errors}개
+              </p>
+            </div>
+
+            <details className="text-xs">
+              <summary className="cursor-pointer font-medium text-gray-700 py-2">
+                상세 결과 보기 ({refreshResult.results.length}건)
+              </summary>
+              <div className="bg-gray-50 p-3 rounded overflow-auto max-h-96 space-y-2">
+                {refreshResult.results.map((r) => (
+                  <div
+                    key={r.productId}
+                    className={`p-2 rounded ${
+                      r.error
+                        ? "bg-red-50"
+                        : r.updated
+                          ? "bg-green-50"
+                          : "bg-white"
+                    }`}
+                  >
+                    <p className="font-medium">{r.productName}</p>
+                    <p className="text-gray-500 text-[10px] truncate">
+                      {r.sourceUrl}
+                    </p>
+                    {r.error ? (
+                      <p className="text-red-700">에러: {r.error}</p>
+                    ) : (
+                      <p>
+                        추출: {r.extracted}개 ·{" "}
+                        {r.updated ? "✅ 업데이트됨" : "(dryRun)"}
+                      </p>
+                    )}
+                    {r.extractedSample && r.extractedSample.length > 0 && (
+                      <p className="text-[10px] text-blue-700 truncate">
+                        {r.extractedSample[0]}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </details>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
