@@ -77,7 +77,7 @@ const NOTICES = [
 type PaymentLogo = "nkbuspay" | "kakaopay" | "alipay";
 
 const PAYMENT_BENEFITS: Array<{ logo: PaymentLogo; text: string }> = [
-  { logo: "nkbuspay", text: "NKBUSPay 첫 결제 시 5천원 할인" },
+  { logo: "nkbuspay", text: "가입 후 첫 결제 시 5,000원 할인" },
   { logo: "kakaopay", text: "카카오페이 × 페이머니 10만원 이상 결제 시 4천원 할인" },
   { logo: "alipay", text: "AliPay 결제 시 위안화 직결제 지원" },
 ];
