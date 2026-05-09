@@ -75,6 +75,48 @@ export default function MigrateImagesPage() {
     }
   }
 
+  async function runCleanMismatch(dryRun: boolean) {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/clean-mismatch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dryRun }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(JSON.stringify(data));
+        return;
+      }
+      setError(null);
+      // refreshResult 재사용
+      setRefreshResult({
+        ok: data.ok,
+        dryRun: data.dryRun,
+        summary: {
+          processed: data.summary.totalProducts,
+          withImages: data.summary.mismatchProducts,
+          updated: data.summary.cleaned,
+          errors: 0,
+        },
+        results: data.hits.map((h: { productId: string; productName: string; brandSlug: string | null; mismatchedImages: string[]; cleaned?: boolean }) => ({
+          productId: h.productId,
+          productName: h.productName,
+          brandSlug: h.brandSlug,
+          sourceUrl: `mismatch: ${h.mismatchedImages.length}개`,
+          extracted: h.mismatchedImages.length,
+          extractedSample: h.mismatchedImages.slice(0, 1),
+          updated: h.cleaned,
+        })),
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function runRefresh(dryRun: boolean) {
     setLoading(true);
     setError(null);
@@ -244,6 +286,36 @@ export default function MigrateImagesPage() {
           )}
         </div>
       )}
+
+      {/* ── 카테고리 mismatch 자동 정리 ── */}
+      <div className="mt-10 pt-8 border-t space-y-4">
+        <div>
+          <h2 className="text-xl font-bold">카테고리 mismatch 자동 정리</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            의류 상품(셔츠/팬츠/재킷/롱슬리브 등)에 골프 장비
+            (driver/iron/wedge/wood/putter) 이미지가 박혀 있으면 자동 감지 + 제거 +
+            깔끔한 placeholder로 교체. PXG 셔츠에 골프 클럽 사진 박힌 케이스 같은
+            mismatch 즉시 해소.
+          </p>
+        </div>
+
+        <div className="flex gap-3 items-center flex-wrap">
+          <button
+            onClick={() => runCleanMismatch(true)}
+            disabled={loading}
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium disabled:opacity-50"
+          >
+            {loading ? "실행 중..." : "dryRun (mismatch 미리보기)"}
+          </button>
+          <button
+            onClick={() => runCleanMismatch(false)}
+            disabled={loading}
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium disabled:opacity-50"
+          >
+            🧹 mismatch 정리 (placeholder로)
+          </button>
+        </div>
+      </div>
 
       {/* ── 정밀 매핑: sourceUrl 기반 ── */}
       <div className="mt-10 pt-8 border-t space-y-4">
