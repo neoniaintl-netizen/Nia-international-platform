@@ -7,7 +7,7 @@
     "build": "prisma generate && next build",
     "seed": "npx prisma db seed",
     "postinstall": "prisma generate",
-    "start": "prisma db push --schema=prisma/schema.prisma && (tsx scripts/cleanup-mismatch.ts > /tmp/cleanup.log 2>&1 &) && next start",
+    "start": "prisma db push --schema=prisma/schema.prisma && (tsx scripts/cleanup-mismatch.ts || true) && next start",
     "lint": "eslint"
   },
   "dependencies": {
