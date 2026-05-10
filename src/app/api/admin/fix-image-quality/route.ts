@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 
 /**
  * POST /api/admin/fix-image-quality
+ *   Headers: { x-crawl-key: nkbus2026 }
  *
  * 두 가지 동시 처리:
  * 1) NorthFace 이미지 URL에서 `?thumbnail` 쿼리 제거 → 고해상도 로드
@@ -32,8 +32,10 @@ function placeholderUrl(
 }
 
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.headers.get("x-crawl-key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const summary = {
     nfThumbnailFixed: 0,

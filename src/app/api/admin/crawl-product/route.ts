@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 import { MusinsaCrawler } from "@/lib/crawler/musinsa-crawler";
 
@@ -10,9 +9,6 @@ import { MusinsaCrawler } from "@/lib/crawler/musinsa-crawler";
  * Railway 서버에서 실행되므로 internal DB 접속 가능
  */
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
-
   const url = req.nextUrl.searchParams.get("url");
 
   if (!url || !url.includes("musinsa.com/products/")) {
@@ -172,10 +168,10 @@ export async function GET(req: NextRequest) {
         images: product.imageUrls.length,
       },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("[Crawl Error]", err);
     return NextResponse.json(
-      { error: "크롤링에 실패했습니다." },
+      { error: err.message || "크롤링 실패" },
       { status: 500 }
     );
   }

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 import { getCrawler } from "@/lib/crawler";
 import { importCrawledProducts } from "@/lib/crawler/product-importer";
 
 /**
  * POST /api/admin/bulk-crawl
+ *   Headers: { x-crawl-key: nkbus2026 }
  *   Body (optional): { brands?: string[], maxItems?: number }
  *
  * 9개 브랜드 사이트를 일괄 크롤링 (병렬 fire-and-forget).
@@ -45,19 +45,17 @@ const CRAWL_TARGETS = [
   },
 
   // ── Alo Yoga (Shopify 다중 URL 폴백) ──
-  // 글로벌 사이트(www.aloyoga.com/collections)는 한국 IP에서 403 차단되므로
-  // /ko-kr/ 한국어 페이지로 사용
   {
     brandSlug: "aloyoga",
     sourceSite: "shopify",
-    targetUrl: "https://www.aloyoga.com/ko-kr/collections/bestsellers",
-    note: "Shopify SSR — 한국 베스트셀러",
+    targetUrl: "https://www.aloyoga.com/collections/bestsellers",
+    note: "Shopify SSR — 글로벌 베스트셀러",
   },
   {
     brandSlug: "aloyoga",
     sourceSite: "shopify",
-    targetUrl: "https://www.aloyoga.com/ko-kr/collections/leggings",
-    note: "Shopify SSR — 레깅스",
+    targetUrl: "https://www.aloyoga.com/collections/womens-leggings",
+    note: "Shopify SSR — 여성 레깅스",
   },
 
   // ── The North Face (Generic 3개 카테고리) ──
@@ -129,8 +127,10 @@ async function runCrawlInBackground(
 }
 
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.headers.get("x-crawl-key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   let body: any = {};
   try {
@@ -187,8 +187,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.headers.get("x-crawl-key") || req.nextUrl.searchParams.get("key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   // 9개 브랜드 최근 Job 상태 조회
   const recent = await prisma.crawlJob.findMany({

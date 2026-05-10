@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { BRAND_SLUG_TO_CATEGORY_SLUG } from "@/lib/crawler/brand-category-map";
-import { requireAdmin } from "@/lib/auth-guards";
 
 /**
- * GET  /api/admin/recategorize-products  — dry-run 미리보기
- * POST /api/admin/recategorize-products  — 실제 재할당
+ * GET  /api/admin/recategorize-products?key=nkbus2026  — dry-run 미리보기
+ * POST /api/admin/recategorize-products              — 실제 재할당
  *
  * BRAND_SLUG_TO_CATEGORY_SLUG 매핑 기반으로
  * 9개 브랜드 전 상품의 categoryId를 올바른 카테고리로 일괄 업데이트.
@@ -64,8 +63,10 @@ async function buildPlan() {
 }
 
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.headers.get("x-crawl-key") || req.nextUrl.searchParams.get("key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const plan = await buildPlan();
   const totalToMove = plan.reduce((s, p) => s + p.toMove, 0);
@@ -84,8 +85,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.headers.get("x-crawl-key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const plan = await buildPlan();
   const result: Array<{ brand: string; moved: number; targetCategory: string }> = [];

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCrawler, detectSite } from "@/lib/crawler";
-import { requireAdmin } from "@/lib/auth-guards";
 
 /**
  * POST /api/admin/refresh-products
+ *   Headers: x-crawl-key: nkbus2026
  *   Body: { brandSlug?: string; limit?: number; sourceSite?: string; status?: "ACTIVE"|"DRAFT"|"ALL" }
  *
  * sourceUrl 있는 상품을 재방문해서 imageUrls + description 갱신.
@@ -124,14 +124,18 @@ async function runRefresh(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.headers.get("x-crawl-key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   return runRefresh(req);
 }
 
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.headers.get("x-crawl-key") || req.nextUrl.searchParams.get("key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   // 상품 현황 요약
   const stats = await prisma.product.groupBy({

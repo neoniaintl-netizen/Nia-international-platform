@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 
 /**
  * POST /api/admin/cleanup-image-urls
+ *   Headers: { x-crawl-key: nkbus2026 }
  *
  * ProductImage URL에서 불필요한 쿼리 파라미터(?thumbnail, ?sm, ?cache=*)를
  * 제거하여 원본 고화질 이미지로 정제.
@@ -44,8 +44,10 @@ function cleanUrl(url: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.headers.get("x-crawl-key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const images = await prisma.productImage.findMany({
     select: { id: true, url: true },
@@ -84,8 +86,10 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.headers.get("x-crawl-key") || req.nextUrl.searchParams.get("key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const images = await prisma.productImage.findMany({
     select: { url: true },

@@ -3,10 +3,8 @@
 import { signIn, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
-import { randomBytes } from "crypto";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
-import { rateLimit } from "@/lib/rate-limit";
 
 // ─── 로그인 ───
 
@@ -17,17 +15,6 @@ export async function loginAction(_prevState: any, formData: FormData) {
 
   if (!email || !password) {
     return { error: "이메일과 비밀번호를 입력해주세요." };
-  }
-
-  // Brute-force 방지: 이메일별 5회/분 + 글로벌 키별 안전마진
-  const rl = await rateLimit(`login:${email.toLowerCase()}`, {
-    limit: 5,
-    windowMs: 60_000,
-  });
-  if (!rl.ok) {
-    return {
-      error: "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.",
-    };
   }
 
   try {
@@ -170,17 +157,6 @@ export async function requestPasswordResetAction(
     return { error: "이메일을 입력해주세요." };
   }
 
-  // 이메일별 분당 3회 제한 — 토큰 남발/스팸 방지
-  const rl = await rateLimit(`pwreset:${email.toLowerCase()}`, {
-    limit: 3,
-    windowMs: 60_000,
-  });
-  if (!rl.ok) {
-    return {
-      error: "잠시 후 다시 시도해주세요.",
-    };
-  }
-
   const user = await prisma.user.findUnique({ where: { email } });
 
   // 사용자 존재 여부와 관계없이 동일한 응답(보안상 열거 방지)
@@ -192,17 +168,20 @@ export async function requestPasswordResetAction(
     };
   }
 
-  // 토큰 생성 — 암호학적으로 안전한 randomBytes 사용
-  const token = randomBytes(32).toString("hex");
+  // 실제 구현에서는 VerificationToken 생성 + 이메일 발송
+  // MVP: 토큰 생성하여 DB에 저장, 로그에만 출력 (프로덕션은 이메일 연동 필요)
+  const token =
+    Math.random().toString(36).slice(2) +
+    Math.random().toString(36).slice(2);
   const expires = new Date(Date.now() + 1000 * 60 * 60); // 1시간
 
   await prisma.verificationToken.create({
     data: { identifier: email, token, expires },
   });
 
-  // TODO: 실제 이메일 발송 연동 (현재는 토큰만 DB에 저장)
-  // 보안상 토큰을 stdout/로그에 출력하지 않음 — Railway 로그 영구 보관 위험
-  // 메일 연동 전까지는 관리자가 DB의 verificationToken 테이블에서 직접 조회
+  console.log(
+    `[비밀번호 재설정 토큰] ${email} → /reset-password?token=${token}`
+  );
 
   return {
     success: true,

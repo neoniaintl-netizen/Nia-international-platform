@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-guards";
 import { prisma } from "@/lib/db";
 import { getCrawler } from "@/lib/crawler";
 import { importCrawledProducts } from "@/lib/crawler/product-importer";
@@ -7,6 +6,7 @@ import { GOLF_BRANDS } from "@/lib/crawler/golf-category-map";
 
 /**
  * POST /api/admin/crawl-golf-brands
+ *   Headers: { x-crawl-key: nkbus2026 }
  *   Body (optional): { brands?: string[], maxPerCategory?: number }
  *
  * 10개 골프 브랜드 × 각 카테고리별 병렬 크롤링 (fire-and-forget).
@@ -53,8 +53,10 @@ async function runJob(
 }
 
 export async function POST(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.headers.get("x-crawl-key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   let body: any = {};
   try { body = await req.json(); } catch {}

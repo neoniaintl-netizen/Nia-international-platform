@@ -408,16 +408,13 @@ model Payment {
   method        PaymentMethod
   amount        Int
   status        PaymentStatus @default(PENDING)
-  // PG사 거래 ID — webhook 멱등성용 unique는 운영 DB 중복 점검 후 별도 마이그레이션으로 추가 예정
-  transactionId String?
-  isTest        Boolean       @default(false)
+  transactionId String? // PG사 거래 ID
   paidAt        DateTime?
   cancelledAt   DateTime?
   createdAt     DateTime      @default(now())
 
   order Order @relation(fields: [orderId], references: [id])
 
-  @@index([transactionId])
   @@map("payments")
 }
 

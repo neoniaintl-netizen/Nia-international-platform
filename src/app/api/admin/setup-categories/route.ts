@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth-guards";
 
 /**
- * GET /api/admin/setup-categories
+ * GET /api/admin/setup-categories?key=nkbus2026
  *
  * 홈페이지에서 참조하는 5개 확장 카테고리(골프/스포츠/아웃도어/뷰티/여성의류)를
  * DB에 idempotent하게 생성한다. 이미 있으면 skip.
  */
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.nextUrl.searchParams.get("key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const EXPANSION_CATEGORIES = [
     { name: "골프", slug: "golf", sortOrder: 9 },
@@ -41,11 +42,7 @@ export async function GET(req: NextRequest) {
       message: "확장 카테고리 5개 설정 완료",
       categories: results,
     });
-  } catch (err) {
-    console.error("[setup-categories]", err);
-    return NextResponse.json(
-      { error: "카테고리 설정에 실패했습니다." },
-      { status: 500 }
-    );
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

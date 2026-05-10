@@ -56,50 +56,24 @@ export async function getSaleProducts(limit = 4) {
 }
 
 export async function getNewProducts(limit = 8) {
-  // 한 brand가 홈을 독점하지 않도록 brand별 최대 3개로 분산.
-  // 1) 후보 충분히 가져와서 brand별로 cap 적용
-  // 2) 부족하면 시드로 보충
-  const MAX_PER_BRAND = 3;
-
-  const candidates = await prisma.product.findMany({
+  // 실제 크롤링 상품(고화질 이미지)을 먼저 보여주고, 부족하면 수동 시드로 보충
+  const realProducts = await prisma.product.findMany({
     where: {
       status: "ACTIVE",
       sourceSite: { notIn: ["seed-fallback"] },
       NOT: { sourceSite: null },
     },
     orderBy: [{ isNew: "desc" }, { createdAt: "desc" }],
-    take: limit * 6, // brand 분산 위해 충분히 받기
+    take: limit,
     include: {
       brand: { select: { name: true, slug: true } },
       images: { where: { isMain: true }, take: 1 },
     },
   });
 
-  const brandCount = new Map<string, number>();
-  const realProducts: typeof candidates = [];
-  for (const p of candidates) {
-    const key = p.brandId;
-    const c = brandCount.get(key) ?? 0;
-    if (c >= MAX_PER_BRAND) continue;
-    realProducts.push(p);
-    brandCount.set(key, c + 1);
-    if (realProducts.length >= limit) break;
-  }
-
   if (realProducts.length >= limit) return realProducts;
 
-  // 부족하면 brand cap 풀고 추가
-  const remainingFromCandidates = candidates.filter(
-    (p) => !realProducts.some((r) => r.id === p.id)
-  );
-  for (const p of remainingFromCandidates) {
-    if (realProducts.length >= limit) break;
-    realProducts.push(p);
-  }
-
-  if (realProducts.length >= limit) return realProducts;
-
-  // 그래도 부족하면 수동 시드로 보충
+  // 부족분을 수동 시드로 채움
   const fillCount = limit - realProducts.length;
   const fallbackProducts = await prisma.product.findMany({
     where: {

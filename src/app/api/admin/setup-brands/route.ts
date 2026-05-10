@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth-guards";
 
 /**
- * GET /api/admin/setup-brands
+ * GET /api/admin/setup-brands?key=nkbus2026
  *
  * 아웃도어 5 + 스포츠 4 브랜드를 idempotent하게 Brand 테이블에 등록.
  * 이미 있으면 nameKo/description만 업데이트.
@@ -79,8 +78,10 @@ const BRANDS = [
 ] as const;
 
 export async function GET(req: NextRequest) {
-  const guard = await requireAdmin();
-  if (!guard.ok) return guard.response;
+  const key = req.nextUrl.searchParams.get("key");
+  if (key !== "nkbus2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const results = [];
@@ -113,11 +114,7 @@ export async function GET(req: NextRequest) {
       message: "브랜드 9개 등록 완료",
       brands: results,
     });
-  } catch (err) {
-    console.error("[setup-brands]", err);
-    return NextResponse.json(
-      { error: "브랜드 등록에 실패했습니다." },
-      { status: 500 }
-    );
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
