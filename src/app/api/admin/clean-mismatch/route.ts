@@ -36,8 +36,9 @@ const MARKETING_URL_RE =
   /(_HERO_?|HERO[-_ ]|BIS_alt|GNB[-_ ]|gnb_banner|storycard|story[-_ ]?card|main[-_ ]?banner|main[-_ ]?marketing|brand[-_ ]?banner|hero[-_ ]?banner|carousel|promotion|campaign|featured\.jpg|history|who[-_ ]?we[-_ ]?are|naked[-_ ]?yoga[-_ ]?book|mindful[-_ ]?movement[-_ ]?book)/i;
 
 function placeholderForProduct(productName: string): string {
-  const safe = productName.replace(/[^\w\s가-힣-]/g, "").slice(0, 24);
-  return `https://placehold.co/800x1000/F5F5F5/9B9B9B?font=inter&text=${encodeURIComponent(safe)}`;
+  // NKBUS 톤: 진한 챠콜 배경 + 깨끗한 흰색 텍스트
+  const safe = productName.replace(/[^\w\s가-힣-]/g, "").slice(0, 30);
+  return `https://placehold.co/800x1000/2A2A2A/FFFFFF?font=inter&text=${encodeURIComponent(safe)}`;
 }
 
 /**

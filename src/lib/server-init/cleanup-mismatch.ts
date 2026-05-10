@@ -30,8 +30,9 @@ const MARKETING_URL_RE =
   /(_HERO_?|HERO[-_ ]|BIS_alt|GNB[-_ ]|gnb_banner|storycard|story[-_ ]?card|main[-_ ]?banner|main[-_ ]?marketing|brand[-_ ]?banner|hero[-_ ]?banner|carousel|promotion|campaign|featured\.jpg|history|who[-_ ]?we[-_ ]?are|naked[-_ ]?yoga[-_ ]?book|mindful[-_ ]?movement[-_ ]?book)/i;
 
 function placeholderForProduct(productName: string): string {
-  const safe = productName.replace(/[^\w\s가-힣-]/g, "").slice(0, 24);
-  return `https://placehold.co/800x1000/F5F5F5/9B9B9B?font=inter&text=${encodeURIComponent(
+  // NKBUS 톤: 진한 챠콜 배경 + 깨끗한 흰색 텍스트
+  const safe = productName.replace(/[^\w\s가-힣-]/g, "").slice(0, 30);
+  return `https://placehold.co/800x1000/2A2A2A/FFFFFF?font=inter&text=${encodeURIComponent(
     safe
   )}`;
 }
@@ -54,6 +55,23 @@ async function doCleanup() {
     const isShoes = SHOES_NAME_RE.test(product.name);
 
     const mismatched: string[] = [];
+    // 1) 이전 흐린 placeholder(F5F5F5/9B9B9B)는 새 챠콜 디자인으로 갱신 → mismatch로 처리
+    const oldPlaceholder = product.images.find((img) =>
+      /placehold\.co\/.*F5F5F5\/9B9B9B/.test(img.url)
+    );
+    const onlyOldPlaceholder =
+      product.images.length === 1 && oldPlaceholder !== undefined;
+    if (onlyOldPlaceholder) {
+      // 이미지가 흐린 placeholder 1개뿐 → 새 색상으로 update
+      try {
+        await prisma.productImage.update({
+          where: { id: oldPlaceholder!.id },
+          data: { url: placeholderForProduct(product.name) },
+        });
+      } catch {}
+      continue;
+    }
+
     for (const img of product.images) {
       const url = img.url;
       if (/placehold\.co|placeholder/i.test(url)) continue;
