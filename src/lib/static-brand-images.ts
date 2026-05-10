@@ -87,6 +87,6 @@ export const STATIC_BRAND_IMAGES: Record<string, string[]> = {
     "https://cdn.shopify.com/s/files/1/2185/2813/files/W9291R_01_b1_s1_a1_1_m54.jpg?v=1714151429",
     "https://cdn.shopify.com/s/files/1/2185/2813/files/W5475R_00_b1_s1_a7_m125.jpg?v=1757190896",
   ],
-  // SPA 사이트. 추출 어려움
+  // SPA 사이트 + 메인 페이지가 농구화/운동화(jordan/kobe/airmax) 위주라 의류 product에 부적합 → 빈 배열
   "nike-skims": [],
 };

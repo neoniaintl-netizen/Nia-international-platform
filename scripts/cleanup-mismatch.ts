@@ -17,15 +17,20 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const APPAREL_NAME_RE =
-  /(셔츠|블라우스|팬츠|바지|재킷|자켓|점퍼|코트|롱슬리브|반팔|긴팔|티셔츠|크롭|후드|후디|니트|스웨터|맨투맨|스웻|레깅스|브라|언더웨어|드레스|원피스|스커트|치마|오버롤|점프수트|sleeve|shirt|blouse|pant|jacket|coat|hoodie|tee|t\-?shirt|polo|crop|sweater|sweatshirt|legging|bra|underwear|dress|skirt|vest|top|outerwear|jumper)/i;
+  /(셔츠|블라우스|팬츠|바지|재킷|자켓|점퍼|코트|롱슬리브|반팔|긴팔|티셔츠|크롭|후드|후디|니트|스웨터|맨투맨|스웻|레깅스|브라|언더웨어|드레스|원피스|스커트|치마|오버롤|점프수트|sleeve|shirt|blouse|pant|jacket|coat|hoodie|tee|t\-?shirt|polo|crop|sweater|sweatshirt|legging|bra|underwear|dress|skirt|vest|top|outerwear|jumper|seamless|baselayer|tights)/i;
 
 const GOLF_EQUIPMENT_URL_RE =
   /(driver|wedge|putter|iron|hybrid|fairway|headcover|head[-_ ]cover|golf[-_ ]?club|golf[-_ ]?bag|caddybag|caddy[-_ ]?bag|gloves?|tee[-_ ]?marker|ball[-_ ]?marker|_3w_|_5w_|_7w_|_d_\d|FW\d)/i;
 
 const SHOES_NAME_RE =
   /(슈즈|운동화|스니커즈|러닝화|부츠|샌들|로퍼|shoes|sneaker|boot|sandal)/i;
+// Nike 운동화 시리즈 + 일반 슈즈 패턴
 const SHOES_URL_RE =
-  /(shoes|sneaker|footwear|running[-_ ]?shoes|trail[-_ ]?running|GTX[-_ ]?\d+)/i;
+  /(shoes|sneaker|footwear|running[-_ ]?shoes|trail[-_ ]?running|GTX[-_ ]?\d+|jordan|kobe|airmax|air[-_ ]?max|airforce|air[-_ ]?force|dunk|sb[-_ ]?dunk|react|pegasus|vaporfly|metcon|cortez|blazer|huarache|free[-_ ]?run)/i;
+
+// 마케팅/배너/hero 이미지 패턴 — product 이미지가 아닌 광고/홍보 이미지
+const MARKETING_URL_RE =
+  /(_HERO_?|HERO[-_ ]|BIS_alt|GNB[-_ ]|gnb_banner|storycard|story[-_ ]?card|main[-_ ]?banner|main[-_ ]?marketing|brand[-_ ]?banner|hero[-_ ]?banner|carousel|promotion|campaign|featured\.jpg|history|who[-_ ]?we[-_ ]?are|naked[-_ ]?yoga[-_ ]?book|mindful[-_ ]?movement[-_ ]?book)/i;
 
 function placeholderForProduct(productName: string): string {
   const safe = productName.replace(/[^\w\s가-힣-]/g, "").slice(0, 24);
@@ -71,11 +76,18 @@ async function run() {
 
       const mismatched: string[] = [];
       for (const img of product.images) {
+        // 의류 product인데 골프 장비 URL → mismatch
         if (isApparel && GOLF_EQUIPMENT_URL_RE.test(img.url)) {
           mismatched.push(img.url);
           continue;
         }
+        // 의류 product인데 운동화/농구화 URL → mismatch (의류와 신발 분리)
         if (isApparel && !isShoes && SHOES_URL_RE.test(img.url)) {
+          mismatched.push(img.url);
+          continue;
+        }
+        // 의류 product인데 마케팅/hero 배너 URL → mismatch (제품 사진 아님)
+        if (isApparel && MARKETING_URL_RE.test(img.url)) {
           mismatched.push(img.url);
           continue;
         }
