@@ -89,4 +89,16 @@ export const STATIC_BRAND_IMAGES: Record<string, string[]> = {
   ],
   // SPA 사이트 + 메인 페이지가 농구화/운동화(jordan/kobe/airmax) 위주라 의류 product에 부적합 → 빈 배열
   "nike-skims": [],
+  // PXG 글로벌 사이트(www.pxg.com)는 Shopify 기반이라 sitemap_products_1.xml에서
+  // 진짜 의류(Polo/Sleeve/Cap/Vest 등) 이미지 추출 가능
+  pxg: [
+    "https://cdn.shopify.com/s/files/1/0664/5543/7486/files/Mens-Athletic-Fit-Hole-in-One-Polo-Lay-Flat-50.jpg?v=1757521441",
+    "https://cdn.shopify.com/s/files/1/0664/5543/7486/files/Mens-Tour-Comfort-Fit-Crossed-Driver-Polo-White-Side-50_630ffab0-0de5-4400-b3e8-77af21e284c6.jpg?v=1763504049",
+    "https://cdn.shopify.com/s/files/1/0664/5543/7486/files/Mens-Athletic-Fit-Crisscross-Print-Polo-Lay-Flat-50.jpg?v=1757521730",
+    "https://cdn.shopify.com/s/files/1/0664/5543/7486/files/Mens-Comfort-Fit-Fineline-Polo-Black-Lay-Flat-Shopify.jpg?v=1757546332",
+    "https://cdn.shopify.com/s/files/1/0664/5543/7486/files/Mens-Tour-Comfort-Fit-Pin-Flag-Polo-Hunter-Green-Front-50.jpg?v=1755712735",
+    "https://cdn.shopify.com/s/files/1/0664/5543/7486/files/CM-MF24ATP1-07C-Mens-Comfort-Fit-Golf-Icons-Pin-Stripe-Polo-Black-Front-50_3701b1a3-7955-457c-ae87-966a18423d56.jpg?v=1773231215",
+    "https://cdn.shopify.com/s/files/1/0664/5543/7486/files/Womens-RP-Signature-Polo-Dress-Lay-Flat-Shopify.jpg?v=1757538831",
+    "https://cdn.shopify.com/s/files/1/0664/5543/7486/files/CM-ME23ATP1-Womens-Cactus-Print-Polo-Black-Lay-Flat-50.jpg?v=1757540929",
+  ],
 };
