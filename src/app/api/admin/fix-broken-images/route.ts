@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOpsToken } from "@/lib/ops-auth";
 import { prisma } from "@/lib/db";
 
 /**
  * POST /api/admin/fix-broken-images
- *   Headers: { x-crawl-key: nkbus2026 }
+ *   Headers: { x-ops-token: <ADMIN_OPS_TOKEN> }
  *
  * sourceSite = "seed-fallback" 상품의 깨진 이미지 URL을
  * 브랜드 컬러 + 상품명이 표시된 placehold.co 이미지로 일괄 교체.
@@ -37,10 +38,8 @@ function placeholderUrl(
 }
 
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   // 대상: seed-fallback 상품 중 위의 6개 브랜드
   const targetSlugs = Object.keys(BRAND_STYLE);

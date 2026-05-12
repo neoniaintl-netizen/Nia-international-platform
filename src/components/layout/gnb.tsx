@@ -20,18 +20,11 @@ export function GNB() {
           <ScrollArea className="w-full">
             <div className="flex items-center gap-5 h-10">
               {CHANNELS.map((channel) => {
-                const isActive =
-                  channel.slug === "nkbus"
-                    ? !pathname.includes("/category/")
-                    : pathname.includes(`/category/${channel.slug}`);
+                const isActive = pathname.includes(`/category/${channel.slug}`);
                 return (
                   <Link
                     key={channel.slug}
-                    href={
-                      channel.slug === "nkbus"
-                        ? "/"
-                        : `/category/${channel.slug}`
-                    }
+                    href={`/category/${channel.slug}`}
                     className={cn(
                       "text-[11px] uppercase tracking-[0.15em] font-medium whitespace-nowrap transition-colors",
                       isActive

@@ -16,7 +16,7 @@ import type { CrawledProduct } from "./types";
  *   - meta property: product:price:amount, product:brand
  */
 export class Cafe24Crawler extends BaseCrawler {
-  readonly sourceSite = "cafe24";
+  readonly sourceSite: string = "cafe24";
 
   // ─── 목록 페이지 파싱 ───
 

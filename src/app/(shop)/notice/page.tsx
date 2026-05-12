@@ -4,16 +4,16 @@ import Link from "next/link";
 export const metadata: Metadata = { title: "공지사항" };
 
 const NOTICES = [
-  { id: 1, category: "서비스", title: "NKBUS 서비스 이용약관 개정 안내", date: "2026.04.01", important: true },
+  { id: 1, category: "서비스", title: "NOVAREN 서비스 이용약관 개정 안내", date: "2026.04.01", important: true },
   { id: 2, category: "배송", title: "중국 배송 지연 관련 안내", date: "2026.03.25", important: true },
   { id: 3, category: "이벤트", title: "봄 시즌 프로모션 안내", date: "2026.03.15", important: false },
   { id: 4, category: "서비스", title: "개인정보처리방침 변경 안내", date: "2026.03.10", important: false },
   { id: 5, category: "결제", title: "AliPay 결제 시스템 점검 안내 (3/8 02:00~06:00)", date: "2026.03.05", important: false },
-  { id: 6, category: "서비스", title: "NKBUS 앱 업데이트 안내 (v2.5.0)", date: "2026.02.28", important: false },
+  { id: 6, category: "서비스", title: "NOVAREN 앱 업데이트 안내 (v2.5.0)", date: "2026.02.28", important: false },
   { id: 7, category: "배송", title: "춘절 기간 중국 배송 스케줄 변경 안내", date: "2026.02.15", important: false },
   { id: 8, category: "입점", title: "2026년 상반기 브랜드 입점 모집 안내", date: "2026.02.01", important: false },
   { id: 9, category: "결제", title: "WeChat Pay 결제 서비스 오픈 안내", date: "2026.01.20", important: false },
-  { id: 10, category: "서비스", title: "NKBUS 플랫폼 정기 점검 안내 (1/15)", date: "2026.01.12", important: false },
+  { id: 10, category: "서비스", title: "NOVAREN 플랫폼 정기 점검 안내 (1/15)", date: "2026.01.12", important: false },
 ];
 
 export default function NoticePage() {

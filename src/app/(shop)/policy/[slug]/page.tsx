@@ -36,13 +36,13 @@ const POLICIES: Record<string, { title: string; content: string }> = {
   terms: {
     title: "이용약관",
     content: `제1조 (목적)
-본 약관은 (주)니아인터내셔널(이하 "회사")이 운영하는 NKBUS(이하 "몰")에서 제공하는 인터넷 관련 서비스(이하 "서비스")를 이용함에 있어 회사와 이용자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.
+본 약관은 (주)니아인터내셔널(이하 "회사")이 운영하는 NOVAREN(이하 "몰")에서 제공하는 인터넷 관련 서비스(이하 "서비스")를 이용함에 있어 회사와 이용자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.
 
 제2조 (정의)
 "몰"이란 회사가 재화 또는 용역(이하 "재화 등")을 이용자에게 제공하기 위하여 컴퓨터 등 정보통신설비를 이용하여 재화 등을 거래할 수 있도록 설정한 가상의 영업장을 말합니다.
 
 제3조 (약관의 명시, 효력 및 개정)
-회사는 본 약관의 내용과 상호, 영업소 소재지 등을 이용자가 쉽게 알 수 있도록 NKBUS 서비스 초기 화면에 게시합니다.
+회사는 본 약관의 내용과 상호, 영업소 소재지 등을 이용자가 쉽게 알 수 있도록 NOVAREN 서비스 초기 화면에 게시합니다.
 
 제4조 (서비스의 제공 및 변경)
 회사는 다음과 같은 업무를 수행합니다.
@@ -61,7 +61,7 @@ const POLICIES: Record<string, { title: string; content: string }> = {
   },
   payment: {
     title: "결제대행 위탁사",
-    content: `NKBUS는 안전한 결제 처리를 위해 다음 전문 결제대행사(PG)를 통해 결제를 처리하고 있습니다.
+    content: `NOVAREN는 안전한 결제 처리를 위해 다음 전문 결제대행사(PG)를 통해 결제를 처리하고 있습니다.
 
 1. 결제대행 위탁사
 - PortOne (주식회사 아임포트)
@@ -85,7 +85,7 @@ const POLICIES: Record<string, { title: string; content: string }> = {
   },
   dispute: {
     title: "분쟁해결기준",
-    content: `NKBUS는 고객님의 불만과 분쟁을 신속하고 공정하게 해결하기 위해 다음과 같은 기준을 운영하고 있습니다.
+    content: `NOVAREN는 고객님의 불만과 분쟁을 신속하고 공정하게 해결하기 위해 다음과 같은 기준을 운영하고 있습니다.
 
 1. 상품 교환·반품 기준
 - 단순 변심: 상품 수령 후 7일 이내 교환·반품 가능 (배송비 고객 부담)
@@ -160,7 +160,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const policy = POLICIES[slug];
   return {
-    title: policy ? `${policy.title} | NKBUS` : "정책 | NKBUS",
+    title: policy ? `${policy.title} | NOVAREN` : "정책 | NOVAREN",
   };
 }
 

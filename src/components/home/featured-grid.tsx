@@ -30,7 +30,7 @@ export function FeaturedGrid({
       : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4";
 
   return (
-    <section className="py-10 lg:py-16">
+    <section className="py-14 lg:py-20">
       <div className="max-w-[1400px] mx-auto px-4 lg:px-8">
         <SectionHeader
           eyebrow={eyebrow}
@@ -39,7 +39,7 @@ export function FeaturedGrid({
           linkHref={linkHref}
           linkLabel={linkLabel}
         />
-        <div className={`grid ${gridCols} gap-x-4 gap-y-12`}>
+        <div className={`grid ${gridCols} gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-10 lg:gap-y-14`}>
           {products.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}

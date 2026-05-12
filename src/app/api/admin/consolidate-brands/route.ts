@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOpsToken } from "@/lib/ops-auth";
 import { prisma } from "@/lib/db";
 
 /**
  * POST /api/admin/consolidate-brands
- *   Headers: { x-crawl-key: nkbus2026 }
+ *   Headers: { x-ops-token: <ADMIN_OPS_TOKEN> }
  *
  * 상품의 sourceUrl 호스트를 기준으로 올바른 Brand에 재연결.
  * 크롤링 시 brand.name 불일치로 잘못된 Brand 레코드에 연결된 상품을 복구.
@@ -51,10 +52,8 @@ function inferBrandSlugFromUrl(url: string | null): string | null {
 }
 
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   // 모든 브랜드 로드 (slug → id 맵)
   const brands = await prisma.brand.findMany({
@@ -143,10 +142,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key") || req.nextUrl.searchParams.get("key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   // sourceUrl 있는 상품이 현재 어떤 brand에 연결돼있는지 진단
   const products = await prisma.product.findMany({

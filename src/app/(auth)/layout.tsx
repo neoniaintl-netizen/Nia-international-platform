@@ -8,7 +8,7 @@ export default function AuthLayout({
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
       <Link href="/" className="mb-8">
-        <span className="text-2xl font-black tracking-tight">NKBUS</span>
+        <span className="text-2xl font-black tracking-tight">NOVAREN</span>
       </Link>
       <div className="w-full max-w-sm">{children}</div>
     </div>

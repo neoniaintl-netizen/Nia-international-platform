@@ -7,15 +7,20 @@ interface BrandItem {
 }
 
 const DEFAULT_BRANDS: BrandItem[] = [
-  { name: "SALOMON", slug: "salomon", highlight: true },
+  // 1차 핵심 카테고리 = 골프 → 골프 brand 우선 노출
+  { name: "MALBON GOLF", slug: "malbongolf", highlight: true },
+  { name: "G/FORE", slug: "gfore" },
+  { name: "ANEW GOLF", slug: "anewgolf" },
+  { name: "WAAC", slug: "waac" },
+  { name: "TITLEIST", slug: "titleist" },
+  { name: "MARK & LONA", slug: "markandlona" },
+  // 후순위 — 다른 카테고리 brand
+  { name: "SALOMON", slug: "salomon" },
   { name: "THE NORTH FACE", slug: "thenorthface" },
   { name: "PATAGONIA", slug: "patagonia" },
   { name: "ARC'TERYX", slug: "arcteryx" },
-  { name: "KOLON SPORT", slug: "kolonsport" },
-  { name: "WILSON", slug: "wilson" },
   { name: "DESCENTE", slug: "descente" },
-  { name: "ALO YOGA", slug: "aloyoga" },
-  { name: "NIKE × SKIMS", slug: "nike-skims" },
+  { name: "WILSON", slug: "wilson" },
 ];
 
 /**

@@ -9,8 +9,17 @@ import { CategoryMenu } from "./category-menu";
 import { CHANNELS } from "@/lib/constants";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import type { MenuBrand, MenuCategory } from "@/lib/queries";
 
-export function Header({ cartCount = 0 }: { cartCount?: number }) {
+export function Header({
+  cartCount = 0,
+  menuBrands = [],
+  menuCategories = [],
+}: {
+  cartCount?: number;
+  menuBrands?: MenuBrand[];
+  menuCategories?: MenuCategory[];
+}) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -42,7 +51,7 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
               {/* 로고 */}
               <Link href="/" className="flex items-center shrink-0">
                 <span className="text-[22px] font-bold tracking-[0.18em] text-[var(--ink)]">
-                  NKBUS
+                  NOVAREN
                 </span>
               </Link>
 
@@ -52,13 +61,11 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
                 aria-label="카테고리"
               >
                 {CHANNELS.map((channel) => {
-                  const isActive = channel.slug === "nkbus"
-                    ? !pathname.includes("/category/")
-                    : pathname.includes(`/category/${channel.slug}`);
+                  const isActive = pathname.includes(`/category/${channel.slug}`);
                   return (
                     <Link
                       key={channel.slug}
-                      href={channel.slug === "nkbus" ? "/" : `/category/${channel.slug}`}
+                      href={`/category/${channel.slug}`}
                       className={cn(
                         "relative px-3 py-2 text-[13px] font-medium tracking-[0.1em] whitespace-nowrap transition-colors",
                         isActive
@@ -214,7 +221,12 @@ export function Header({ cartCount = 0 }: { cartCount?: number }) {
       </header>
 
       {/* Category Menu Drawer */}
-      <CategoryMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <CategoryMenu
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        brands={menuBrands}
+        categories={menuCategories}
+      />
     </>
   );
 }

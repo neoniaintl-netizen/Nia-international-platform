@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import type { CrawledProduct } from "./types";
+import type { CrawledProduct, ImportOptions } from "./types";
 import { inferCategoryFromBrandName } from "./brand-category-map";
 
 /**
@@ -8,10 +8,14 @@ import { inferCategoryFromBrandName } from "./brand-category-map";
  * - 카테고리 매칭 (없으면 기본 카테고리)
  * - 상품 upsert (sourceUrl 기준 중복 방지)
  * - 이미지/변형 자동 생성
+ * - gender/productCode/externalProductId/season → ProductTag
+ * - material/origin/careGuide/fit → description HTML 상단 메타 섹션 prepend
+ * - detailImages → ProductImage sortOrder 뒤쪽
  */
 export async function importCrawledProducts(
   products: CrawledProduct[],
-  crawlJobId: string
+  crawlJobId: string,
+  options?: ImportOptions
 ): Promise<{ imported: number; skipped: number; errors: string[] }> {
   let imported = 0;
   let skipped = 0;
@@ -19,7 +23,7 @@ export async function importCrawledProducts(
 
   for (const item of products) {
     try {
-      await importSingleProduct(item, crawlJobId);
+      await importSingleProduct(item, crawlJobId, options);
       imported++;
     } catch (err: any) {
       // sourceUrl 중복이면 스킵 처리
@@ -34,7 +38,12 @@ export async function importCrawledProducts(
   return { imported, skipped, errors };
 }
 
-async function importSingleProduct(item: CrawledProduct, crawlJobId: string) {
+async function importSingleProduct(
+  item: CrawledProduct,
+  crawlJobId: string,
+  options?: ImportOptions,
+) {
+  const initialStatus = options?.initialStatus ?? "DRAFT";
   // 1) 브랜드 – 있으면 재사용, 없으면 생성
   const brand = await prisma.brand.upsert({
     where: { name: item.brandName },
@@ -72,14 +81,17 @@ async function importSingleProduct(item: CrawledProduct, crawlJobId: string) {
     where: { sourceUrl: item.sourceUrl },
   });
 
+  // description HTML 에 메타 섹션 prepend
+  const description = buildDescriptionWithMeta(item);
+
   const productData = {
     brandId: brand.id,
     categoryId,
     name: item.name,
-    description: item.description,
+    description,
     originalPrice: item.originalPrice,
     salePrice: item.salePrice,
-    status: "DRAFT" as const, // 크롤링 후 검수 대기
+    status: initialStatus, // 기본 DRAFT (검수 대기)
     sourceUrl: item.sourceUrl,
     sourceSite: item.sourceSite,
     crawledAt: new Date(),
@@ -107,11 +119,14 @@ async function importSingleProduct(item: CrawledProduct, crawlJobId: string) {
     productId = created.id;
   }
 
-  // 5) 이미지 – 기존 것 삭제 후 재생성
-  if (item.imageUrls.length > 0) {
+  // 5) 이미지 – 기존 것 삭제 후 재생성 (imageUrls + detailImages 통합, 순서 보존)
+  const galleryImages = item.imageUrls ?? [];
+  const detailImages = item.detailImages ?? [];
+  const allImages = [...galleryImages, ...detailImages];
+  if (allImages.length > 0) {
     await prisma.productImage.deleteMany({ where: { productId } });
     await prisma.productImage.createMany({
-      data: item.imageUrls.map((url, i) => ({
+      data: allImages.map((url, i) => ({
         productId,
         url,
         alt: item.name,
@@ -149,6 +164,48 @@ async function importSingleProduct(item: CrawledProduct, crawlJobId: string) {
       });
     }
   }
+
+  // 7) 태그 — gender / season / productCode / externalProductId / tags
+  const tagEntries: string[] = [];
+  if (item.gender) tagEntries.push(`gender:${item.gender}`);
+  if (item.season) tagEntries.push(`season:${item.season}`);
+  if (item.productCode) tagEntries.push(`code:${item.productCode}`);
+  if (item.externalProductId) tagEntries.push(`extId:${item.externalProductId}`);
+  if (item.tags) tagEntries.push(...item.tags);
+  if (tagEntries.length > 0) {
+    await prisma.productTag.deleteMany({ where: { productId } });
+    // 중복 제거
+    const uniqueTags = [...new Set(tagEntries)];
+    await prisma.productTag.createMany({
+      data: uniqueTags.map((tag) => ({ productId, tag })),
+      skipDuplicates: true,
+    });
+  }
+}
+
+/** 메타 정보(소재/제조국/세탁/핏) 섹션을 description HTML 상단에 prepend */
+function buildDescriptionWithMeta(item: CrawledProduct): string | undefined {
+  const rows: Array<[string, string]> = [];
+  if (item.material) rows.push(["소재", item.material]);
+  if (item.origin) rows.push(["제조국", item.origin]);
+  if (item.careGuide) rows.push(["세탁법", item.careGuide]);
+  if (item.fit) rows.push(["핏", item.fit]);
+
+  const baseHtml = item.description ?? "";
+  if (rows.length === 0) return baseHtml || undefined;
+
+  const escape = (s: string) =>
+    s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+  const metaHtml = `<div class="product-meta"><dl>${rows
+    .map(([k, v]) => `<dt>${escape(k)}</dt><dd>${escape(v)}</dd>`)
+    .join("")}</dl></div>`;
+
+  return `${metaHtml}${baseHtml}`;
 }
 
 // ── Helpers ──

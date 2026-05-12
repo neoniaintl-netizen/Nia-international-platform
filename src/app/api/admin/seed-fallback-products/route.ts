@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOpsToken } from "@/lib/ops-auth";
 import { prisma } from "@/lib/db";
 
 /**
  * POST /api/admin/seed-fallback-products
- *   Headers: { x-crawl-key: nkbus2026 }
+ *   Headers: { x-ops-token: <ADMIN_OPS_TOKEN> }
  *
  * Musinsa/Akamai 차단으로 크롤링 불가한 5개 브랜드의
  * 대표 상품을 수동 데이터로 시드.
@@ -483,10 +484,8 @@ function slugify(text: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   // 기본 카테고리(아웃도어/스포츠) 조회
   const [outdoor, sports, etc] = await Promise.all([

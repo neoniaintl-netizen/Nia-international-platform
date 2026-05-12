@@ -1,5 +1,6 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { signIn, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
@@ -53,6 +54,10 @@ export async function registerAction(_prevState: any, formData: FormData) {
 
   if (password.length < 8 || password.length > 30) {
     return { error: "비밀번호는 8~30자로 입력해주세요." };
+  }
+
+  if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+    return { error: "비밀번호는 영문과 숫자를 모두 포함해야 합니다." };
   }
 
   if (password !== confirmPassword) {
@@ -168,20 +173,20 @@ export async function requestPasswordResetAction(
     };
   }
 
-  // 실제 구현에서는 VerificationToken 생성 + 이메일 발송
-  // MVP: 토큰 생성하여 DB에 저장, 로그에만 출력 (프로덕션은 이메일 연동 필요)
-  const token =
-    Math.random().toString(36).slice(2) +
-    Math.random().toString(36).slice(2);
+  // 암호학적으로 안전한 256-bit 토큰 (예측 불가)
+  const token = randomBytes(32).toString("hex");
   const expires = new Date(Date.now() + 1000 * 60 * 60); // 1시간
 
   await prisma.verificationToken.create({
     data: { identifier: email, token, expires },
   });
 
-  console.log(
-    `[비밀번호 재설정 토큰] ${email} → /reset-password?token=${token}`
-  );
+  // production 로그에 토큰 평문 노출 금지 — 이메일 전송은 별도 구현 예정
+  if (process.env.NODE_ENV !== "production") {
+    console.log(
+      `[reset-token:dev] ${email} → /reset-password?token=${token}`
+    );
+  }
 
   return {
     success: true,

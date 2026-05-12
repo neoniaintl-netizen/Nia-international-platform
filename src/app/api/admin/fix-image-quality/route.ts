@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOpsToken } from "@/lib/ops-auth";
 import { prisma } from "@/lib/db";
 
 /**
  * POST /api/admin/fix-image-quality
- *   Headers: { x-crawl-key: nkbus2026 }
+ *   Headers: { x-ops-token: <ADMIN_OPS_TOKEN> }
  *
  * 두 가지 동시 처리:
  * 1) NorthFace 이미지 URL에서 `?thumbnail` 쿼리 제거 → 고해상도 로드
@@ -26,16 +27,14 @@ function placeholderUrl(
   variant: number = 1
 ): string {
   const style = BRAND_STYLE[brandSlug];
-  if (!style) return `https://placehold.co/800x1000/2D5E3F/ffffff?text=NKBUS`;
+  if (!style) return `https://placehold.co/800x1000/2D5E3F/ffffff?text=NOVAREN`;
   const suffix = variant > 1 ? `+0${variant}` : "";
   return `https://placehold.co/800x1000/${style.bg}/${style.fg}?font=inter&text=${style.label}${suffix}`;
 }
 
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   const summary = {
     nfThumbnailFixed: 0,

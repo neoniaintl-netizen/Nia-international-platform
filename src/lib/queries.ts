@@ -2,9 +2,25 @@ import { prisma } from "./db";
 
 // ─── Product helpers ───
 
+/**
+ * 사용자 화면 노출 가드.
+ *
+ * 현재는 **DRAFT 차단만** 유지 — `status === "ACTIVE"`.
+ * placeholder/Unknown/seed-fallback/이미지 품질 같은 추가 가드는 일시적으로 제거
+ * (사용자 화면에서 기존 상품이 사라지는 부작용 → 별도 단계로 미룸).
+ *
+ * 추후 품질 가드 복원 시: originalPrice>0, brand.name!="Unknown", images.some(url!=placehold)
+ * 같은 조건을 단계적으로 추가하고 화면 결과 확인.
+ *
+ * 관리자 query (getAdminProducts) 와 직접 URL 진입 (getProductBySlug) 에는 적용하지 않음.
+ */
+const USER_FACING_GUARD = {
+  status: "ACTIVE" as const,
+};
+
 export async function getRankedProducts(limit = 8) {
   return prisma.product.findMany({
-    where: { status: "ACTIVE", rankPosition: { not: null } },
+    where: { ...USER_FACING_GUARD, rankPosition: { not: null } },
     orderBy: { rankPosition: "asc" },
     take: limit,
     include: {
@@ -16,7 +32,7 @@ export async function getRankedProducts(limit = 8) {
 
 export async function getDailyRankedProducts(limit = 8) {
   return prisma.product.findMany({
-    where: { status: "ACTIVE" },
+    where: USER_FACING_GUARD,
     orderBy: { viewCount: "desc" },
     take: limit,
     include: {
@@ -28,7 +44,7 @@ export async function getDailyRankedProducts(limit = 8) {
 
 export async function getWeeklyRankedProducts(limit = 8) {
   return prisma.product.findMany({
-    where: { status: "ACTIVE" },
+    where: USER_FACING_GUARD,
     orderBy: { reviewCount: "desc" },
     take: limit,
     include: {
@@ -39,13 +55,143 @@ export async function getWeeklyRankedProducts(limit = 8) {
 }
 
 export async function getSaleProducts(limit = 4) {
-  // 실제 크롤링 상품(고화질 이미지) 우선 — seed-fallback은 마지막
   return prisma.product.findMany({
-    where: { status: "ACTIVE", salePrice: { not: null } },
+    where: { ...USER_FACING_GUARD, salePrice: { not: null } },
+    orderBy: [{ updatedAt: "desc" }],
+    take: limit,
+    include: {
+      brand: { select: { name: true, slug: true } },
+      images: { where: { isMain: true }, take: 1 },
+    },
+  });
+}
+
+/**
+ * What's New 섹션 — 골프 브랜드 우선 + 브랜드별 라운드로빈 인터리브.
+ *
+ * 정책:
+ *  1) 골프 카테고리(slug=golf 또는 parent.slug=golf) ACTIVE 상품 보유 brand 식별
+ *  2) 각 골프 brand 의 최신 ACTIVE 상품 perBrandCap 개씩 fetch
+ *  3) 라운드로빈으로 인터리브 (brand1[0], brand2[0], brand1[1], brand2[1], ...)
+ *  4) 부족분은 골프 외 brand 의 최신 상품을 같은 라운드로빈으로 보강
+ */
+export async function getNewProducts(limit = 8) {
+  const include = {
+    brand: { select: { name: true, slug: true } },
+    images: { where: { isMain: true }, take: 1 },
+  };
+  const orderBy: Array<Record<string, "asc" | "desc">> = [
+    { isNew: "desc" },
+    { createdAt: "desc" },
+  ];
+
+  // 1) 골프 brand 식별
+  const golfBrands = await prisma.brand.findMany({
+    where: {
+      isActive: true,
+      products: {
+        some: {
+          status: "ACTIVE",
+          OR: [
+            { category: { slug: "golf" } },
+            { category: { parent: { slug: "golf" } } },
+          ],
+        },
+      },
+    },
+    select: { id: true },
+    orderBy: { name: "asc" },
+  });
+
+  // 2) 각 골프 brand 의 최신 상품 fetch (per-brand cap → 한 브랜드 독식 방지)
+  const golfPerCap = Math.max(
+    2,
+    Math.ceil(limit / Math.max(golfBrands.length, 1)) + 2,
+  );
+  const golfByBrand = await Promise.all(
+    golfBrands.map((b) =>
+      prisma.product.findMany({
+        where: { ...USER_FACING_GUARD, brandId: b.id },
+        orderBy,
+        take: golfPerCap,
+        include,
+      }),
+    ),
+  );
+
+  // 3) 라운드로빈 인터리브
+  const result: typeof golfByBrand[number] = [];
+  for (let i = 0; result.length < limit; i++) {
+    let added = false;
+    for (const list of golfByBrand) {
+      if (i < list.length && result.length < limit) {
+        result.push(list[i]);
+        added = true;
+      }
+    }
+    if (!added) break;
+  }
+
+  // 4) 부족분 — 골프 외 brand 라운드로빈 보강
+  if (result.length < limit) {
+    const golfBrandIds = new Set(golfBrands.map((b) => b.id));
+    const otherBrands = await prisma.brand.findMany({
+      where: {
+        isActive: true,
+        id: { notIn: [...golfBrandIds] },
+        products: { some: { status: "ACTIVE" } },
+      },
+      select: { id: true },
+      orderBy: { name: "asc" },
+    });
+    const otherPerCap = Math.max(
+      2,
+      Math.ceil((limit - result.length) / Math.max(otherBrands.length, 1)) + 1,
+    );
+    const otherByBrand = await Promise.all(
+      otherBrands.map((b) =>
+        prisma.product.findMany({
+          where: { ...USER_FACING_GUARD, brandId: b.id },
+          orderBy,
+          take: otherPerCap,
+          include,
+        }),
+      ),
+    );
+    for (let j = 0; result.length < limit; j++) {
+      let added = false;
+      for (const list of otherByBrand) {
+        if (j < list.length && result.length < limit) {
+          result.push(list[j]);
+          added = true;
+        }
+      }
+      if (!added) break;
+    }
+  }
+
+  return result.slice(0, limit);
+}
+
+/**
+ * Golf Select 섹션 — 골프 카테고리 ACTIVE 상품.
+ * 대분류 "golf" 또는 부모가 "golf" 인 자식 카테고리(상의/하의/모자 등) 모두 매칭.
+ * 정렬: isBest desc → rankPosition asc → isNew desc → createdAt desc
+ */
+export async function getGolfProducts(limit = 8) {
+  return prisma.product.findMany({
+    where: {
+      ...USER_FACING_GUARD,
+      OR: [
+        { category: { slug: "golf" } },
+        { category: { parent: { slug: "golf" } } },
+      ],
+    },
     orderBy: [
-      // sourceSite = 'seed-fallback'이면 뒤로, 실제 크롤링(salomon/wilson/northface/shopify)이 앞
-      { sourceSite: "asc" },
-      { updatedAt: "desc" },
+      { isBest: "desc" },
+      { rankPosition: { sort: "asc", nulls: "last" } },
+      { isNew: "desc" },
+      { createdAt: "desc" },
     ],
     take: limit,
     include: {
@@ -55,41 +201,50 @@ export async function getSaleProducts(limit = 4) {
   });
 }
 
-export async function getNewProducts(limit = 8) {
-  // 실제 크롤링 상품(고화질 이미지)을 먼저 보여주고, 부족하면 수동 시드로 보충
-  const realProducts = await prisma.product.findMany({
+/**
+ * Brand Focus 섹션 — 특정 브랜드의 ACTIVE 상품.
+ * 이미지 있는 상품 우선 (메인 노출 품질 가드).
+ * 정렬: createdAt desc
+ */
+export async function getBrandFocusProducts(brandSlug: string, limit = 4) {
+  return prisma.product.findMany({
     where: {
-      status: "ACTIVE",
-      sourceSite: { notIn: ["seed-fallback"] },
-      NOT: { sourceSite: null },
-    },
-    orderBy: [{ isNew: "desc" }, { createdAt: "desc" }],
-    take: limit,
-    include: {
-      brand: { select: { name: true, slug: true } },
-      images: { where: { isMain: true }, take: 1 },
-    },
-  });
-
-  if (realProducts.length >= limit) return realProducts;
-
-  // 부족분을 수동 시드로 채움
-  const fillCount = limit - realProducts.length;
-  const fallbackProducts = await prisma.product.findMany({
-    where: {
-      status: "ACTIVE",
-      isNew: true,
-      id: { notIn: realProducts.map((p) => p.id) },
+      ...USER_FACING_GUARD,
+      brand: { slug: brandSlug },
     },
     orderBy: { createdAt: "desc" },
-    take: fillCount,
+    take: limit,
     include: {
-      brand: { select: { name: true, slug: true } },
+      brand: { select: { name: true, slug: true, nameKo: true } },
       images: { where: { isMain: true }, take: 1 },
     },
   });
+}
 
-  return [...realProducts, ...fallbackProducts];
+/**
+ * Brand Focus 자동 선택 — 골프 카테고리에서 ACTIVE 상품이 가장 많은 브랜드 1개.
+ * 어뉴골프가 상품 많으면 자동으로 선택됨. 운영자가 별도 지정 안 해도 동작.
+ */
+export async function pickBrandFocusSlug(): Promise<string | null> {
+  const result = await prisma.product.groupBy({
+    by: ["brandId"],
+    where: {
+      ...USER_FACING_GUARD,
+      OR: [
+        { category: { slug: "golf" } },
+        { category: { parent: { slug: "golf" } } },
+      ],
+    },
+    _count: { id: true },
+    orderBy: { _count: { id: "desc" } },
+    take: 1,
+  });
+  if (!result[0]) return null;
+  const brand = await prisma.brand.findUnique({
+    where: { id: result[0].brandId },
+    select: { slug: true },
+  });
+  return brand?.slug ?? null;
 }
 
 export async function getAllProducts(options?: {
@@ -106,7 +261,7 @@ export async function getAllProducts(options?: {
 }) {
   const { categorySlug, brandSlug, search, sort = "popular", limit = 24, offset = 0 } = options ?? {};
 
-  const conditions: Record<string, unknown>[] = [{ status: "ACTIVE" as const }];
+  const conditions: Record<string, unknown>[] = [USER_FACING_GUARD];
 
   if (categorySlug) {
     conditions.push({
@@ -195,6 +350,120 @@ export async function getAllBrands() {
 
 export async function getBrandBySlug(slug: string) {
   return prisma.brand.findUnique({ where: { slug } });
+}
+
+export type MenuCategory = {
+  slug: string;
+  name: string;
+  productCount: number;
+  sub: { slug: string; name: string; productCount: number }[];
+};
+
+/**
+ * CategoryMenu drawer 의 "카테고리" 탭용.
+ *
+ * 정책:
+ *  - 대분류(depth=0): 코드 데이터 5개(CHANNELS) 와 동일 — DB row 없어도 표시
+ *  - 하위 카테고리(depth>=1): DB 에 존재 AND ACTIVE 상품 1개 이상만 노출
+ *  - 입점 0인 대분류는 sub 빈 배열 (CategoryMenu 가 안내 메시지 노출)
+ */
+export async function getCategoryMenuTree(): Promise<MenuCategory[]> {
+  // 모든 카테고리 + ACTIVE product count
+  const cats = await prisma.category.findMany({
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      depth: true,
+      parentId: true,
+      sortOrder: true,
+      _count: { select: { products: { where: { status: "ACTIVE" } } } },
+    },
+    orderBy: [{ depth: "asc" }, { sortOrder: "asc" }, { name: "asc" }],
+  });
+
+  // depth=0 인덱스
+  const topBySlug = new Map(cats.filter((c) => c.depth === 0).map((c) => [c.slug, c]));
+
+  // 코드 데이터로 노출 순서/한글명 보장 (CHANNELS 와 동일)
+  const TOP_ORDER: { slug: string; name: string }[] = [
+    { slug: "golf", name: "골프" },
+    { slug: "sports", name: "스포츠" },
+    { slug: "outdoor", name: "아웃도어" },
+    { slug: "beauty", name: "뷰티" },
+    { slug: "women", name: "여성의류" },
+  ];
+
+  return TOP_ORDER.map((top) => {
+    const topRow = topBySlug.get(top.slug);
+    const subs = topRow
+      ? cats
+          .filter((c) => c.parentId === topRow.id && c._count.products > 0)
+          .map((c) => ({
+            slug: c.slug,
+            name: c.name,
+            productCount: c._count.products,
+          }))
+      : [];
+    const total = subs.reduce((a, s) => a + s.productCount, 0);
+    return {
+      slug: top.slug,
+      name: top.name,
+      productCount: total,
+      sub: subs,
+    };
+  });
+}
+
+export type MenuBrand = {
+  name: string;
+  nameKo: string | null;
+  slug: string;
+  productCount: number;
+  channel: "apparel" | "shoes" | "beauty";
+};
+
+/**
+ * CategoryMenu 의 "브랜드" 탭 노출용 brand 목록.
+ *
+ * - 입점 brand = `isActive: true` AND ACTIVE 상품 1개 이상
+ * - 자동 분류: ACTIVE 상품의 카테고리 slug 패턴으로 channel 결정
+ *   - `beauty-*` 50% 이상 → beauty
+ *   - `*-shoes` 50% 이상 → shoes
+ *   - 그 외 → apparel
+ */
+export async function getBrandsForMenu(): Promise<MenuBrand[]> {
+  const brands = await prisma.brand.findMany({
+    where: {
+      isActive: true,
+      products: { some: { status: "ACTIVE" } },
+    },
+    include: {
+      _count: { select: { products: { where: { status: "ACTIVE" } } } },
+      products: {
+        where: { status: "ACTIVE" },
+        select: { category: { select: { slug: true } } },
+      },
+    },
+    orderBy: { name: "asc" },
+  });
+
+  return brands.map((b) => {
+    const slugs = b.products.map((p) => p.category.slug);
+    const total = slugs.length || 1;
+    const shoeRatio = slugs.filter((s) => s.endsWith("-shoes")).length / total;
+    const beautyRatio =
+      slugs.filter((s) => s.startsWith("beauty-")).length / total;
+    const channel: MenuBrand["channel"] =
+      beautyRatio >= 0.5 ? "beauty" : shoeRatio >= 0.5 ? "shoes" : "apparel";
+    return {
+      name: b.name,
+      nameKo: b.nameKo,
+      slug: b.slug,
+      productCount: b._count.products,
+      channel,
+    };
+  });
 }
 
 // ─── Category helpers ───

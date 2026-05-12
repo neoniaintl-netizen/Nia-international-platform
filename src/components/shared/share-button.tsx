@@ -13,7 +13,7 @@ export function ShareButton({ url, title, size = "icon" }: { url: string; title?
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: title || "NKBUS", url: fullUrl });
+        await navigator.share({ title: title || "NOVAREN", url: fullUrl });
         return;
       } catch {}
     }

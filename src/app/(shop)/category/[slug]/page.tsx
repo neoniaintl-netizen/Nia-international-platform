@@ -13,6 +13,29 @@ import { Suspense } from "react";
 
 const PAGE_SIZE = 20;
 
+/**
+ * 상단 메뉴(`CHANNELS`)에 노출되는 known category slug 화이트리스트.
+ * DB Category row가 없어도 404 대신 빈 상태 페이지를 렌더한다.
+ * 운영자가 `/api/admin/setup-categories` 등을 호출해 실제 DB row를 만들면
+ * findUnique 가 우선 매칭되어 children/parent 트리도 노출된다.
+ */
+const KNOWN_CATEGORIES: Record<string, { nameKo: string }> = {
+  golf: { nameKo: "골프" },
+  sports: { nameKo: "스포츠" },
+  outdoor: { nameKo: "아웃도어" },
+  beauty: { nameKo: "뷰티" },
+  women: { nameKo: "여성의류" },
+  men: { nameKo: "남성의류" },
+};
+
+type CategoryView = {
+  id: string;
+  slug: string;
+  name: string;
+  children: { slug: string; name: string }[];
+  parent: { slug: string; name: string } | null;
+};
+
 export default async function CategoryPage({
   params,
   searchParams,
@@ -25,12 +48,33 @@ export default async function CategoryPage({
   const currentPage = Math.max(1, Number(page) || 1);
   const offset = (currentPage - 1) * PAGE_SIZE;
 
-  const category = await prisma.category.findUnique({
+  const dbCategory = await prisma.category.findUnique({
     where: { slug },
     include: { children: { orderBy: { sortOrder: "asc" } }, parent: true },
   });
 
-  if (!category) return notFound();
+  let category: CategoryView;
+  if (dbCategory) {
+    category = {
+      id: dbCategory.id,
+      slug: dbCategory.slug,
+      name: dbCategory.name,
+      children: dbCategory.children.map((c) => ({ slug: c.slug, name: c.name })),
+      parent: dbCategory.parent
+        ? { slug: dbCategory.parent.slug, name: dbCategory.parent.name }
+        : null,
+    };
+  } else {
+    const known = KNOWN_CATEGORIES[slug];
+    if (!known) return notFound();
+    category = {
+      id: `_known_${slug}`,
+      slug,
+      name: known.nameKo,
+      children: [],
+      parent: null,
+    };
+  }
 
   const { products, total } = await getAllProducts({
     categorySlug: slug,
@@ -95,9 +139,16 @@ export default async function CategoryPage({
       </div>
 
       {products.length === 0 && (
-        <div className="text-center py-20 text-gray-400">
-          <p className="text-lg mb-2">상품이 없습니다</p>
-          <p className="text-sm">다른 카테고리를 선택해보세요.</p>
+        <div className="text-center py-24 lg:py-32">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-[var(--ink-muted)] mb-3">
+            Coming Soon
+          </p>
+          <p className="text-xl lg:text-2xl font-normal tracking-tight text-[var(--ink)] mb-3">
+            준비 중인 카테고리입니다
+          </p>
+          <p className="text-sm text-[var(--ink-muted)]">
+            곧 새로운 상품을 만나보실 수 있어요.
+          </p>
         </div>
       )}
 

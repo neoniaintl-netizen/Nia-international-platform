@@ -55,7 +55,7 @@ export default async function AdminLayout({
       <aside className="w-60 bg-white border-r shrink-0 fixed h-screen overflow-y-auto">
         <div className="p-4 border-b">
           <Link href="/admin" className="text-lg font-black tracking-tight">
-            NKBUS <span className="text-xs font-normal text-gray-400">Admin</span>
+            NOVAREN <span className="text-xs font-normal text-gray-400">Admin</span>
           </Link>
         </div>
         <nav className="p-3 space-y-0.5">

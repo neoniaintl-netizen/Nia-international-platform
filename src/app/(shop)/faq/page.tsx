@@ -12,7 +12,7 @@ const FAQS = [
     category: "주문/결제",
     question: "어떤 결제 수단을 지원하나요?",
     answer:
-      "NKBUS는 VISA, Mastercard, JCB, AMEX 등 주요 해외 카드와 AliPay, WeChat Pay, NKBUSPay, KakaoPay를 지원합니다. 중국 고객의 경우 AliPay 또는 WeChat Pay로 위안화 직결제가 가능합니다.",
+      "NOVAREN는 VISA, Mastercard, JCB, AMEX 등 주요 해외 카드와 AliPay, WeChat Pay, NOVARENPay, KakaoPay를 지원합니다. 중국 고객의 경우 AliPay 또는 WeChat Pay로 위안화 직결제가 가능합니다.",
   },
   {
     category: "주문/결제",
@@ -48,13 +48,13 @@ const FAQS = [
     category: "반품/교환",
     question: "교환은 어떻게 진행하나요?",
     answer:
-      "해외 배송 특성상 직접 교환은 불가하며, 반품 후 재주문으로 진행됩니다. 상품 불량의 경우 반품 배송비를 NKBUS에서 부담합니다.",
+      "해외 배송 특성상 직접 교환은 불가하며, 반품 후 재주문으로 진행됩니다. 상품 불량의 경우 반품 배송비를 NOVAREN에서 부담합니다.",
   },
   {
     category: "구매대행",
     question: "구매대행 서비스란 무엇인가요?",
     answer:
-      "NKBUS 구매대행은 한국 패션 브랜드 상품을 중국 소비자에게 판매·배송하는 서비스입니다. 정품 인증, 통관 대행, 현지 배송까지 원스톱으로 처리합니다.",
+      "NOVAREN 구매대행은 한국 패션 브랜드 상품을 중국 소비자에게 판매·배송하는 서비스입니다. 정품 인증, 통관 대행, 현지 배송까지 원스톱으로 처리합니다.",
   },
   {
     category: "구매대행",

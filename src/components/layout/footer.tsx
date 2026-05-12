@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator";
 
 const FOOTER_NAV = [
   {
-    title: "어바웃 NKBUS",
+    title: "어바웃 NOVAREN",
     links: [
       { label: "회사 소개", href: "/about" },
       { label: "비즈니스 소개", href: "/about" },
@@ -15,13 +15,13 @@ const FOOTER_NAV = [
   {
     title: "오프라인 스토어",
     links: [
-      { label: "NKBUS 스토어", href: "/stores" },
-      { label: "NKBUS 스탠다드", href: "/stores" },
-      { label: "NKBUS 엠프티", href: "/stores" },
-      { label: "NKBUS 스퀘어", href: "/stores" },
-      { label: "NKBUS 테라스", href: "/stores" },
+      { label: "NOVAREN 스토어", href: "/stores" },
+      { label: "NOVAREN 스탠다드", href: "/stores" },
+      { label: "NOVAREN 엠프티", href: "/stores" },
+      { label: "NOVAREN 스퀘어", href: "/stores" },
+      { label: "NOVAREN 테라스", href: "/stores" },
       { label: "아즈니섬", href: "/stores" },
-      { label: "NKBUS 골프", href: "/stores" },
+      { label: "NOVAREN 골프", href: "/stores" },
     ],
   },
   {
@@ -30,10 +30,10 @@ const FOOTER_NAV = [
       { label: "29CM", href: "/about" },
       { label: "솔드아웃", href: "/about" },
       { label: "엠프티", href: "/about" },
-      { label: "NKBUS 파트너스", href: "/partner" },
-      { label: "NKBUS 스튜디오", href: "/about" },
-      { label: "NKBUS 트레이딩", href: "/about" },
-      { label: "NKBUS 로지스틱스", href: "/about" },
+      { label: "NOVAREN 파트너스", href: "/partner" },
+      { label: "NOVAREN 스튜디오", href: "/about" },
+      { label: "NOVAREN 트레이딩", href: "/about" },
+      { label: "NOVAREN 로지스틱스", href: "/about" },
     ],
   },
   {
@@ -60,7 +60,6 @@ const CUSTOMER_SUPPORT = {
 };
 
 const CHANNELS = [
-  { label: "NKBUS", href: "/" },
   { label: "GOLF", href: "/category/golf" },
   { label: "SPORTS", href: "/category/sports" },
   { label: "OUTDOOR", href: "/category/outdoor" },
@@ -69,15 +68,15 @@ const CHANNELS = [
 ];
 
 const NOTICES = [
-  { title: "NKBUS 서비스 이용약관 개정 안내", date: "2026.04.01" },
+  { title: "NOVAREN 서비스 이용약관 개정 안내", date: "2026.04.01" },
   { title: "중국 배송 지연 관련 안내", date: "2026.03.25" },
   { title: "봄 시즌 프로모션 안내", date: "2026.03.15" },
 ];
 
-type PaymentLogo = "nkbuspay" | "kakaopay" | "alipay";
+type PaymentLogo = "novarenpay" | "kakaopay" | "alipay";
 
 const PAYMENT_BENEFITS: Array<{ logo: PaymentLogo; text: string }> = [
-  { logo: "nkbuspay", text: "NKBUSPay 첫 결제 시 5천원 할인" },
+  { logo: "novarenpay", text: "NOVARENPay 첫 결제 시 5천원 할인" },
   { logo: "kakaopay", text: "카카오페이 × 페이머니 10만원 이상 결제 시 4천원 할인" },
   { logo: "alipay", text: "AliPay 결제 시 위안화 직결제 지원" },
 ];
@@ -110,7 +109,7 @@ function PaymentLogoIcon({ logo }: { logo: PaymentLogo }) {
     <span
       className="inline-flex h-5 w-5 items-center justify-center rounded-[4px] text-[10px] font-bold text-white"
       style={{ backgroundColor: "#0A0A0A" }}
-      aria-label="NKBUS Pay"
+      aria-label="NOVAREN Pay"
     >
       N
     </span>
@@ -242,7 +241,7 @@ export function Footer() {
       {/* ── 하단 정보 ── */}
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-8">
         <p className="text-sm font-bold text-gray-900">
-          엔큐버스 | &copy; NKBUS ALL RIGHTS RESERVED
+          노바렌 | &copy; NOVAREN ALL RIGHTS RESERVED
         </p>
 
         <div className="mt-4 space-y-1 text-xs text-gray-400">
@@ -262,7 +261,7 @@ export function Footer() {
             </span>
           </p>
           <p>
-            일부 상품의 경우 주식회사 NKBUS는 통신판매의 당사자가 아닌
+            일부 상품의 경우 주식회사 NOVAREN는 통신판매의 당사자가 아닌
             통신판매중개자 및 구매대행 서비스 제공자로서 상품, 상품정보, 거래에
             대한 책임이 제한될 수 있으므로, 각 상품 페이지에서 구체적인 내용을
             확인하시기 바랍니다.
@@ -280,7 +279,7 @@ export function Footer() {
               "AMEX",
               "AliPay",
               "WeChat Pay",
-              "NKBUSPay",
+              "NOVARENPay",
               "KakaoPay",
             ].map((method) => (
               <span

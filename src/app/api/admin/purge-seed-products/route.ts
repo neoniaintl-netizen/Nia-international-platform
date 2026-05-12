@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOpsToken } from "@/lib/ops-auth";
 import { prisma } from "@/lib/db";
 
 /**
  * POST /api/admin/purge-seed-products
- *   Headers: { x-crawl-key: nkbus2026 }
+ *   Headers: { x-ops-token: <ADMIN_OPS_TOKEN> }
  *   Body: { brands: string[] }
  *
  * 특정 브랜드의 seed-fallback sourceSite 상품 삭제 (관련 이미지/옵션 cascade).
  * 실제 크롤링 상품으로 교체하기 위한 정리 작업.
  */
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   let body: any = {};
   try {

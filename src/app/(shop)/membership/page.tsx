@@ -71,9 +71,9 @@ const PERKS = [
 ];
 
 export const metadata = {
-  title: "멤버십 | NKBUS",
+  title: "멤버십 | NOVAREN",
   description:
-    "NKBUS 멤버십 등급별 혜택 — BRONZE, SILVER, GOLD. 구매할수록 쌓이는 포인트와 쿠폰, 무료배송까지.",
+    "NOVAREN 멤버십 등급별 혜택 — BRONZE, SILVER, GOLD. 구매할수록 쌓이는 포인트와 쿠폰, 무료배송까지.",
 };
 
 export default function MembershipPage() {
@@ -90,13 +90,13 @@ export default function MembershipPage() {
       <div className="text-center mb-12 lg:mb-20">
         <div className="inline-flex items-center gap-2 bg-black text-white px-4 py-1.5 rounded-full text-xs font-bold mb-4">
           <Crown className="w-3 h-3" />
-          NKBUS MEMBERSHIP
+          NOVAREN MEMBERSHIP
         </div>
         <h1 className="text-3xl lg:text-5xl font-black mb-4">
           쇼핑할수록 커지는 혜택
         </h1>
         <p className="text-sm lg:text-base text-gray-600 max-w-xl mx-auto">
-          NKBUS 멤버십은 구매 금액에 따라 3단계 등급으로 올라가며,
+          NOVAREN 멤버십은 구매 금액에 따라 3단계 등급으로 올라가며,
           <br className="hidden sm:block" />
           등급이 오를수록 적립률·배송·쿠폰 혜택이 확대됩니다.
         </p>

@@ -4,9 +4,9 @@ import { ChevronRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 
 export const metadata = {
-  title: "룩북 | NKBUS",
+  title: "룩북 | NOVAREN",
   description:
-    "NKBUS 룩북 — 에디터가 엄선한 시즌별 코디네이션과 스타일링 제안",
+    "NOVAREN 룩북 — 에디터가 엄선한 시즌별 코디네이션과 스타일링 제안",
 };
 
 const GENDER_TABS = [

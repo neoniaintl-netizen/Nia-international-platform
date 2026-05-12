@@ -22,7 +22,7 @@ const SUPPORT_MENU = [
   {
     icon: Shield,
     title: "안전 거래 센터",
-    description: "NKBUS는 안전한 거래 환경을 위해 에스크로 결제, 정품 인증, 개인정보 보호를 제공합니다.",
+    description: "NOVAREN는 안전한 거래 환경을 위해 에스크로 결제, 정품 인증, 개인정보 보호를 제공합니다.",
     href: "#",
     cta: "자세히 보기",
   },
@@ -35,7 +35,7 @@ const SAFETY_FEATURES = [
   },
   {
     title: "정품 인증",
-    description: "모든 상품은 NKBUS 정품 인증 절차를 거쳐 발송됩니다.",
+    description: "모든 상품은 NOVAREN 정품 인증 절차를 거쳐 발송됩니다.",
   },
   {
     title: "개인정보 보호",
@@ -43,7 +43,7 @@ const SAFETY_FEATURES = [
   },
   {
     title: "통관 대행",
-    description: "해외 배송 시 통관 절차를 NKBUS에서 대행합니다.",
+    description: "해외 배송 시 통관 절차를 NOVAREN에서 대행합니다.",
   },
 ];
 

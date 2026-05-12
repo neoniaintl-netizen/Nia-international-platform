@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOpsToken } from "@/lib/ops-auth";
 import { prisma } from "@/lib/db";
 import { MusinsaCrawler } from "@/lib/crawler/musinsa-crawler";
 
 /**
  * GET /api/admin/crawl-product?url=https://www.musinsa.com/products/999602
+ *   Headers: { x-ops-token: <ADMIN_OPS_TOKEN> }
  *
  * 무신사 상품 1개를 크롤링 → DB에 저장하는 API
  * Railway 서버에서 실행되므로 internal DB 접속 가능
  */
 export async function GET(req: NextRequest) {
+  const block = requireOpsToken(req);
+  if (block) return block;
+
   const url = req.nextUrl.searchParams.get("url");
 
   if (!url || !url.includes("musinsa.com/products/")) {

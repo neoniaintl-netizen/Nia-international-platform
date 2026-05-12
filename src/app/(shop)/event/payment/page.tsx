@@ -8,11 +8,11 @@ export const metadata: Metadata = {
 const PAYMENT_EVENTS = [
   {
     id: 1,
-    title: "NKBUSPay 첫 결제 혜택",
-    description: "NKBUSPay 첫 결제 시 5,000원 즉시 할인",
+    title: "NOVARENPay 첫 결제 혜택",
+    description: "NOVARENPay 첫 결제 시 5,000원 즉시 할인",
     period: "2026.04.01 ~ 2026.04.30",
     badge: "진행중",
-    conditions: ["NKBUSPay 첫 결제 고객 대상", "최소 결제금액 30,000원 이상", "1인 1회 한정"],
+    conditions: ["NOVARENPay 첫 결제 고객 대상", "최소 결제금액 30,000원 이상", "1인 1회 한정"],
     bgColor: "#000",
   },
   {
@@ -54,7 +54,7 @@ const PAYMENT_EVENTS = [
 ];
 
 const SUPPORTED_METHODS = [
-  "VISA", "Mastercard", "JCB", "AMEX", "AliPay", "WeChat Pay", "NKBUSPay", "KakaoPay",
+  "VISA", "Mastercard", "JCB", "AMEX", "AliPay", "WeChat Pay", "NOVARENPay", "KakaoPay",
 ];
 
 export default function PaymentEventPage() {
@@ -64,7 +64,7 @@ export default function PaymentEventPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-black text-gray-900">결제 혜택</h1>
         <p className="text-sm text-gray-500 mt-1">
-          NKBUS에서 제공하는 다양한 결제 혜택을 확인하세요.
+          NOVAREN에서 제공하는 다양한 결제 혜택을 확인하세요.
         </p>
       </div>
 

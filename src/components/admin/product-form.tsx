@@ -63,6 +63,64 @@ export function ProductForm({ brands, categories, product }: ProductFormProps) {
   const action = isEdit ? updateProduct : createProduct;
   const [state, formAction, isPending] = useActionState(action, null);
 
+  // ── 가격/할인율 (양방향 자동 계산) ──
+  const [originalPrice, setOriginalPrice] = useState<number>(
+    product?.originalPrice ?? 0
+  );
+  const [salePrice, setSalePrice] = useState<number | "">(
+    product?.salePrice ?? ""
+  );
+  const initialRate =
+    product?.salePrice != null && product?.originalPrice
+      ? Math.round((1 - product.salePrice / product.originalPrice) * 100)
+      : 0;
+  const [discountRate, setDiscountRate] = useState<number | "">(
+    initialRate > 0 ? initialRate : ""
+  );
+
+  const finalPrice =
+    typeof salePrice === "number" && salePrice > 0 ? salePrice : originalPrice;
+
+  const handleOriginalChange = (v: number) => {
+    setOriginalPrice(v);
+    if (typeof discountRate === "number" && discountRate > 0) {
+      const sp = Math.round(v * (1 - discountRate / 100));
+      setSalePrice(sp > 0 ? sp : "");
+    }
+  };
+
+  const handleSaleChange = (raw: string) => {
+    if (raw === "") {
+      setSalePrice("");
+      setDiscountRate("");
+      return;
+    }
+    const v = parseInt(raw, 10);
+    if (isNaN(v)) return;
+    setSalePrice(v);
+    if (originalPrice > 0 && v >= 0 && v < originalPrice) {
+      setDiscountRate(Math.round((1 - v / originalPrice) * 100));
+    } else {
+      setDiscountRate("");
+    }
+  };
+
+  const handleRateChange = (raw: string) => {
+    if (raw === "") {
+      setDiscountRate("");
+      setSalePrice("");
+      return;
+    }
+    const r = parseInt(raw, 10);
+    if (isNaN(r) || r < 0 || r > 99) return;
+    setDiscountRate(r);
+    if (originalPrice > 0 && r > 0) {
+      setSalePrice(Math.round(originalPrice * (1 - r / 100)));
+    } else if (r === 0) {
+      setSalePrice("");
+    }
+  };
+
   // 이미지 목록 관리
   const [images, setImages] = useState<ImageItem[]>(
     product?.images ?? [{ url: "", alt: "", isMain: true }]
@@ -180,16 +238,28 @@ export function ProductForm({ brands, categories, product }: ProductFormProps) {
           <CardTitle className="text-base">가격 및 상태</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div>
               <Label className="text-sm mb-1.5">원가 (원) *</Label>
               <Input
                 name="originalPrice"
                 type="number"
-                defaultValue={product?.originalPrice}
+                value={originalPrice}
+                onChange={(e) => handleOriginalChange(parseInt(e.target.value) || 0)}
                 placeholder="59000"
                 min={0}
                 required
+              />
+            </div>
+            <div>
+              <Label className="text-sm mb-1.5">할인율 (%)</Label>
+              <Input
+                type="number"
+                value={discountRate}
+                onChange={(e) => handleRateChange(e.target.value)}
+                placeholder="0"
+                min={0}
+                max={99}
               />
             </div>
             <div>
@@ -197,10 +267,19 @@ export function ProductForm({ brands, categories, product }: ProductFormProps) {
               <Input
                 name="salePrice"
                 type="number"
-                defaultValue={product?.salePrice ?? ""}
-                placeholder="할인 없으면 비워두세요"
+                value={salePrice}
+                onChange={(e) => handleSaleChange(e.target.value)}
+                placeholder="자동 계산"
                 min={0}
               />
+              {originalPrice > 0 && (
+                <p className="text-[11px] text-gray-500 mt-1">
+                  최종가:{" "}
+                  <span className="font-bold text-black">
+                    {finalPrice.toLocaleString()}원
+                  </span>
+                </p>
+              )}
             </div>
             <div>
               <Label className="text-sm mb-1.5">상태</Label>
@@ -259,6 +338,48 @@ export function ProductForm({ brands, categories, product }: ProductFormProps) {
                 />
                 대표
               </label>
+              <a
+                href={img.url || "#"}
+                target={img.url ? "_blank" : undefined}
+                rel="noopener noreferrer"
+                className="w-14 h-14 shrink-0 border rounded overflow-hidden bg-gray-50 flex items-center justify-center relative group"
+                onClick={(e) => {
+                  if (!img.url) e.preventDefault();
+                }}
+                title={img.url ? "원본 이미지 새 탭으로 보기" : "URL을 입력하세요"}
+              >
+                {img.url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={img.url}
+                    alt={img.alt || "preview"}
+                    className="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
+                    onError={(e) => {
+                      const t = e.currentTarget;
+                      t.style.display = "none";
+                      const fallback = t.parentElement?.querySelector(
+                        "[data-fallback]"
+                      ) as HTMLElement | null;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
+                    onLoad={(e) => {
+                      const t = e.currentTarget;
+                      t.style.display = "block";
+                      const fallback = t.parentElement?.querySelector(
+                        "[data-fallback]"
+                      ) as HTMLElement | null;
+                      if (fallback) fallback.style.display = "none";
+                    }}
+                  />
+                ) : null}
+                <span
+                  data-fallback
+                  className="absolute inset-0 items-center justify-center text-[10px] text-gray-400"
+                  style={{ display: img.url ? "none" : "flex" }}
+                >
+                  {img.url ? "오류" : "없음"}
+                </span>
+              </a>
               <Input
                 name={`imageUrl_${idx}`}
                 value={img.url}

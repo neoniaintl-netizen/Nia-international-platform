@@ -120,7 +120,7 @@ export default async function SnapDetailPage({
               </span>
             </span>
           </div>
-          <ShareButton url={"/snap/" + snap.id} title={snap.caption || "NKBUS 스냅"} />
+          <ShareButton url={"/snap/" + snap.id} title={snap.caption || "NOVAREN 스냅"} />
         </div>
 
         {/* Caption */}

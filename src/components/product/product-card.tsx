@@ -94,40 +94,42 @@ export function ProductCard({
 
   return (
     <Link href={`/products/${product.slug}`} className="group block">
-      <div className="relative aspect-[4/5] bg-[var(--stone)] overflow-hidden mb-3">
+      <div className="relative aspect-[4/5] bg-[var(--stone)] overflow-hidden mb-3.5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={thumbUrl(product.imageUrl, 500)}
           alt={product.name}
           width={500}
           height={625}
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-[600ms] ease-out"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[700ms] ease-out"
           decoding="async"
           fetchPriority={priority ? "high" : "auto"}
         />
+        {/* Subtle hover darken — 미니멀, gradient 톤 */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/[0.04] transition-colors duration-500 pointer-events-none" />
         {/* Rank badge */}
         {rank && (
-          <div className="absolute top-3 left-3 text-[11px] font-medium uppercase tracking-[0.15em] text-[var(--ink)] bg-white/90 px-2 py-1 num">
+          <div className="absolute top-3 left-3 text-[10px] font-medium uppercase tracking-[0.15em] text-[var(--ink)] bg-white/95 px-2 py-1 num">
             No.{String(rank).padStart(2, "0")}
           </div>
         )}
         {/* Sold out overlay */}
         {product.isSoldOut && (
-          <div className="absolute inset-0 bg-[var(--ink)]/40 flex items-center justify-center">
-            <span className="text-white text-[11px] font-medium uppercase tracking-[0.3em] border border-white/60 px-4 py-1.5">
+          <div className="absolute inset-0 bg-[var(--ink)]/45 flex items-center justify-center">
+            <span className="text-white text-[10px] font-medium uppercase tracking-[0.3em] border border-white/70 px-4 py-1.5">
               Sold Out
             </span>
           </div>
         )}
-        {/* Badges (top-right) */}
+        {/* Badges (top-right) — 미니멀 솔리드 */}
         <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
           {product.isNew && (
-            <span className="px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] border border-[var(--ink)] bg-white text-[var(--ink)]">
+            <span className="px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] bg-[var(--ink)] text-white">
               New
             </span>
           )}
           {product.isBest && (
-            <span className="px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] border border-[var(--champagne)] bg-white text-[var(--champagne)]">
+            <span className="px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] bg-white text-[var(--ink)] border border-[var(--ink)]/15">
               Best
             </span>
           )}
@@ -154,15 +156,15 @@ export function ProductCard({
           />
         </button>
       </div>
-      {/* Info */}
-      <div className="space-y-1.5">
-        <p className="text-[11px] font-medium uppercase tracking-[0.15em] text-[var(--ink)] truncate">
+      {/* Info — 위계 정리: brand → name → price → review */}
+      <div className="space-y-1">
+        <p className="text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--ink)] truncate">
           {product.brandName}
         </p>
-        <p className="text-[13px] font-normal leading-relaxed line-clamp-2 text-[var(--ink-muted)]">
+        <p className="text-[12.5px] sm:text-[13px] font-normal leading-snug line-clamp-2 text-[var(--ink-muted)] min-h-[2.6em]">
           {product.name}
         </p>
-        <div className="pt-1">
+        <div className="pt-1.5">
           <PriceDisplay
             basePrice={product.basePrice}
             salePrice={product.salePrice}

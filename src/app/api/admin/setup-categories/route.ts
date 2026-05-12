@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOpsToken } from "@/lib/ops-auth";
 import { prisma } from "@/lib/db";
 
 /**
- * GET /api/admin/setup-categories?key=nkbus2026
+ * GET /api/admin/setup-categories?token=<ADMIN_OPS_TOKEN>
  *
  * 홈페이지에서 참조하는 5개 확장 카테고리(골프/스포츠/아웃도어/뷰티/여성의류)를
  * DB에 idempotent하게 생성한다. 이미 있으면 skip.
  */
 export async function GET(req: NextRequest) {
-  const key = req.nextUrl.searchParams.get("key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   const EXPANSION_CATEGORIES = [
     { name: "골프", slug: "golf", sortOrder: 9 },

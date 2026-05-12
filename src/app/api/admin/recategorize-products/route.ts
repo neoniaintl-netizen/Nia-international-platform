@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOpsToken } from "@/lib/ops-auth";
 import { prisma } from "@/lib/db";
 import { BRAND_SLUG_TO_CATEGORY_SLUG } from "@/lib/crawler/brand-category-map";
 
 /**
- * GET  /api/admin/recategorize-products?key=nkbus2026  — dry-run 미리보기
+ * GET  /api/admin/recategorize-products?token=<ADMIN_OPS_TOKEN>  — dry-run 미리보기
  * POST /api/admin/recategorize-products              — 실제 재할당
  *
  * BRAND_SLUG_TO_CATEGORY_SLUG 매핑 기반으로
@@ -63,10 +64,8 @@ async function buildPlan() {
 }
 
 export async function GET(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key") || req.nextUrl.searchParams.get("key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   const plan = await buildPlan();
   const totalToMove = plan.reduce((s, p) => s + p.toMove, 0);
@@ -85,10 +84,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   const plan = await buildPlan();
   const result: Array<{ brand: string; moved: number; targetCategory: string }> = [];

@@ -4,8 +4,8 @@ import { ChevronRight, Clock } from "lucide-react";
 import { prisma } from "@/lib/db";
 
 export const metadata = {
-  title: "기획전 | NKBUS",
-  description: "NKBUS 기획전 — 시즌별 엄선한 편집 기획전을 만나보세요.",
+  title: "기획전 | NOVAREN",
+  description: "NOVAREN 기획전 — 시즌별 엄선한 편집 기획전을 만나보세요.",
 };
 
 function formatDday(endsAt: Date | null) {

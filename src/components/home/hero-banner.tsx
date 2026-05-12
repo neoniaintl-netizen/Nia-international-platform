@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { HERO_BANNERS } from "@/lib/hero-banners";
 
 export interface BannerData {
   id: string;
@@ -13,38 +14,18 @@ export interface BannerData {
   imageUrl: string;
   imageAlignment?: "left" | "right";
   linkUrl?: string;
+  cta?: string;
   bgColor?: string;
 }
-
-const DEFAULT_BANNERS: BannerData[] = [
-  {
-    id: "1",
-    title: "2026 S/S\nGolf Edit",
-    subtitle: "Premium Performance · Refined Silhouette",
-    imageUrl: "/banners/hero-golf-polo.png",
-    imageAlignment: "left",
-    linkUrl: "/category/golf",
-    bgColor: "#6B8E4E",
-  },
-  {
-    id: "2",
-    title: "Women's\nGolf Edit",
-    subtitle: "Powerful. Playful. Precise.",
-    imageUrl: "/banners/hero-golf-women.png",
-    imageAlignment: "right",
-    linkUrl: "/category/women",
-    bgColor: "#F4C2C2",
-  },
-];
 
 const SLIDE_DURATION = 7000; // 7초 노출
 
 export function HeroBanner({
-  banners: rawBanners = DEFAULT_BANNERS,
+  banners: rawBanners = HERO_BANNERS,
 }: {
   banners?: BannerData[];
 }) {
-  const banners = rawBanners.length > 0 ? rawBanners : DEFAULT_BANNERS;
+  const banners = rawBanners.length > 0 ? rawBanners : HERO_BANNERS;
   const [current, setCurrent] = useState(0);
   const [progressKey, setProgressKey] = useState(0); // progress bar 애니메이션 재시작용
 
@@ -98,19 +79,21 @@ export function HeroBanner({
                       fill
                       className={cn(
                         "object-cover",
-                        isRight ? "object-right" : "object-left"
+                        // top 정렬 — wide hero crop 시 인물 얼굴 잘림 방지
+                        isRight ? "object-right-top" : "object-left-top"
                       )}
                       priority={i === 0}
                       sizes="100vw"
                     />
                   </div>
-                  {/* 반대쪽 어두운 그라디언트 (가독성) */}
+                  {/* 반대쪽 어두운 그라디언트 (가독성)
+                      모바일에서 강화 (좁은 폭에서 텍스트가 인물 위에 올라감) */}
                   <div
                     className={cn(
                       "absolute inset-0 pointer-events-none",
                       isRight
-                        ? "bg-gradient-to-r from-black/55 via-black/10 to-transparent"
-                        : "bg-gradient-to-l from-black/55 via-black/10 to-transparent"
+                        ? "bg-gradient-to-r from-black/75 via-black/30 to-transparent md:from-black/55 md:via-black/10"
+                        : "bg-gradient-to-l from-black/75 via-black/30 to-transparent md:from-black/55 md:via-black/10"
                     )}
                   />
                 </>
@@ -121,10 +104,12 @@ export function HeroBanner({
                 href={banner.linkUrl || "#"}
                 className="absolute inset-0 flex items-center"
               >
-                <div className="max-w-[1400px] w-full mx-auto px-4 lg:px-8 text-white">
+                <div className="max-w-[1400px] w-full mx-auto px-5 sm:px-6 lg:px-8 text-white">
                   <div
                     className={cn(
-                      "max-w-2xl transition-all duration-[1400ms] ease-out",
+                      "transition-all duration-[1400ms] ease-out",
+                      // 모바일은 좁게 (인물 영역 침범 방지), 데스크톱은 max-w-2xl
+                      "max-w-[52%] sm:max-w-[48%] md:max-w-2xl",
                       isActive
                         ? "opacity-100 translate-y-0"
                         : "opacity-0 translate-y-6",
@@ -132,25 +117,25 @@ export function HeroBanner({
                         (isRight ? "text-left" : "ml-auto text-right")
                     )}
                   >
-                    <p className="eyebrow text-white/60 mb-5">
-                      NKBUS · {String(i + 1).padStart(2, "0")} /{" "}
+                    <p className="eyebrow text-white/60 mb-3 md:mb-5">
+                      NOVAREN · {String(i + 1).padStart(2, "0")} /{" "}
                       {String(banners.length).padStart(2, "0")}
                     </p>
-                    <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-5 tracking-[-0.02em] leading-[0.95] whitespace-pre-line">
+                    <h2 className="text-2xl sm:text-4xl md:text-7xl lg:text-8xl font-bold mb-3 md:mb-5 tracking-[-0.02em] leading-[0.95] whitespace-pre-line">
                       {banner.title}
                     </h2>
                     {banner.subtitle && (
-                      <p className="text-sm md:text-base text-white/70 tracking-wide">
+                      <p className="text-xs sm:text-sm md:text-base text-white/70 tracking-wide">
                         {banner.subtitle}
                       </p>
                     )}
                     <div
                       className={cn(
-                        "mt-8 inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.25em] text-white pb-1 border-b border-white/60 hover:border-white transition-colors"
+                        "mt-5 md:mt-8 inline-flex items-center gap-2 md:gap-3 text-[10px] md:text-[11px] uppercase tracking-[0.2em] md:tracking-[0.25em] text-white pb-1 border-b border-white/60 hover:border-white transition-colors"
                       )}
                     >
-                      Discover
-                      <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+                      {banner.cta ?? "Discover"}
+                      <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={1.5} />
                     </div>
                   </div>
                 </div>
@@ -163,16 +148,17 @@ export function HeroBanner({
       {/* 좌/우 Controls */}
       {banners.length > 1 && (
         <>
+          {/* Prev/Next — 모바일에서는 숨김 (텍스트 영역 침범 방지, dot 페이지네이션·자동 슬라이드로 충분) */}
           <button
             onClick={prev}
-            className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 w-10 h-10 border border-white/40 bg-black/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/10 hover:border-white transition-all z-30"
+            className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 w-10 h-10 border border-white/40 bg-black/10 backdrop-blur-sm items-center justify-center hover:bg-white/10 hover:border-white transition-all z-30"
             aria-label="Previous"
           >
             <ChevronLeft className="w-4 h-4 text-white" strokeWidth={1.5} />
           </button>
           <button
             onClick={next}
-            className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 w-10 h-10 border border-white/40 bg-black/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/10 hover:border-white transition-all z-30"
+            className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 w-10 h-10 border border-white/40 bg-black/10 backdrop-blur-sm items-center justify-center hover:bg-white/10 hover:border-white transition-all z-30"
             aria-label="Next"
           >
             <ChevronRight className="w-4 h-4 text-white" strokeWidth={1.5} />

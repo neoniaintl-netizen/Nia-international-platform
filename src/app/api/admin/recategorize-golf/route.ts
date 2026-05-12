@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOpsToken } from "@/lib/ops-auth";
 import { prisma } from "@/lib/db";
 import { resolveGolfSubCategoryFromSourceUrl } from "@/lib/crawler/golf-category-map";
 
 /**
  * POST /api/admin/recategorize-golf
- *   Headers: { x-crawl-key: nkbus2026 }
+ *   Headers: { x-ops-token: <ADMIN_OPS_TOKEN> }
  *
  * 크롤링된 골프 상품의 sourceUrl → 서브 카테고리 매핑 반영
  * (crawl-golf-brands 이후 실행)
  */
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   // 서브 카테고리 slug → id 맵
   const subCats = await prisma.category.findMany({

@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: Props) {
     select: { title: true, subtitle: true },
   });
   return {
-    title: lb ? `${lb.title} | NKBUS 룩북` : "룩북 | NKBUS",
-    description: lb?.subtitle ?? "NKBUS 룩북",
+    title: lb ? `${lb.title} | NOVAREN 룩북` : "룩북 | NOVAREN",
+    description: lb?.subtitle ?? "NOVAREN 룩북",
   };
 }
 

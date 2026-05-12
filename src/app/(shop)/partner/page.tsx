@@ -7,7 +7,7 @@ const PARTNER_SERVICES = [
   {
     title: "중국 입점 문의",
     description:
-      "한국 브랜드의 중국 시장 진출을 NKBUS가 도와드립니다. 입점 심사부터 상품 등록, 마케팅까지 전 과정을 지원합니다.",
+      "한국 브랜드의 중국 시장 진출을 NOVAREN가 도와드립니다. 입점 심사부터 상품 등록, 마케팅까지 전 과정을 지원합니다.",
     details: [
       "입점 심사: 브랜드 적합성, 상품 경쟁력 평가",
       "상품 등록: 중국어 상세페이지 제작, 가격 설정 지원",
@@ -21,7 +21,7 @@ const PARTNER_SERVICES = [
   {
     title: "광고/제휴 문의",
     description:
-      "NKBUS 플랫폼 내 광고 게재 및 브랜드 제휴 파트너십에 대해 안내드립니다.",
+      "NOVAREN 플랫폼 내 광고 게재 및 브랜드 제휴 파트너십에 대해 안내드립니다.",
     details: [
       "배너 광고: 메인 히어로, 카테고리 배너",
       "기획전 참여: 시즌별 기획전, 브랜드 위크",
@@ -35,7 +35,7 @@ const PARTNER_SERVICES = [
   {
     title: "도소매 문의",
     description:
-      "NKBUS를 통한 골프웨어 및 패션 상품의 도매/소매 거래를 안내드립니다.",
+      "NOVAREN를 통한 골프웨어 및 패션 상품의 도매/소매 거래를 안내드립니다.",
     details: [
       "도매 거래: 최소 주문 수량 및 도매 가격 안내",
       "소매 거래: 개별 상품 판매 및 배송",
@@ -67,7 +67,7 @@ export default function PartnerPage() {
     <div className="max-w-[960px] mx-auto px-4 lg:px-6 py-8">
       <h1 className="text-2xl font-black text-gray-900 mb-2">파트너 지원</h1>
       <p className="text-sm text-gray-500 mb-8">
-        NKBUS와 함께 비즈니스를 성장시켜 보세요.
+        NOVAREN와 함께 비즈니스를 성장시켜 보세요.
       </p>
 
       <div className="space-y-6">

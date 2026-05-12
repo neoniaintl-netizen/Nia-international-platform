@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: Props) {
     select: { title: true, subtitle: true },
   });
   return {
-    title: event ? `${event.title} | NKBUS 기획전` : "기획전 | NKBUS",
-    description: event?.subtitle ?? "NKBUS 기획전",
+    title: event ? `${event.title} | NOVAREN 기획전` : "기획전 | NOVAREN",
+    description: event?.subtitle ?? "NOVAREN 기획전",
   };
 }
 

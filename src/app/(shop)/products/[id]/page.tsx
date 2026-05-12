@@ -138,7 +138,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </li>
             <li className="flex items-baseline gap-3">
               <span className="eyebrow text-[var(--ink)] min-w-[90px]">Authentic</span>
-              <span>NKBUS 정품 보증 · 해외배송 지원</span>
+              <span>NOVAREN 정품 보증 · 해외배송 지원</span>
             </li>
           </ul>
 

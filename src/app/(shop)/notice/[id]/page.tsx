@@ -6,9 +6,9 @@ import { notFound } from "next/navigation";
 const NOTICES: Record<string, { category: string; title: string; date: string; content: string }> = {
   "1": {
     category: "서비스",
-    title: "NKBUS 서비스 이용약관 개정 안내",
+    title: "NOVAREN 서비스 이용약관 개정 안내",
     date: "2026.04.01",
-    content: `안녕하세요, NKBUS입니다.
+    content: `안녕하세요, NOVAREN입니다.
 
 서비스 이용약관이 아래와 같이 개정되어 안내드립니다.
 
@@ -27,7 +27,7 @@ const NOTICES: Record<string, { category: string; title: string; date: string; c
   - 해외 배송 상품 반품 기한 변경 (수령 후 14일 → 수령 후 7일)
   - 단순 변심 반품 시 해외 배송비 고객 부담 명시
 
-변경된 약관은 NKBUS 앱 및 웹사이트에서 확인하실 수 있습니다.
+변경된 약관은 NOVAREN 앱 및 웹사이트에서 확인하실 수 있습니다.
 문의사항은 고객센터(1544-7199)로 연락 부탁드립니다.
 
 감사합니다.`,
@@ -36,7 +36,7 @@ const NOTICES: Record<string, { category: string; title: string; date: string; c
     category: "배송",
     title: "중국 배송 지연 관련 안내",
     date: "2026.03.25",
-    content: `안녕하세요, NKBUS입니다.
+    content: `안녕하세요, NOVAREN입니다.
 
 현재 중국 현지 물류 사정으로 인해 일부 지역 배송이 지연되고 있어 안내드립니다.
 
@@ -53,7 +53,7 @@ const NOTICES: Record<string, { category: string; title: string; date: string; c
     category: "이벤트",
     title: "봄 시즌 프로모션 안내",
     date: "2026.03.15",
-    content: `안녕하세요, NKBUS입니다.
+    content: `안녕하세요, NOVAREN입니다.
 
 봄 시즌을 맞아 특별 프로모션을 준비했습니다!
 

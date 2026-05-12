@@ -6,8 +6,8 @@ import { toProductCard } from "@/lib/mappers";
 import { Separator } from "@/components/ui/separator";
 
 export const metadata = {
-  title: "아울렛 | NKBUS",
-  description: "NKBUS 아울렛 — 시즌오프 특가 상품 모음",
+  title: "아울렛 | NOVAREN",
+  description: "NOVAREN 아울렛 — 시즌오프 특가 상품 모음",
 };
 
 export default async function OutletPage() {
@@ -54,7 +54,7 @@ export default async function OutletPage() {
 
       {/* Hero */}
       <div className="bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-2xl p-6 lg:p-10 mb-8">
-        <p className="text-xs font-bold opacity-80 mb-2">NKBUS OUTLET</p>
+        <p className="text-xs font-bold opacity-80 mb-2">NOVAREN OUTLET</p>
         <h1 className="text-2xl lg:text-4xl font-black mb-2">
           시즌오프 특가전
         </h1>

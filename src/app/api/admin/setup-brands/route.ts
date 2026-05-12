@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOpsToken } from "@/lib/ops-auth";
 import { prisma } from "@/lib/db";
 
 /**
- * GET /api/admin/setup-brands?key=nkbus2026
+ * GET /api/admin/setup-brands?token=<ADMIN_OPS_TOKEN>
  *
  * 아웃도어 5 + 스포츠 4 브랜드를 idempotent하게 Brand 테이블에 등록.
  * 이미 있으면 nameKo/description만 업데이트.
@@ -78,10 +79,8 @@ const BRANDS = [
 ] as const;
 
 export async function GET(req: NextRequest) {
-  const key = req.nextUrl.searchParams.get("key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   try {
     const results = [];

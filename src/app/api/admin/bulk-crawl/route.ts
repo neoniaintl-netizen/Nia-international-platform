@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireOpsToken } from "@/lib/ops-auth";
 import { prisma } from "@/lib/db";
 import { getCrawler } from "@/lib/crawler";
 import { importCrawledProducts } from "@/lib/crawler/product-importer";
 
 /**
  * POST /api/admin/bulk-crawl
- *   Headers: { x-crawl-key: nkbus2026 }
+ *   Headers: { x-ops-token: <ADMIN_OPS_TOKEN> }
  *   Body (optional): { brands?: string[], maxItems?: number }
  *
  * 9개 브랜드 사이트를 일괄 크롤링 (병렬 fire-and-forget).
@@ -80,8 +81,69 @@ const CRAWL_TARGETS = [
     note: "Generic SSR — 여성 재킷/베스트",
   },
 
-  // ── Musinsa 폴백 (현재 불가능, 참고용만) ──
-  // Patagonia/Arc'teryx/Kolon/Descente/Nike은 수동 시드 스크립트로 처리
+  // ── Patagonia 한국 (Shopify 추정) ──
+  {
+    brandSlug: "patagonia",
+    sourceSite: "shopify",
+    targetUrl: "https://www.patagonia.co.kr/collections/all",
+    note: "Shopify — 전체",
+  },
+  {
+    brandSlug: "patagonia",
+    sourceSite: "shopify",
+    targetUrl: "https://www.patagonia.co.kr/collections/mens",
+    note: "Shopify — 남성",
+  },
+
+  // ── Arc'teryx 한국 (Next.js SPA, JSON-LD 기반) ──
+  {
+    brandSlug: "arcteryx",
+    sourceSite: "arcteryx",
+    targetUrl: "https://arcteryx.co.kr/products/category/97",
+    note: "Arc'teryx — 카테고리 97",
+  },
+  {
+    brandSlug: "arcteryx",
+    sourceSite: "arcteryx",
+    targetUrl: "https://arcteryx.co.kr/products/category/134",
+    note: "Arc'teryx — 카테고리 134",
+  },
+
+  // ── Kolon Sport (자체 시스템 / generic) ──
+  {
+    brandSlug: "kolonsport",
+    sourceSite: "generic",
+    targetUrl: "https://www.kolonsport.com/Page/man",
+    note: "Generic — 남성",
+  },
+  {
+    brandSlug: "kolonsport",
+    sourceSite: "generic",
+    targetUrl: "https://www.kolonsport.com/Page/woman",
+    note: "Generic — 여성",
+  },
+
+  // ── Descente (dk-on / dkon-crawler) ──
+  {
+    brandSlug: "descente",
+    sourceSite: "dkon",
+    targetUrl: "https://dk-on.com/DESCENTE/category/MAN",
+    note: "dkon — 남성",
+  },
+  {
+    brandSlug: "descente",
+    sourceSite: "dkon",
+    targetUrl: "https://dk-on.com/DESCENTE/category/WOMAN",
+    note: "dkon — 여성",
+  },
+
+  // ── Nike SKIMS (Nike SPA / generic) ──
+  {
+    brandSlug: "nike-skims",
+    sourceSite: "generic",
+    targetUrl: "https://www.nike.com/kr/w/womens-nikeskims",
+    note: "Generic — Nike SKIMS 여성",
+  },
 ];
 
 // ─── 백그라운드 크롤 실행 (fire-and-forget) ───
@@ -127,10 +189,8 @@ async function runCrawlInBackground(
 }
 
 export async function POST(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   let body: any = {};
   try {
@@ -187,10 +247,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const key = req.headers.get("x-crawl-key") || req.nextUrl.searchParams.get("key");
-  if (key !== "nkbus2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const block = requireOpsToken(req);
+  if (block) return block;
 
   // 9개 브랜드 최근 Job 상태 조회
   const recent = await prisma.crawlJob.findMany({

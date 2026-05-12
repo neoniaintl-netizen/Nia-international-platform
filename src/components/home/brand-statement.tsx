@@ -1,60 +1,63 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Crown, Truck, Sparkles, Clock } from "lucide-react";
+import { ArrowRight, ShoppingBag, Store, ShieldCheck, Headphones } from "lucide-react";
 
 /**
- * NKBUS 멤버십 섹션 — 에디토리얼 스플릿 레이아웃
- * 좌측: 큰 타이틀 + CTA / 우측: 4개 혜택 리스트 + 등급 배지
- * 배경: 다크 그라디언트 + 샴페인 블러 글로우 + 대형 숫자 장식
+ * NOVAREN Sourcing System 섹션 — 에디토리얼 스플릿 레이아웃.
+ * 좌측: 큰 타이틀 + CTA / 우측: 4단계 소싱 프로세스 + 하단 step badge.
+ *
+ * 메시지 컨셉:
+ *   "실시간 재고 쇼핑몰이 아니라, 주문 후 오프라인 매장에서 상품을 확보해 검수 후 출고"
+ *   = 큐레이션 → 매장 소싱 → 검수 → 출고 (CURATE · SOURCE · VERIFY · SHIP)
  */
 
-const BENEFITS = [
+const STEPS = [
   {
-    icon: Crown,
-    title: "Exclusive Access",
-    subtitle: "회원 독점 신상 · 한정판 선예약",
+    icon: ShoppingBag,
+    title: "Curated Selection",
+    subtitle: "검증된 브랜드 상품 중심 큐레이션",
   },
   {
-    icon: Truck,
-    title: "Free Shipping",
-    subtitle: "전 품목 무료 배송 · 당일 출고",
+    icon: Store,
+    title: "Store Sourcing",
+    subtitle: "주문 후 오프라인 매장 재고 확인",
   },
   {
-    icon: Sparkles,
-    title: "Members Day",
-    subtitle: "매달 멤버 전용 세일 · 최대 70% OFF",
+    icon: ShieldCheck,
+    title: "Quality Check",
+    subtitle: "상품 확보 후 검수 및 출고",
   },
   {
-    icon: Clock,
-    title: "Early Preview",
-    subtitle: "시즌 컬렉션 · 3일 우선 구매",
+    icon: Headphones,
+    title: "Buyer Support",
+    subtitle: "국내·해외 바이어 주문 지원",
   },
 ];
 
 export function BrandStatement() {
   return (
     <section className="relative overflow-hidden bg-[var(--ink)] text-white">
-      {/* 배경 이미지 */}
+      {/* 배경 이미지 — 배너4 */}
       <Image
-        src="/banners/앨범 1.png"
+        src="/banners/배너4.png"
         alt=""
         fill
         priority
         sizes="100vw"
         className="object-cover object-center pointer-events-none select-none"
       />
-      {/* 어두운 오버레이 (텍스트 가독성) */}
-      <div className="absolute inset-0 bg-black/70 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-black/70 pointer-events-none" />
-      <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-white/10 blur-[180px] pointer-events-none" />
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-white/5 blur-[160px] pointer-events-none" />
+      {/* 가독성 오버레이 — 기존 대비 살짝 약하게 (이미지 시각 강조) */}
+      <div className="absolute inset-0 bg-black/55 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/30 to-black/60 pointer-events-none" />
+      <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-white/[0.06] blur-[180px] pointer-events-none" />
+      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-white/[0.04] blur-[160px] pointer-events-none" />
 
       {/* 배경 대형 숫자 장식 */}
       <div
         aria-hidden
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[320px] lg:text-[520px] font-bold text-white/[0.02] leading-none tracking-[-0.05em] pointer-events-none select-none num"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[320px] lg:text-[520px] font-bold text-white/[0.025] leading-none tracking-[-0.05em] pointer-events-none select-none num"
       >
-        01
+        S
       </div>
 
       <div className="relative max-w-[1400px] mx-auto px-4 lg:px-8 py-20 lg:py-32">
@@ -63,42 +66,38 @@ export function BrandStatement() {
           <div>
             <div className="flex items-center gap-3 mb-8">
               <span className="h-px w-10 bg-white" />
-              <p className="eyebrow text-white">
-                NKBUS Membership
-              </p>
+              <p className="eyebrow text-white">NOVAREN Sourcing System</p>
             </div>
 
-            <h2 className="text-5xl md:text-7xl lg:text-[88px] font-bold tracking-[-0.03em] leading-[0.95] mb-8">
-              한국 패션,
+            <h2 className="text-4xl md:text-6xl lg:text-[78px] font-bold tracking-[-0.03em] leading-[0.98] mb-8">
+              브랜드를 고르고,
               <br />
-              <span className="inline-block relative">
-                세계로
-                <span className="text-white">.</span>
-              </span>
+              매장에서 확보합니다
+              <span className="text-white">.</span>
             </h2>
 
-            <p className="text-sm lg:text-base text-white/60 max-w-lg leading-relaxed mb-10">
-              NKBUS 회원만을 위한 특별한 혜택을 만나보세요.
+            <p className="text-sm lg:text-base text-white/65 max-w-xl leading-relaxed mb-10">
+              NOVAREN는 골프·스포츠·아웃도어 브랜드 상품을 큐레이션하고,
               <br className="hidden sm:block" />
-              독점 컬렉션, 프리미엄 서비스, 멤버스 데이 — 가입 즉시 시작됩니다.
+              주문 후 오프라인 매장 재고 확인과 상품 확보 과정을 거쳐 출고합니다.
             </p>
 
             <div className="flex flex-wrap items-center gap-3">
               <Link
-                href="/membership"
-                className="group inline-flex items-center gap-3 px-8 h-14 bg-white text-[var(--ink)] text-[11px] font-semibold uppercase tracking-[0.25em] hover:bg-white transition-colors"
+                href="/brands"
+                className="group inline-flex items-center gap-3 px-8 h-14 bg-white text-[var(--ink)] text-[11px] font-semibold uppercase tracking-[0.25em] hover:bg-white/90 transition-colors"
               >
-                Join Membership
+                Shop Brands
                 <ArrowRight
                   className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"
                   strokeWidth={2}
                 />
               </Link>
               <Link
-                href="/stores"
+                href="/about"
                 className="group inline-flex items-center gap-3 px-8 h-14 bg-transparent border border-white/30 text-white text-[11px] font-medium uppercase tracking-[0.25em] hover:bg-white/5 hover:border-white transition-colors"
               >
-                Find Stores
+                How It Works
                 <ArrowRight
                   className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"
                   strokeWidth={1.5}
@@ -107,19 +106,19 @@ export function BrandStatement() {
             </div>
           </div>
 
-          {/* 우측: 혜택 리스트 */}
+          {/* 우측: 소싱 4단계 */}
           <div className="lg:pl-8">
             <div className="relative">
               <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent hidden lg:block" />
 
               <ul className="space-y-6 lg:space-y-8 lg:pl-10">
-                {BENEFITS.map((b, idx) => (
+                {STEPS.map((s, idx) => (
                   <li
-                    key={b.title}
+                    key={s.title}
                     className="group flex items-start gap-5 lg:gap-6"
                   >
                     <div className="shrink-0 w-12 h-12 flex items-center justify-center border border-white/20 bg-white/[0.03] group-hover:border-white group-hover:bg-white/10 transition-colors">
-                      <b.icon
+                      <s.icon
                         className="w-5 h-5 text-white"
                         strokeWidth={1.5}
                       />
@@ -130,11 +129,11 @@ export function BrandStatement() {
                           {String(idx + 1).padStart(2, "0")}
                         </span>
                         <h3 className="text-sm lg:text-base font-semibold tracking-wide">
-                          {b.title}
+                          {s.title}
                         </h3>
                       </div>
-                      <p className="text-[13px] text-white/50 leading-relaxed">
-                        {b.subtitle}
+                      <p className="text-[13px] text-white/55 leading-relaxed">
+                        {s.subtitle}
                       </p>
                     </div>
                   </li>
@@ -142,20 +141,15 @@ export function BrandStatement() {
               </ul>
             </div>
 
-            {/* 등급 배지 */}
-            <div className="mt-10 lg:ml-10 inline-flex items-center gap-4 text-[11px] uppercase tracking-[0.2em] text-white/40">
-              <span className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#CD7F32]" />
-                Bronze
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#C0C0C0]" />
-                Silver
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                Platinum
-              </span>
+            {/* 하단 step badge */}
+            <div className="mt-10 lg:ml-10 inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.22em] text-white/45">
+              <span>Curate</span>
+              <span className="text-white/20">·</span>
+              <span>Source</span>
+              <span className="text-white/20">·</span>
+              <span>Verify</span>
+              <span className="text-white/20">·</span>
+              <span>Ship</span>
             </div>
           </div>
         </div>
