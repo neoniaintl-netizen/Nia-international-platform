@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Rocket, Zap, Globe, Link2 } from "lucide-react";
 import { toast } from "sonner";
-import { SUPPORTED_SITES, detectSite } from "@/lib/crawler";
+import { SUPPORTED_SITES, detectSite } from "@/lib/crawler/sites";
 
 // ─── 빠른 상품 추가 ───
 
