@@ -25,7 +25,7 @@ export default async function ShopLayout({
         menuCategories={menuCategories}
       />
       <GNB />
-      <main className="flex-1 pb-16 lg:pb-0">{children}</main>
+      <main className="flex-1 pb-16 lg:pb-0 animate-page-fade-in">{children}</main>
       <Footer />
       <MobileNav />
     </>
