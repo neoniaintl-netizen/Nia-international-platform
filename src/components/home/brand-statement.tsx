@@ -37,9 +37,9 @@ const STEPS = [
 export function BrandStatement() {
   return (
     <section className="relative overflow-hidden bg-[var(--ink)] text-white">
-      {/* 배경 이미지 — 배너4 */}
+      {/* 배경 이미지 — banner-4 (JPG, 88% 압축) */}
       <Image
-        src="/banners/배너4.png"
+        src="/banners/banner-4.jpg"
         alt=""
         fill
         priority
