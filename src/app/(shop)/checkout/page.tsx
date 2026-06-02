@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth";
 import { getUserCart, getUserPoints, getUserCouponCount } from "@/lib/queries";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
-import { PortOneScript } from "@/components/checkout/portone-script";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -52,8 +51,6 @@ export default async function CheckoutPage() {
     <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
       <h1 className="text-xl font-bold mb-6">주문/결제</h1>
       <CheckoutForm items={items} userPoints={userPoints} couponCount={couponCount} />
-      {/* PortOne V2 SDK - PG 결제 연동용 */}
-      <PortOneScript />
     </div>
   );
 }

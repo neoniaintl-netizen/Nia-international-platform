@@ -1,16 +1,15 @@
 "use client";
 
-import { useActionState, useCallback, useRef, useState } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard, Truck, Tag } from "lucide-react";
+import { CreditCard, Truck, Tag, Loader2, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { createOrder } from "@/actions/order";
 import { applyCouponCode } from "@/actions/coupon";
 import { DaumPostcodeButton } from "@/components/shared/daum-postcode";
-import { PaymentButton } from "@/components/checkout/payment-button";
 
 interface CartItem {
   id: string;
@@ -29,10 +28,8 @@ interface CartItem {
 }
 
 const PAYMENT_METHODS = [
-  { value: "CARD", label: "신용카드" },
-  { value: "KAKAO_PAY", label: "카카오페이" },
-  { value: "NAVER_PAY", label: "네이버페이" },
-  { value: "BANK_TRANSFER", label: "무통장입금" },
+  { value: "ALIPAY", label: "Alipay 알리페이" },
+  { value: "WECHAT_PAY", label: "WeChat Pay 위챗페이" },
 ];
 
 export function CheckoutForm({
@@ -46,14 +43,31 @@ export function CheckoutForm({
 }) {
   const [state, formAction, isPending] = useActionState(createOrder, null);
   const formRef = useRef<HTMLFormElement>(null);
-  const [paymentMethod, setPaymentMethod] = useState("CARD");
+  const [paymentMethod, setPaymentMethod] = useState("ALIPAY");
   const [zipCode, setZipCode] = useState("");
   const [address1, setAddress1] = useState("");
   const address2Ref = useRef<HTMLInputElement>(null);
+  const [redirecting, setRedirecting] = useState(false);
 
-  // PG 결제 결과 저장
-  const [paymentId, setPaymentId] = useState("");
-  const [merchantUid, setMerchantUid] = useState("");
+  // createOrder 가 Funpay 결제 파라미터를 반환하면 → 숨김 form 만들어 Funpay 결제창으로 POST 이동
+  useEffect(() => {
+    const funpay = (state as any)?.funpay;
+    if (!funpay) return;
+    setRedirecting(true);
+    const f = document.createElement("form");
+    f.method = "POST";
+    f.action = funpay.action;
+    f.acceptCharset = "UTF-8";
+    for (const [k, v] of Object.entries(funpay.params as Record<string, string>)) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = k;
+      input.value = v ?? "";
+      f.appendChild(input);
+    }
+    document.body.appendChild(f);
+    f.submit();
+  }, [state]);
 
   // Coupon state
   const [couponCode, setCouponCode] = useState("");
@@ -120,9 +134,6 @@ export function CheckoutForm({
       <input type="hidden" name="paymentMethod" value={paymentMethod} />
       <input type="hidden" name="couponCode" value={appliedCoupon || ""} />
       <input type="hidden" name="usedPoints" value={usedPoints.toString()} />
-      {/* PG 결제 결과 데이터 */}
-      <input type="hidden" name="paymentId" value={paymentId} />
-      <input type="hidden" name="merchantUid" value={merchantUid} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left: Form */}
@@ -346,36 +357,24 @@ export function CheckoutForm({
               <p className="text-[10px] text-gray-400">
                 위 주문 내용을 확인하였으며, 결제에 동의합니다.
               </p>
-              <PaymentButton
-                amount={total}
-                orderName={
-                  items.length === 1
-                    ? items[0].product.name
-                    : `${items[0].product.name} 외 ${items.length - 1}건`
-                }
-                paymentMethod={paymentMethod}
-                buyerName={
-                  (formRef.current?.querySelector<HTMLInputElement>(
-                    '[name="recipient"]'
-                  )?.value) ?? ""
-                }
-                buyerPhone={
-                  (formRef.current?.querySelector<HTMLInputElement>(
-                    '[name="phone"]'
-                  )?.value) ?? ""
-                }
-                disabled={isPending || !zipCode || !address1}
-                onSuccess={({ paymentId: pid, merchantUid: mid }) => {
-                  // PG 결제 성공 -> 결제 정보 저장 후 폼 제출
-                  setPaymentId(pid);
-                  setMerchantUid(mid);
-                  // requestSubmit으로 서버 액션 트리거
-                  setTimeout(() => formRef.current?.requestSubmit(), 0);
-                }}
-                onError={(errorMsg) => {
-                  alert(errorMsg);
-                }}
-              />
+              <Button
+                type="submit"
+                disabled={isPending || redirecting || !zipCode || !address1}
+                className="w-full h-14 bg-black hover:bg-gray-800 text-white font-bold text-base"
+              >
+                {isPending || redirecting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    {redirecting ? "결제창으로 이동 중..." : "주문 처리 중..."}
+                  </>
+                ) : (
+                  `${total.toLocaleString()}원 결제하기`
+                )}
+              </Button>
+              <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>안전 결제 · Alipay/WeChat Pay (ICB Funpay)</span>
+              </div>
             </div>
           </div>
         </div>

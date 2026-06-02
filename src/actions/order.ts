@@ -4,6 +4,16 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import {
+  buildPaymentParams,
+  funpayServiceType,
+  funpayReqType,
+  formatFunpayAmount,
+  cancelPayment,
+  FUNPAY_ENDPOINTS,
+  FUNPAY_CURRENCY,
+  isFunpayConfigured,
+} from "@/lib/payment/funpay";
 
 async function getUserId() {
   const session = await auth();
@@ -30,10 +40,6 @@ export async function createOrder(_prevState: any, formData: FormData) {
   const paymentMethod = (formData.get("paymentMethod") as string) || "CARD";
   const couponCode = (formData.get("couponCode") as string)?.trim() || null;
   const usedPoints = parseInt(formData.get("usedPoints") as string) || 0;
-
-  // PG 결제 검증 데이터
-  const paymentId = (formData.get("paymentId") as string) || "";
-  const merchantUid = (formData.get("merchantUid") as string) || "";
 
   if (!recipient || !phone || !zipCode || !address1) {
     return { error: "배송 정보를 모두 입력해주세요." };
@@ -171,13 +177,12 @@ export async function createOrder(_prevState: any, formData: FormData) {
         userId,
         addressId: address.id,
         couponId: validCoupon?.id || null,
-        status: "PAID",
+        status: "PENDING", // 결제 완료(노티) 전까지 PENDING. Funpay statusurl 노티에서 PAID 확정.
         totalAmount,
         discountAmount,
         shippingFee,
         finalAmount,
         paymentMethod: paymentMethod as any,
-        paidAt: new Date(),
         note: memo || null,
         items: {
           create: cartItems.map((item) => ({
@@ -196,10 +201,9 @@ export async function createOrder(_prevState: any, formData: FormData) {
         payment: {
           create: {
             method: paymentMethod as any,
-            status: "COMPLETED",
+            status: "PENDING", // Funpay 노티 수신 시 COMPLETED 로 확정
             amount: finalAmount,
-            transactionId: paymentId || merchantUid || `TXN-${Date.now()}`,
-            paidAt: new Date(),
+            transactionId: orderNumber, // 임시. 노티에서 Funpay transid 로 갱신
           },
         },
       },
@@ -235,36 +239,51 @@ export async function createOrder(_prevState: any, formData: FormData) {
       });
     }
 
-    // 5. Earn points (1% of finalAmount)
-    const earnPoints = Math.floor(finalAmount * 0.01);
-    if (earnPoints > 0) {
-      const currentBalance2 = (await tx.pointHistory.aggregate({
-        where: { userId },
-        _sum: { amount: true },
-      }))._sum.amount ?? 0;
-
-      await tx.pointHistory.create({
-        data: {
-          userId,
-          amount: earnPoints,
-          balance: currentBalance2 + earnPoints,
-          type: "EARN_PURCHASE",
-          description: `구매 적립 (${orderNumber})`,
-        },
-      });
-    }
-
+    // 적립 포인트(earn)는 결제 확정(노티) 시점에 지급 → /api/payment/funpay/notify
     return newOrder;
   });
 
-  // Clear cart
-  await prisma.cartItem.deleteMany({ where: { userId } });
+  // ── Funpay 결제 승인 파라미터 생성 (브라우저가 이 값으로 payment.icb 에 POST submit) ──
+  if (!isFunpayConfigured()) {
+    return {
+      error:
+        "결제 설정이 완료되지 않았습니다. 관리자에게 문의해주세요. (FUNPAY_MID/SECRET 미설정)",
+    };
+  }
+
+  const buyer = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true },
+  });
+  const firstName = cartItems[0]?.product.name ?? "상품";
+  const productName =
+    cartItems.length > 1 ? `${firstName} 외 ${cartItems.length - 1}건` : firstName;
+  const base =
+    process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+
+  const funpayParams = buildPaymentParams({
+    refno: orderNumber,
+    reqamt: formatFunpayAmount(finalAmount, FUNPAY_CURRENCY),
+    reqcur: FUNPAY_CURRENCY,
+    servicetype: funpayServiceType(paymentMethod),
+    reqtype: funpayReqType(paymentMethod),
+    restype: "REDIRECT",
+    product: productName,
+    buyername: recipient,
+    tel: phone,
+    email: buyer?.email ?? "",
+    returnurl: `${base}/checkout/complete?orderId=${order.id}`,
+    statusurl: `${base}/api/payment/funpay/notify`,
+  });
 
   revalidatePath("/cart");
-  revalidatePath("/my");
-  revalidatePath("/my/orders");
 
-  redirect(`/checkout/complete?orderId=${order.id}`);
+  // checkout-form 이 이 값으로 hidden form 만들어 Funpay 결제창으로 POST 이동
+  return {
+    success: true as const,
+    orderId: order.id,
+    funpay: { action: FUNPAY_ENDPOINTS.payment, params: funpayParams },
+  };
 }
 
 // --- Cancel order (with stock restoration) ---
@@ -273,12 +292,35 @@ export async function cancelOrder(orderId: string) {
 
   const order = await prisma.order.findFirst({
     where: { id: orderId, userId },
-    include: { items: true },
+    include: { items: true, payment: true },
   });
 
   if (!order) return { error: "주문을 찾을 수 없습니다." };
   if (!["PAID", "PENDING", "PREPARING"].includes(order.status)) {
     return { error: "취소할 수 없는 주문 상태입니다." };
+  }
+
+  // 결제 완료된 주문이면 Funpay 실제 환불 먼저 호출 (성공해야 DB 취소)
+  if (order.payment?.status === "COMPLETED" && order.payment.transactionId) {
+    if (!isFunpayConfigured()) {
+      return { error: "환불 설정이 완료되지 않았습니다. 관리자에게 문의해주세요." };
+    }
+    try {
+      const refundRes = await cancelPayment({
+        refno: order.orderNumber,
+        transid: order.payment.transactionId,
+        reqcur: FUNPAY_CURRENCY,
+      });
+      const code = String(refundRes?.rescode ?? refundRes?.resultcode ?? "");
+      const ok = code === (process.env.FUNPAY_SUCCESS_CODE ?? "0000");
+      if (!ok) {
+        return {
+          error: `결제 취소(환불)에 실패했습니다. 고객센터에 문의해주세요. (${refundRes?.resmsg ?? code})`,
+        };
+      }
+    } catch (e: any) {
+      return { error: `환불 요청 중 오류가 발생했습니다. (${e?.message ?? "unknown"})` };
+    }
   }
 
   await prisma.$transaction(async (tx) => {

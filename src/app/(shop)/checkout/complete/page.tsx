@@ -5,6 +5,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getOrderById } from "@/lib/queries";
 import { redirect } from "next/navigation";
+import { PaymentPending } from "@/components/checkout/payment-pending";
 
 export default async function CheckoutCompletePage({
   searchParams,
@@ -18,6 +19,31 @@ export default async function CheckoutCompletePage({
 
   const order = await getOrderById(orderId, session.user.id);
   if (!order) redirect("/");
+
+  // Funpay 노티(statusurl)로 PAID 확정 전이면 PENDING — 결제 확인 대기 화면 (polling)
+  if (order.status === "PENDING") {
+    return <PaymentPending />;
+  }
+
+  // 결제 실패로 취소된 주문
+  if (order.status === "CANCELLED") {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-16 text-center">
+        <h1 className="text-xl font-bold mb-2">결제가 완료되지 않았습니다</h1>
+        <p className="text-sm text-gray-500 mb-6">
+          결제가 취소되었거나 승인되지 않았습니다. 다시 시도해주세요.
+        </p>
+        <div className="flex gap-3 justify-center">
+          <Link href="/cart">
+            <Button variant="outline" className="h-11">장바구니로</Button>
+          </Link>
+          <Link href="/">
+            <Button className="h-11 bg-black text-white">홈으로</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const orderDate = order.createdAt.toLocaleDateString("ko-KR", {
     year: "numeric",

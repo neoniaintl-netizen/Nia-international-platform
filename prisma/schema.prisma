@@ -425,6 +425,8 @@ enum PaymentMethod {
   KAKAO_PAY
   NAVER_PAY
   TOSS_PAY
+  ALIPAY // Funpay (ICB) — 알리페이 (중국)
+  WECHAT_PAY // Funpay (ICB) — 위챗페이 (중국)
 }
 
 enum PaymentStatus {
