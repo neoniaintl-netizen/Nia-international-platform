@@ -409,6 +409,9 @@ model Payment {
   amount        Int
   status        PaymentStatus @default(PENDING)
   transactionId String? // PG사 거래 ID
+  pgCurrency    String? // 실제 PG 결제 통화 (예: "CNY")
+  pgAmount      Decimal?      @db.Decimal(18, 2) // 외화 결제 금액 (예: 10339.42) — 환불 시 이 값 사용
+  fxRate        Decimal?      @db.Decimal(18, 4) // 적용 환율 (1 CNY 당 KRW, 예: 190)
   paidAt        DateTime?
   cancelledAt   DateTime?
   createdAt     DateTime      @default(now())

@@ -10,11 +10,13 @@ import {
   funpayServiceType,
   funpayReqType,
   toFunpayCharge,
+  formatFunpayAmount,
   funpayErrorMessage,
   cancelPayment,
   FUNPAY_ENDPOINTS,
   FUNPAY_SUCCESS_CODE,
   FUNPAY_WECHAT_ENABLED,
+  FUNPAY_KRW_PER_CNY,
   isFunpayConfigured,
 } from "@/lib/payment/funpay";
 
@@ -139,6 +141,22 @@ export async function createOrder(_prevState: any, formData: FormData) {
     }
   }
 
+  // --- 결제 사전 검증 (주문 생성 전에 차단 → orphan PENDING 주문 방지) ---
+  if (!isFunpayConfigured()) {
+    return {
+      error: "결제 설정이 완료되지 않았습니다. 관리자에게 문의해주세요. (FUNPAY_MID/SECRET 미설정)",
+    };
+  }
+  // 원화 → 계약 통화(CNY) 환산. 환율 미설정 등이면 throw → 여기서 차단(fail-closed).
+  let charge: { reqcur: string; reqamt: string };
+  try {
+    charge = toFunpayCharge(finalAmount);
+  } catch (e: any) {
+    return { error: e?.message ?? "결제 금액 처리 중 오류가 발생했습니다." };
+  }
+  // 환불 시 재현용으로 Payment 에 저장할 환율 (KRW 결제면 환산 없으므로 null)
+  const fxRate = charge.reqcur === "KRW" ? null : FUNPAY_KRW_PER_CNY;
+
   // --- Transaction: create order + stock decrement + coupon/points ---
   const address = await prisma.address.create({
     data: {
@@ -210,7 +228,10 @@ export async function createOrder(_prevState: any, formData: FormData) {
           create: {
             method: paymentMethod as any,
             status: "PENDING", // Funpay 노티 수신 시 COMPLETED 로 확정
-            amount: finalAmount,
+            amount: finalAmount, // 원화 기준 (회계용)
+            pgCurrency: charge.reqcur, // 실제 PG 결제 통화 (CNY)
+            pgAmount: charge.reqamt, // 실제 PG 결제 금액 (환불 시 이 값 사용)
+            fxRate, // 적용 환율
             transactionId: orderNumber, // 임시. 노티에서 Funpay transid 로 갱신
           },
         },
@@ -252,13 +273,7 @@ export async function createOrder(_prevState: any, formData: FormData) {
   });
 
   // ── Funpay 결제 승인 파라미터 생성 (브라우저가 이 값으로 payment.icb 에 POST submit) ──
-  if (!isFunpayConfigured()) {
-    return {
-      error:
-        "결제 설정이 완료되지 않았습니다. 관리자에게 문의해주세요. (FUNPAY_MID/SECRET 미설정)",
-    };
-  }
-
+  // (isFunpayConfigured / 환산은 트랜잭션 전에 이미 검증 — charge 재사용)
   const buyer = await prisma.user.findUnique({
     where: { id: userId },
     select: { email: true },
@@ -274,34 +289,22 @@ export async function createOrder(_prevState: any, formData: FormData) {
     cartItems.map((it) => ({ name: it.product.name, quantity: it.quantity })),
   );
 
-  let funpayParams: Record<string, string>;
-  try {
-    // 원화 금액 → 계약 통화(CNY)로 환산 (상품가는 원화, Funpay 는 CNY)
-    const charge = toFunpayCharge(finalAmount);
-    funpayParams = buildPaymentParams({
-      refno: orderNumber,
-      reqamt: charge.reqamt,
-      reqcur: charge.reqcur,
-      servicetype: funpayServiceType(paymentMethod),
-      reqtype: funpayReqType(paymentMethod),
-      restype: "PAGE",
-      product: productName,
-      buyername: recipient,
-      trade_information: tradeInfo,
-      refer_url: `${base}/checkout`,
-      returnurl: `${base}/checkout/complete?orderId=${order.id}`,
-      statusurl: `${base}/api/payment/funpay/notify`,
-      tel: phone,
-      email: buyer?.email ?? "",
-    });
-  } catch (e: any) {
-    // 금액/통화 규칙 위반 등 — 생성된 PENDING 주문 취소
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { status: "CANCELLED" },
-    });
-    return { error: e?.message ?? "결제 금액 처리 중 오류가 발생했습니다." };
-  }
+  const funpayParams = buildPaymentParams({
+    refno: orderNumber,
+    reqamt: charge.reqamt,
+    reqcur: charge.reqcur,
+    servicetype: funpayServiceType(paymentMethod),
+    reqtype: funpayReqType(paymentMethod),
+    restype: "PAGE",
+    product: productName,
+    buyername: recipient,
+    trade_information: tradeInfo,
+    refer_url: `${base}/checkout`,
+    returnurl: `${base}/checkout/complete?orderId=${order.id}`,
+    statusurl: `${base}/api/payment/funpay/notify`,
+    tel: phone,
+    email: buyer?.email ?? "",
+  });
 
   revalidatePath("/cart");
 
@@ -333,15 +336,25 @@ export async function cancelOrder(orderId: string) {
       return { error: "환불 설정이 완료되지 않았습니다. 관리자에게 문의해주세요." };
     }
     try {
-      // 결제와 동일 환율로 환산 → 환불 금액(voidamt) 일치 (환율 변경 금지)
-      const charge = toFunpayCharge(order.finalAmount);
+      // 환불 금액은 결제 시 저장한 pgAmount/pgCurrency 사용 (재계산 아님 → 환율 변동 무관).
+      // 옛 주문(저장값 없음)만 동일 환율로 fallback 재계산.
+      let refundCur: string;
+      let refundAmt: string;
+      if (order.payment.pgCurrency && order.payment.pgAmount != null) {
+        refundCur = order.payment.pgCurrency;
+        refundAmt = formatFunpayAmount(Number(order.payment.pgAmount), refundCur);
+      } else {
+        const charge = toFunpayCharge(order.finalAmount);
+        refundCur = charge.reqcur;
+        refundAmt = charge.reqamt;
+      }
       const refundRes = await cancelPayment({
         refundRefno: generateOrderNumber(), // 취소는 매번 새 유니크 refno (명세)
         transid: order.payment.transactionId,
         servicetype: funpayServiceType(order.paymentMethod ?? "ALIPAY"),
-        reqcur: charge.reqcur,
-        reqamt: charge.reqamt,
-        voidamt: charge.reqamt, // 전체 취소
+        reqcur: refundCur,
+        reqamt: refundAmt,
+        voidamt: refundAmt, // 전체 취소
         reasoncode: "R000", // 단순변심
       });
       const code = String(refundRes?.rescode ?? refundRes?.resultcode ?? "");
