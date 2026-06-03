@@ -15,9 +15,12 @@ async function getUserId() {
 export async function addToCart(productId: string, variantId: string, quantity = 1) {
   const userId = await getUserId();
 
-  // Stock check
+  // 옵션이 해당 상품의 것인지 검증 (조작 요청 차단: 상품 A + 옵션 B 혼합 방지)
   const variant = await prisma.productVariant.findUnique({ where: { id: variantId } });
-  if (!variant || variant.stock <= 0) {
+  if (!variant || variant.productId !== productId || !variant.isActive) {
+    return { error: "유효하지 않은 상품 옵션입니다." };
+  }
+  if (variant.stock <= 0) {
     return { error: "해당 옵션은 품절되었습니다." };
   }
 

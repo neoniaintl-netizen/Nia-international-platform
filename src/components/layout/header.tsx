@@ -149,13 +149,21 @@ export function Header({
                       </button>
                     </>
                   ) : (
-                    <Link
-                      href="/login"
-                      className="p-2.5 text-gray-500 hover:text-black transition-colors"
-                      aria-label="로그인"
-                    >
-                      <User className="w-[19px] h-[19px]" strokeWidth={1.6} />
-                    </Link>
+                    <div className="flex items-center gap-2 ml-1.5 text-[13px] font-medium">
+                      <Link
+                        href="/login"
+                        className="text-[var(--ink)] hover:text-black transition-colors whitespace-nowrap"
+                      >
+                        로그인
+                      </Link>
+                      <span className="text-gray-300">|</span>
+                      <Link
+                        href="/register"
+                        className="text-[var(--ink-muted)]/80 hover:text-black transition-colors whitespace-nowrap"
+                      >
+                        회원가입
+                      </Link>
+                    </div>
                   )}
                 </div>
               </div>

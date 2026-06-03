@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth.config";
+import { safeCallbackUrl } from "@/lib/utils";
 
 const { auth } = NextAuth(authConfig);
 
@@ -38,7 +39,7 @@ export default auth((req) => {
   // 인증 페이지 — 로그인된 사용자는 callbackUrl 또는 홈으로 리다이렉트
   const isAuth = authPaths.some((p) => pathname.startsWith(p));
   if (isAuth && isLoggedIn) {
-    const callbackUrl = nextUrl.searchParams.get("callbackUrl") || "/";
+    const callbackUrl = safeCallbackUrl(nextUrl.searchParams.get("callbackUrl"));
     return NextResponse.redirect(new URL(callbackUrl, nextUrl));
   }
 

@@ -6,13 +6,14 @@ import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
+import { safeCallbackUrl } from "@/lib/utils";
 
 // ─── 로그인 ───
 
 export async function loginAction(_prevState: any, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const callbackUrl = (formData.get("callbackUrl") as string) || "/";
+  const callbackUrl = safeCallbackUrl(formData.get("callbackUrl") as string);
 
   if (!email || !password) {
     return { error: "이메일과 비밀번호를 입력해주세요." };

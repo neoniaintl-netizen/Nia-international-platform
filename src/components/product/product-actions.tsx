@@ -243,7 +243,7 @@ export function ProductActions({
           <ShoppingBag className="w-4 h-4" strokeWidth={1.5} />
           Add to Bag
         </button>
-        <ShareButton url={"/products/" + productId} title={productName} />
+        <ShareButton url={pathname} title={productName} />
       </div>
 
       <button
