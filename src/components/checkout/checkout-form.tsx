@@ -36,10 +36,14 @@ export function CheckoutForm({
   items,
   userPoints,
   couponCount,
+  funpayCurrency = "KRW",
+  krwPerCny = 190,
 }: {
   items: CartItem[];
   userPoints: number;
   couponCount: number;
+  funpayCurrency?: string;
+  krwPerCny?: number;
 }) {
   const [state, formAction, isPending] = useActionState(createOrder, null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -96,6 +100,12 @@ export function CheckoutForm({
   const discount = couponDiscount + usedPoints;
   const total = subtotal - discount + shipping;
   const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  // 알리/위챗은 위안화(CNY)로 결제 → 고객에게 환산 청구액 표시
+  const isCny = funpayCurrency === "CNY" && krwPerCny > 0;
+  const cnyAmount = isCny ? total / krwPerCny : 0;
+  const fmtCny = (n: number) =>
+    "¥" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -348,6 +358,18 @@ export function CheckoutForm({
               <span className="font-bold">총 결제 금액</span>
               <span className="text-xl font-bold">{total.toLocaleString()}원</span>
             </div>
+            {isCny && (
+              <>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-500">위안화 결제 금액</span>
+                  <span className="font-semibold text-gray-700">≈ {fmtCny(cnyAmount)}</span>
+                </div>
+                <p className="text-[11px] text-gray-400 leading-relaxed">
+                  Alipay/WeChat Pay 는 위안화(CNY)로 결제됩니다. 실제 청구액 약 {fmtCny(cnyAmount)}{" "}
+                  (적용환율 1 CNY ≈ {krwPerCny.toLocaleString()}원).
+                </p>
+              </>
+            )}
 
             {state?.error && (
               <p className="text-sm text-red-500">{state.error}</p>

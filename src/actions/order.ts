@@ -9,11 +9,10 @@ import {
   buildTradeInformation,
   funpayServiceType,
   funpayReqType,
-  formatFunpayAmount,
+  toFunpayCharge,
   funpayErrorMessage,
   cancelPayment,
   FUNPAY_ENDPOINTS,
-  FUNPAY_CURRENCY,
   FUNPAY_SUCCESS_CODE,
   isFunpayConfigured,
 } from "@/lib/payment/funpay";
@@ -271,10 +270,12 @@ export async function createOrder(_prevState: any, formData: FormData) {
 
   let funpayParams: Record<string, string>;
   try {
+    // 원화 금액 → 계약 통화(CNY)로 환산 (상품가는 원화, Funpay 는 CNY)
+    const charge = toFunpayCharge(finalAmount);
     funpayParams = buildPaymentParams({
       refno: orderNumber,
-      reqamt: formatFunpayAmount(finalAmount, FUNPAY_CURRENCY),
-      reqcur: FUNPAY_CURRENCY,
+      reqamt: charge.reqamt,
+      reqcur: charge.reqcur,
       servicetype: funpayServiceType(paymentMethod),
       reqtype: funpayReqType(paymentMethod),
       restype: "PAGE",
@@ -326,14 +327,15 @@ export async function cancelOrder(orderId: string) {
       return { error: "환불 설정이 완료되지 않았습니다. 관리자에게 문의해주세요." };
     }
     try {
-      const reqamt = formatFunpayAmount(order.finalAmount, FUNPAY_CURRENCY);
+      // 결제와 동일 환율로 환산 → 환불 금액(voidamt) 일치 (환율 변경 금지)
+      const charge = toFunpayCharge(order.finalAmount);
       const refundRes = await cancelPayment({
         refundRefno: generateOrderNumber(), // 취소는 매번 새 유니크 refno (명세)
         transid: order.payment.transactionId,
         servicetype: funpayServiceType(order.paymentMethod ?? "ALIPAY"),
-        reqcur: FUNPAY_CURRENCY,
-        reqamt,
-        voidamt: reqamt, // 전체 취소
+        reqcur: charge.reqcur,
+        reqamt: charge.reqamt,
+        voidamt: charge.reqamt, // 전체 취소
         reasoncode: "R000", // 단순변심
       });
       const code = String(refundRes?.rescode ?? refundRes?.resultcode ?? "");

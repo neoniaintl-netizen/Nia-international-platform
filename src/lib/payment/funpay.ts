@@ -26,8 +26,13 @@ export const FUNPAY_MID = process.env.FUNPAY_MID ?? "";
 const FUNPAY_SECRET_KEY = process.env.FUNPAY_SECRET_KEY ?? "";
 export const FUNPAY_SERVICE_TYPE = process.env.FUNPAY_SERVICE_TYPE ?? "S000";
 
-/** 결제 통화 (알리/위챗 결제 금액 기준 — 계약 통화). 기본 KRW. */
+/** 결제 통화 (알리/위챗 결제 금액 기준 — 계약 통화). 기본 KRW.
+ *  ※ 발급 MID(P12000000325)는 실측 결과 CNY 만 활성화(KRW·USD 거부) → CNY 사용. */
 export const FUNPAY_CURRENCY = process.env.FUNPAY_CURRENCY ?? "KRW";
+
+/** 1 CNY 당 원화(KRW) 환율 (예: 190 → 1위안=190원). FUNPAY_CURRENCY=CNY 일 때 환산에 사용.
+ *  환율 API(exchangerate.icb)가 이 MID 에서 미설정(9328)이라 설정값으로 환산한다. */
+export const FUNPAY_KRW_PER_CNY = Number(process.env.FUNPAY_KRW_CNY_RATE ?? "190");
 
 /** Funpay 응답코드 — 정상 승인. (8000=결제진행중) */
 export const FUNPAY_SUCCESS_CODE = process.env.FUNPAY_SUCCESS_CODE ?? "0000";
@@ -78,6 +83,41 @@ export function formatFunpayAmount(amount: number, currency: string = FUNPAY_CUR
     return amount.toFixed(2);
   }
   return amount.toFixed(2);
+}
+
+/**
+ * 원화(KRW) 정수 금액 → Funpay 결제 통화/금액(reqcur/reqamt)으로 변환.
+ *
+ * 상품가는 원화로 저장/표시하되, Funpay 로 보낼 때만 계약 통화로 환산한다.
+ *  - FUNPAY_CURRENCY=CNY → reqamt = KRW / FUNPAY_KRW_PER_CNY   (소수 2자리)
+ *  - FUNPAY_CURRENCY=KRW → reqamt = KRW 정수 (가맹점이 KRW 활성화된 경우)
+ *  - FUNPAY_CURRENCY=USD → reqamt = KRW / FUNPAY_KRW_USD_RATE
+ *
+ * ⚠️ 환불(refund)의 voidamt 는 결제 시점과 동일 환율로 재계산해야 금액이 일치한다.
+ *    Payment 스키마에 CNY 금액 저장 필드가 없으므로, finalAmount(원화) × 동일 환율로
+ *    재계산해 일치시킨다. 따라서 결제~환불 사이에 FUNPAY_KRW_CNY_RATE 를 바꾸지 말 것.
+ *
+ * @throws 환율 미설정/금액 규칙 위반 시 Error
+ */
+export function toFunpayCharge(krwAmount: number): { reqcur: string; reqamt: string } {
+  const cur = FUNPAY_CURRENCY;
+  if (cur === "KRW") {
+    return { reqcur: "KRW", reqamt: formatFunpayAmount(krwAmount, "KRW") };
+  }
+  if (cur === "CNY") {
+    if (!Number.isFinite(FUNPAY_KRW_PER_CNY) || FUNPAY_KRW_PER_CNY <= 0) {
+      throw new Error("환율(FUNPAY_KRW_CNY_RATE)이 올바르게 설정되지 않았습니다.");
+    }
+    return { reqcur: "CNY", reqamt: formatFunpayAmount(krwAmount / FUNPAY_KRW_PER_CNY, "CNY") };
+  }
+  if (cur === "USD") {
+    const rate = Number(process.env.FUNPAY_KRW_USD_RATE ?? "0");
+    if (!Number.isFinite(rate) || rate <= 0) {
+      throw new Error("환율(FUNPAY_KRW_USD_RATE)이 올바르게 설정되지 않았습니다.");
+    }
+    return { reqcur: "USD", reqamt: formatFunpayAmount(krwAmount / rate, "USD") };
+  }
+  return { reqcur: cur, reqamt: formatFunpayAmount(krwAmount, cur) };
 }
 
 /**

@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getUserCart, getUserPoints, getUserCouponCount } from "@/lib/queries";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
+import { FUNPAY_CURRENCY, FUNPAY_KRW_PER_CNY } from "@/lib/payment/funpay";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -50,7 +51,13 @@ export default async function CheckoutPage() {
   return (
     <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
       <h1 className="text-xl font-bold mb-6">주문/결제</h1>
-      <CheckoutForm items={items} userPoints={userPoints} couponCount={couponCount} />
+      <CheckoutForm
+        items={items}
+        userPoints={userPoints}
+        couponCount={couponCount}
+        funpayCurrency={FUNPAY_CURRENCY}
+        krwPerCny={FUNPAY_KRW_PER_CNY}
+      />
     </div>
   );
 }
