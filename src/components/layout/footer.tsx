@@ -246,10 +246,12 @@ export function Footer() {
 
         <div className="mt-4 space-y-1 text-xs text-gray-400">
           <p>
-            상호명: 니아인터내셔널 | 대표자: 윤지언 | 주소: 서울특별시 강남구
+            상호명: (주)니아인터내셔널 | 대표자: 윤지언 | 주소: 서울특별시 강남구
             논현로102길 5(역삼동) 4층
           </p>
-          <p>사업자등록번호: 291-81-0245 | 통신판매업: 2022-서울 강남-0</p>
+          <p>
+            사업자등록번호: 291-81-02452 | 통신판매업신고번호: 2022-서울강남-04687
+          </p>
         </div>
 
         <div className="mt-5 space-y-2 text-xs text-gray-400 leading-relaxed">
