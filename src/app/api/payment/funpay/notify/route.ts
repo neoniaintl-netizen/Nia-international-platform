@@ -1,6 +1,10 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
-import { verifyFgkey } from "@/lib/payment/funpay";
+import {
+  verifyFgkey,
+  FUNPAY_SUCCESS_CODE,
+  FUNPAY_PROCESSING_CODE,
+} from "@/lib/payment/funpay";
 
 /**
  * POST /api/payment/funpay/notify  (statusurl)
@@ -18,8 +22,6 @@ import { verifyFgkey } from "@/lib/payment/funpay";
  *     rescode 실패 → 주문 CANCELLED + 재고/쿠폰/포인트 복원
  *  5) 노티 수신·처리 성공이면 항상 "SUCCESS" (결제 실패 여부는 주문 상태로 표현)
  */
-
-const SUCCESS_CODE = process.env.FUNPAY_SUCCESS_CODE ?? "0000";
 
 function plain(text: string) {
   return new Response(text, {
@@ -62,7 +64,12 @@ export async function POST(req: NextRequest) {
     return plain("SUCCESS");
   }
 
-  const isSuccess = rescode === SUCCESS_CODE;
+  // 8000 = 결제 진행 중 — 아직 확정 아님. 정상 수신했으므로 SUCCESS 응답 + PENDING 유지.
+  if (rescode === FUNPAY_PROCESSING_CODE) {
+    return plain("SUCCESS");
+  }
+
+  const isSuccess = rescode === FUNPAY_SUCCESS_CODE;
 
   try {
     if (isSuccess) {

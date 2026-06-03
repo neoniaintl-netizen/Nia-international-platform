@@ -6,12 +6,15 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   buildPaymentParams,
+  buildTradeInformation,
   funpayServiceType,
   funpayReqType,
   formatFunpayAmount,
+  funpayErrorMessage,
   cancelPayment,
   FUNPAY_ENDPOINTS,
   FUNPAY_CURRENCY,
+  FUNPAY_SUCCESS_CODE,
   isFunpayConfigured,
 } from "@/lib/payment/funpay";
 
@@ -258,23 +261,40 @@ export async function createOrder(_prevState: any, formData: FormData) {
   const firstName = cartItems[0]?.product.name ?? "상품";
   const productName =
     cartItems.length > 1 ? `${firstName} 외 ${cartItems.length - 1}건` : firstName;
-  const base =
-    process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
-  const funpayParams = buildPaymentParams({
-    refno: orderNumber,
-    reqamt: formatFunpayAmount(finalAmount, FUNPAY_CURRENCY),
-    reqcur: FUNPAY_CURRENCY,
-    servicetype: funpayServiceType(paymentMethod),
-    reqtype: funpayReqType(paymentMethod),
-    restype: "REDIRECT",
-    product: productName,
-    buyername: recipient,
-    tel: phone,
-    email: buyer?.email ?? "",
-    returnurl: `${base}/checkout/complete?orderId=${order.id}`,
-    statusurl: `${base}/api/payment/funpay/notify`,
-  });
+  // 원천사별 추가정보(trade_information) — 알리: goods_info, 위챗: goods_detail
+  const tradeInfo = buildTradeInformation(
+    paymentMethod,
+    cartItems.map((it) => ({ name: it.product.name, quantity: it.quantity })),
+  );
+
+  let funpayParams: Record<string, string>;
+  try {
+    funpayParams = buildPaymentParams({
+      refno: orderNumber,
+      reqamt: formatFunpayAmount(finalAmount, FUNPAY_CURRENCY),
+      reqcur: FUNPAY_CURRENCY,
+      servicetype: funpayServiceType(paymentMethod),
+      reqtype: funpayReqType(paymentMethod),
+      restype: "PAGE",
+      product: productName,
+      buyername: recipient,
+      trade_information: tradeInfo,
+      refer_url: `${base}/checkout`,
+      returnurl: `${base}/checkout/complete?orderId=${order.id}`,
+      statusurl: `${base}/api/payment/funpay/notify`,
+      tel: phone,
+      email: buyer?.email ?? "",
+    });
+  } catch (e: any) {
+    // 금액/통화 규칙 위반 등 — 생성된 PENDING 주문 취소
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { status: "CANCELLED" },
+    });
+    return { error: e?.message ?? "결제 금액 처리 중 오류가 발생했습니다." };
+  }
 
   revalidatePath("/cart");
 
@@ -306,16 +326,20 @@ export async function cancelOrder(orderId: string) {
       return { error: "환불 설정이 완료되지 않았습니다. 관리자에게 문의해주세요." };
     }
     try {
+      const reqamt = formatFunpayAmount(order.finalAmount, FUNPAY_CURRENCY);
       const refundRes = await cancelPayment({
-        refno: order.orderNumber,
+        refundRefno: generateOrderNumber(), // 취소는 매번 새 유니크 refno (명세)
         transid: order.payment.transactionId,
+        servicetype: funpayServiceType(order.paymentMethod ?? "ALIPAY"),
         reqcur: FUNPAY_CURRENCY,
+        reqamt,
+        voidamt: reqamt, // 전체 취소
+        reasoncode: "R000", // 단순변심
       });
       const code = String(refundRes?.rescode ?? refundRes?.resultcode ?? "");
-      const ok = code === (process.env.FUNPAY_SUCCESS_CODE ?? "0000");
-      if (!ok) {
+      if (code !== FUNPAY_SUCCESS_CODE) {
         return {
-          error: `결제 취소(환불)에 실패했습니다. 고객센터에 문의해주세요. (${refundRes?.resmsg ?? code})`,
+          error: `결제 취소(환불)에 실패했습니다. ${funpayErrorMessage(code)}`,
         };
       }
     } catch (e: any) {

@@ -29,34 +29,104 @@ export const FUNPAY_SERVICE_TYPE = process.env.FUNPAY_SERVICE_TYPE ?? "S000";
 /** 결제 통화 (알리/위챗 결제 금액 기준 — 계약 통화). 기본 KRW. */
 export const FUNPAY_CURRENCY = process.env.FUNPAY_CURRENCY ?? "KRW";
 
+/** Funpay 응답코드 — 정상 승인. (8000=결제진행중) */
+export const FUNPAY_SUCCESS_CODE = process.env.FUNPAY_SUCCESS_CODE ?? "0000";
+export const FUNPAY_PROCESSING_CODE = "8000";
+
 /**
- * 결제수단(PaymentMethod) → Funpay servicetype 코드.
- * 영업이 결제수단별 코드 전달 → env 로 주입. 미설정 시 공통 FUNPAY_SERVICE_TYPE.
+ * servicetype 코드 (명세 기준 기본값):
+ *  S000 알리페이 / S006 알리페이+ / S001 위챗페이 / S005 페이팔 / S003 유머니
+ * 발급/계약 코드가 다르면 env 로 override.
  */
 export function funpayServiceType(paymentMethod: string): string {
   switch (paymentMethod) {
     case "ALIPAY":
-      return process.env.FUNPAY_SERVICE_TYPE_ALIPAY ?? FUNPAY_SERVICE_TYPE;
+      return process.env.FUNPAY_SERVICE_TYPE_ALIPAY ?? "S000";
+    case "ALIPAY_PLUS":
+      return process.env.FUNPAY_SERVICE_TYPE_ALIPAY_PLUS ?? "S006";
     case "WECHAT_PAY":
-      return process.env.FUNPAY_SERVICE_TYPE_WECHAT ?? FUNPAY_SERVICE_TYPE;
+      return process.env.FUNPAY_SERVICE_TYPE_WECHAT ?? "S001";
     default:
       return FUNPAY_SERVICE_TYPE;
   }
 }
 
-/** 결제수단 → reqtype. 알리/위챗은 모바일웹(M) 기본 (PC/모바일 범용). */
+/** 결제수단 → reqtype. P:PC / M:Mobile / A:APP / J:JSAPI / N:Mini. 웹은 모바일웹(M) 기본. */
 export function funpayReqType(_paymentMethod: string): FunpayReqType {
   return "M";
 }
 
 /**
- * KRW 정수 금액 → Funpay reqamt 문자열.
- * KRW 는 소수 없음(정수 문자열), 그 외 통화는 소수 2자리.
- * 통화 환산이 필요하면 호출 전에 queryExchangeRate 로 변환 후 전달.
+ * 금액 → Funpay reqamt 문자열 (통화별 단위 규칙).
+ *  - KRW: 100원 이상 정수
+ *  - USD: 0.01 단위, 소수 2자리
+ *  - CNY: 0.1 단위, 소수 2자리
+ * @throws 금액 규칙 위반 시 Error
  */
 export function formatFunpayAmount(amount: number, currency: string = FUNPAY_CURRENCY): string {
-  if (currency === "KRW" || currency === "JPY") return String(Math.round(amount));
+  if (currency === "KRW") {
+    const v = Math.round(amount);
+    if (v < 100) throw new Error("KRW 결제는 100원 이상이어야 합니다.");
+    return String(v);
+  }
+  if (currency === "USD") {
+    if (amount < 0.01) throw new Error("USD 결제는 0.01 이상이어야 합니다.");
+    return amount.toFixed(2);
+  }
+  if (currency === "CNY") {
+    if (amount < 0.1) throw new Error("CNY 결제는 0.1 이상이어야 합니다.");
+    return amount.toFixed(2);
+  }
   return amount.toFixed(2);
+}
+
+/**
+ * trade_information 생성 (원천사별 결제 추가정보, JSON String 한 줄).
+ *  - 알리페이(S000/S006): { business_type:"4", goods_info:"상품명^수량|...", total_quantity }
+ *  - 위챗페이(S001): { goods_detail:[{ goods_name, quantity }] }
+ */
+export function buildTradeInformation(
+  paymentMethod: string,
+  items: { name: string; quantity: number }[],
+): string {
+  const svc = funpayServiceType(paymentMethod);
+  // 위챗페이
+  if (svc === "S001") {
+    return JSON.stringify({
+      goods_detail: items.map((i) => ({
+        goods_name: sanitizeGoodsName(i.name),
+        quantity: i.quantity,
+      })),
+    });
+  }
+  // 알리페이 / 알리페이+ (기본)
+  const totalQty = items.reduce((s, i) => s + i.quantity, 0);
+  const goodsInfo = items
+    .map((i) => `${sanitizeGoodsName(i.name)}^${i.quantity}`)
+    .join("|");
+  return JSON.stringify({
+    business_type: "4",
+    goods_info: goodsInfo,
+    total_quantity: totalQty,
+  });
+}
+
+/** goods_info 는 `^` 와 `|` 를 구분자로 쓰므로 상품명에서 제거. 이모지/특수문자 정리. */
+function sanitizeGoodsName(name: string): string {
+  return name.replace(/[\^|]/g, " ").trim().slice(0, 100) || "product";
+}
+
+/** Funpay 응답코드 → 사용자 메시지 매핑. */
+export function funpayErrorMessage(rescode: string): string {
+  const map: Record<string, string> = {
+    "9300": "결제 정보가 올바르지 않습니다.",
+    "9301": "결제 서명 검증에 실패했습니다.",
+    "9317": "이미 처리 중인 결제 요청입니다.",
+    "9402": "이미 결제가 완료된 주문입니다.",
+    "9110": "결제 시간이 만료되었습니다. 다시 시도해주세요.",
+    "9999": "결제 시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+  };
+  return map[rescode] ?? `결제 처리 중 오류가 발생했습니다. (${rescode})`;
 }
 
 export const FUNPAY_ENDPOINTS = {
@@ -135,75 +205,81 @@ export function verifyFgkey(
 //  결제 승인 요청 파라미터 빌더
 // ─────────────────────────────────────────────
 
-export type FunpayReqType = "P" | "M" | "A" | "J" | "N"; // P=QR, M=모바일웹, A=APP, J=JSAPI, N=MiniProgram
-export type FunpayResType = "JSON" | "REDIRECT";
+export type FunpayReqType = "P" | "M" | "A" | "J" | "N"; // P=PC / M=Mobile / A=APP / J=JSAPI / N=Mini
+export type FunpayResType = "PAGE" | "JSON"; // PAGE=원천사 결제페이지 리다이렉트 / JSON=커스텀(QR/URL 직접)
 
 export interface BuildPaymentParamsInput {
-  /** 가맹점 주문번호 (refno) — Funpay 전역 유니크 권장 */
+  /** 가맹점 주문번호 (refno) — 매 요청 유니크 */
   refno: string;
-  /** 결제 금액 (문자열, 소수 2자리 권장 e.g. "1.00") */
+  /** 결제 금액 (formatFunpayAmount 로 통화 단위에 맞춰 생성) */
   reqamt: string;
-  /** 결제 통화 (USD/CNY/KRW 등 — 계약 통화) */
+  /** 결제 통화 (KRW/USD/CNY) */
   reqcur: string;
-  /** 결제수단 원천사 servicetype — 영업이 결제수단별 코드 전달 */
-  servicetype?: string;
-  /** P=QR / M=모바일웹 (알리·위챗) */
+  /** 원천사 servicetype (S000 알리/S001 위챗 …) */
+  servicetype: string;
+  /** P=PC / M=Mobile (알리·위챗 웹) */
   reqtype: FunpayReqType;
-  /** JSON(커스텀) or REDIRECT(기본 중계) */
+  /** PAGE(기본, 원천사 페이지 이동) / JSON(커스텀) */
   restype?: FunpayResType;
-  /** 상품명 */
+  /** 상품명 (필수) */
   product: string;
-  /** 구매자명 */
-  buyername?: string;
+  /** 구매자명 (필수) */
+  buyername: string;
+  /** 원천사 추가정보 JSON String (필수) — buildTradeInformation() */
+  trade_information: string;
+  /** 결제 시작(referer) URL (필수) */
+  refer_url: string;
+  /** 브라우저 복귀 URL (필수) */
+  returnurl: string;
+  /** 서버 노티 수신 URL (필수) */
+  statusurl: string;
   tel?: string;
   email?: string;
-  /** 브라우저 복귀 URL (절대경로) */
-  returnurl: string;
-  /** 서버 노티 수신 URL (절대경로) */
-  statusurl: string;
-  /** 위챗/알리 예비필드 (위챗 JSAPI OpenID, 알리 APP OS 등) */
+  mname?: string;
+  vat?: string;
   param1?: string;
   param2?: string;
   param3?: string;
   /** 알리페이+ 지갑 (CONNECT_WALLET 등) */
   walletId?: string;
-  /** 결제 만료 시간 (선택) */
+  insmonth?: string;
   expiretime?: string;
-  /** 원천사 추가 정보 (JSON string) */
-  trade_information?: string;
+  paypal_additional_data?: string;
 }
 
 /**
  * 결제 승인 요청 파라미터 (fgkey 포함) 생성.
- * 반환값을 form 으로 만들어 FUNPAY_ENDPOINTS.payment 로 POST submit (브라우저) 하거나
- * 서버에서 fetch POST (restype=JSON) 한다.
+ * 브라우저가 이 값으로 FUNPAY_ENDPOINTS.payment 에 POST submit.
+ * 다국어 값(buyername/product)은 form POST 시 브라우저가 UTF-8 urlencode →
+ * fgkey 는 원문(인코딩 전)으로 계산하므로 양쪽 일치 (명세 fgkey 예시도 원문 기준).
  */
 export function buildPaymentParams(input: BuildPaymentParamsInput): Record<string, string> {
   const params: Record<string, string> = {
-    mid: FUNPAY_MID,
     ver: "V2",
-    servicetype: input.servicetype ?? FUNPAY_SERVICE_TYPE,
+    mid: FUNPAY_MID,
+    servicetype: input.servicetype,
     refno: input.refno,
-    reqamt: input.reqamt,
     reqcur: input.reqcur,
-    reqtype: input.reqtype,
-    restype: input.restype === "JSON" ? "JSON" : "", // REDIRECT 면 빈값(기본 중계)
+    reqamt: input.reqamt,
+    buyername: input.buyername,
     product: input.product,
-    buyername: input.buyername ?? "",
-    tel: input.tel ?? "",
-    email: input.email ?? "",
+    trade_information: input.trade_information,
+    refer_url: input.refer_url,
     returnurl: input.returnurl,
     statusurl: input.statusurl,
+    reqtype: input.reqtype,
+    restype: input.restype ?? "PAGE",
+    mname: input.mname ?? "",
+    vat: input.vat ?? "",
+    tel: input.tel ?? "",
+    email: input.email ?? "",
     param1: input.param1 ?? "",
     param2: input.param2 ?? "",
     param3: input.param3 ?? "",
     walletId: input.walletId ?? "",
+    insmonth: input.insmonth ?? "",
     expiretime: input.expiretime ?? "",
-    trade_information: input.trade_information ?? "",
-    paypal_additional_data: "",
-    insmonth: "",
-    mname: "",
-    refer_url: "",
+    paypal_additional_data: input.paypal_additional_data ?? "",
   };
   params.fgkey = buildFgkey(params);
   return params;
@@ -228,35 +304,56 @@ async function postForm(url: string, params: Record<string, string>): Promise<an
   }
 }
 
-/** 결제 결과 조회 (단건) */
-export async function queryPayment(refno: string): Promise<any> {
+/** 결제 결과 조회 (단건) — /payment/query.icb */
+export async function queryPayment(input: {
+  refno: string;
+  servicetype: string;
+  transid?: string;
+}): Promise<any> {
   const params: Record<string, string> = {
-    mid: FUNPAY_MID,
     ver: "V2",
-    servicetype: FUNPAY_SERVICE_TYPE,
-    refno,
+    mid: FUNPAY_MID,
+    servicetype: input.servicetype,
+    refno: input.refno,
+    transid: input.transid ?? "",
   };
   params.fgkey = buildFgkey(params);
   return postForm(FUNPAY_ENDPOINTS.query, params);
 }
 
-/** 결제 취소 (전체/부분) */
+export type FunpayReasonCode = "R000" | "R001" | "R002" | "R003" | "R005";
+// R000 단순변심 / R001 하자 / R002 결제오류 / R003 기타 / R005 망취소
+
+/**
+ * 결제 취소(환불) — /payment/refund.icb
+ * 명세: refno 는 매 취소마다 새 유니크값. transid 는 원 결제 거래번호.
+ * voidamt = 취소 금액(부분취소 가능). 전체취소면 reqamt 와 동일.
+ */
 export async function cancelPayment(input: {
-  refno: string;
-  /** Funpay 거래번호 (조회/노티의 transid) */
-  transid?: string;
-  /** 취소 금액 (부분취소 시. 전체취소면 생략) */
-  cancelamt?: string;
-  reqcur?: string;
+  /** 새 유니크 취소 요청번호 (원 주문 refno 와 달라야 함) */
+  refundRefno: string;
+  /** 원 결제 거래번호 (transid) */
+  transid: string;
+  servicetype: string;
+  reqcur: string;
+  /** 원 결제 금액 */
+  reqamt: string;
+  /** 취소 금액 (전체취소면 reqamt 와 동일) */
+  voidamt: string;
+  reasoncode?: FunpayReasonCode;
+  reasondesc?: string;
 }): Promise<any> {
   const params: Record<string, string> = {
-    mid: FUNPAY_MID,
     ver: "V2",
-    servicetype: FUNPAY_SERVICE_TYPE,
-    refno: input.refno,
-    transid: input.transid ?? "",
-    cancelamt: input.cancelamt ?? "",
-    reqcur: input.reqcur ?? "",
+    mid: FUNPAY_MID,
+    servicetype: input.servicetype,
+    refno: input.refundRefno,
+    transid: input.transid,
+    reqcur: input.reqcur,
+    reqamt: input.reqamt,
+    voidamt: input.voidamt,
+    reasoncode: input.reasoncode ?? "R000",
+    reasondesc: input.reasondesc ?? "",
   };
   params.fgkey = buildFgkey(params);
   return postForm(FUNPAY_ENDPOINTS.refund, params);
