@@ -31,6 +31,7 @@ const PAYMENT_METHODS = [
   { value: "ALIPAY", label: "Alipay 알리페이" },
   { value: "WECHAT_PAY", label: "WeChat Pay 위챗페이" },
 ];
+const WECHAT_VALUE = "WECHAT_PAY";
 
 export function CheckoutForm({
   items,
@@ -38,13 +39,19 @@ export function CheckoutForm({
   couponCount,
   funpayCurrency = "KRW",
   krwPerCny = 190,
+  wechatEnabled = false,
 }: {
   items: CartItem[];
   userPoints: number;
   couponCount: number;
   funpayCurrency?: string;
   krwPerCny?: number;
+  wechatEnabled?: boolean;
 }) {
+  // 위챗은 운영 검증 전까지 숨김 (테스트 환경 9401)
+  const availableMethods = PAYMENT_METHODS.filter(
+    (m) => m.value !== WECHAT_VALUE || wechatEnabled
+  );
   const [state, formAction, isPending] = useActionState(createOrder, null);
   const formRef = useRef<HTMLFormElement>(null);
   const [paymentMethod, setPaymentMethod] = useState("ALIPAY");
@@ -274,7 +281,7 @@ export function CheckoutForm({
               <h2 className="font-bold">결제 수단</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {PAYMENT_METHODS.map((method) => (
+              {availableMethods.map((method) => (
                 <button
                   key={method.value}
                   type="button"
@@ -395,7 +402,7 @@ export function CheckoutForm({
               </Button>
               <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>안전 결제 · Alipay/WeChat Pay (ICB Funpay)</span>
+                <span>안전 결제 · Alipay{wechatEnabled ? "/WeChat Pay" : ""} (ICB Funpay)</span>
               </div>
             </div>
           </div>

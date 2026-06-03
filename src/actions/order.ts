@@ -14,6 +14,7 @@ import {
   cancelPayment,
   FUNPAY_ENDPOINTS,
   FUNPAY_SUCCESS_CODE,
+  FUNPAY_WECHAT_ENABLED,
   isFunpayConfigured,
 } from "@/lib/payment/funpay";
 
@@ -45,6 +46,11 @@ export async function createOrder(_prevState: any, formData: FormData) {
 
   if (!recipient || !phone || !zipCode || !address1) {
     return { error: "배송 정보를 모두 입력해주세요." };
+  }
+
+  // 위챗페이는 운영 검증 전까지 차단 (테스트 환경 9401). UI 숨김 + 서버 방어.
+  if (paymentMethod === "WECHAT_PAY" && !FUNPAY_WECHAT_ENABLED) {
+    return { error: "위챗페이는 현재 준비 중입니다. 알리페이로 결제해주세요." };
   }
 
   // Cart items

@@ -31,8 +31,15 @@ export const FUNPAY_SERVICE_TYPE = process.env.FUNPAY_SERVICE_TYPE ?? "S000";
 export const FUNPAY_CURRENCY = process.env.FUNPAY_CURRENCY ?? "KRW";
 
 /** 1 CNY 당 원화(KRW) 환율 (예: 190 → 1위안=190원). FUNPAY_CURRENCY=CNY 일 때 환산에 사용.
- *  환율 API(exchangerate.icb)가 이 MID 에서 미설정(9328)이라 설정값으로 환산한다. */
-export const FUNPAY_KRW_PER_CNY = Number(process.env.FUNPAY_KRW_CNY_RATE ?? "190");
+ *  ⚠️ 미설정/비정상이면 0 → toFunpayCharge 가 결제를 차단한다 (silent 190 fallback 금지 — fail-closed).
+ *  환율 API(exchangerate.icb)가 이 MID 에서 미설정(9328)이라 설정값으로 환산. */
+export const FUNPAY_KRW_PER_CNY = process.env.FUNPAY_KRW_CNY_RATE
+  ? Number(process.env.FUNPAY_KRW_CNY_RATE)
+  : 0;
+
+/** 위챗페이 노출 여부. 테스트 환경엔 위챗 샌드박스가 없어 9401(결제사 시스템오류) →
+ *  기본 비활성. 운영 위챗 계약/검증 완료 후 FUNPAY_WECHAT_ENABLED=true 로 켠다. */
+export const FUNPAY_WECHAT_ENABLED = process.env.FUNPAY_WECHAT_ENABLED === "true";
 
 /** Funpay 응답코드 — 정상 승인. (8000=결제진행중) */
 export const FUNPAY_SUCCESS_CODE = process.env.FUNPAY_SUCCESS_CODE ?? "0000";

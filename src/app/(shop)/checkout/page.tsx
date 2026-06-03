@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getUserCart, getUserPoints, getUserCouponCount } from "@/lib/queries";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
-import { FUNPAY_CURRENCY, FUNPAY_KRW_PER_CNY } from "@/lib/payment/funpay";
+import { FUNPAY_CURRENCY, FUNPAY_KRW_PER_CNY, FUNPAY_WECHAT_ENABLED } from "@/lib/payment/funpay";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -57,6 +57,7 @@ export default async function CheckoutPage() {
         couponCount={couponCount}
         funpayCurrency={FUNPAY_CURRENCY}
         krwPerCny={FUNPAY_KRW_PER_CNY}
+        wechatEnabled={FUNPAY_WECHAT_ENABLED}
       />
     </div>
   );
