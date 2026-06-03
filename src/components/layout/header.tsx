@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Search, Heart, ShoppingBag, User, Menu, X, LogOut } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
@@ -49,10 +50,16 @@ export function Header({
               </button>
 
               {/* 로고 */}
-              <Link href="/" className="flex items-center shrink-0">
-                <span className="text-[22px] font-bold tracking-[0.18em] text-[var(--ink)]">
-                  NOVAREN
-                </span>
+              <Link href="/" className="flex items-center shrink-0" aria-label="NOVAREN 홈">
+                <Image
+                  src="/novaren-logo.png"
+                  alt="NOVAREN"
+                  width={150}
+                  height={50}
+                  priority
+                  unoptimized
+                  className="h-7 w-auto object-contain"
+                />
               </Link>
 
               {/* 데스크톱: 글로벌 카테고리 메뉴 */}

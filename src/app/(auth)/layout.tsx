@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function AuthLayout({
   children,
@@ -7,8 +8,16 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      <Link href="/" className="mb-8">
-        <span className="text-2xl font-black tracking-tight">NOVAREN</span>
+      <Link href="/" className="mb-8" aria-label="NOVAREN 홈">
+        <Image
+          src="/novaren-logo.png"
+          alt="NOVAREN"
+          width={180}
+          height={60}
+          priority
+          unoptimized
+          className="h-9 w-auto object-contain"
+        />
       </Link>
       <div className="w-full max-w-sm">{children}</div>
     </div>
