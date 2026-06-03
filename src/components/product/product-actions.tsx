@@ -5,7 +5,7 @@ import { Heart, ShoppingBag } from "lucide-react";
 import { addToCart } from "@/actions/cart";
 import { toggleWishlist } from "@/actions/wishlist";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { ShareButton } from "@/components/shared/share-button";
 import { SizeGuideModal } from "@/components/product/size-guide-modal";
@@ -49,6 +49,7 @@ export function ProductActions({
   const [isPending, startTransition] = useTransition();
   const { status } = useSession();
   const router = useRouter();
+  const pathname = usePathname(); // 현재 상품 상세 경로(/products/{slug}) — callbackUrl 용
 
   function findVariant() {
     return variants.find((v) => {
@@ -61,7 +62,7 @@ export function ProductActions({
   function handleAddToCart() {
     if (status === "loading") return;
     if (status === "unauthenticated") {
-      router.push(`/login?callbackUrl=${encodeURIComponent(`/products/${productId}`)}`);
+      router.push(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
       return;
     }
     const variant = findVariant();
@@ -90,7 +91,7 @@ export function ProductActions({
   function handleBuyNow() {
     if (status === "loading") return;
     if (status === "unauthenticated") {
-      router.push(`/login?callbackUrl=${encodeURIComponent(`/products/${productId}`)}`);
+      router.push(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
       return;
     }
     const variant = findVariant();
@@ -113,7 +114,7 @@ export function ProductActions({
   function handleWishlist() {
     if (status === "loading") return;
     if (status === "unauthenticated") {
-      router.push(`/login?callbackUrl=${encodeURIComponent(`/products/${productId}`)}`);
+      router.push(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
       return;
     }
     startTransition(async () => {
