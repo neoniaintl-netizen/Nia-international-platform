@@ -1,5 +1,6 @@
 import { ChevronRight, Package, RotateCcw, Bell, Eye, Heart, Gift, Settings, Truck, CheckCircle, Wrench, Bookmark } from "lucide-react";
 import Link from "next/link";
+import { LogoutButton } from "@/components/auth/logout-button";
 import { auth } from "@/lib/auth";
 import { getUserOrders, getOrderStatusCounts, getUserPoints, getUserCouponCount, getUserWishlist } from "@/lib/queries";
 import { redirect } from "next/navigation";
@@ -132,6 +133,11 @@ export default async function MyPage() {
         <MenuItem href="/membership" icon={Gift} label="멤버십 혜택" badge="NEW" />
         <MenuItem href="/event/payment" icon={Gift} label="이벤트/회원혜택" />
         <MenuItem href="/my/profile" icon={Settings} label="설정" />
+      </div>
+
+      {/* ── 로그아웃 ── */}
+      <div className="border-t border-gray-100 mt-2 mb-8">
+        <LogoutButton variant="row" />
       </div>
     </div>
   );

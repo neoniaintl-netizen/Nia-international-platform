@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Heart, ShoppingBag, User, Menu, X, LogOut } from "lucide-react";
+import { Search, Heart, ShoppingBag, User, Menu, X } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Badge } from "@/components/ui/badge";
+import { LogoutButton } from "@/components/auth/logout-button";
 import { CategoryMenu } from "./category-menu";
 import { CHANNELS } from "@/lib/constants";
 import { usePathname } from "next/navigation";
@@ -147,13 +148,7 @@ export function Header({
                           {(session?.user?.name ?? "U").charAt(0).toUpperCase()}
                         </div>
                       </Link>
-                      <button
-                        onClick={() => signOut({ callbackUrl: "/" })}
-                        className="p-2.5 text-gray-400 hover:text-black transition-colors"
-                        aria-label="로그아웃"
-                      >
-                        <LogOut className="w-[17px] h-[17px]" strokeWidth={1.6} />
-                      </button>
+                      <LogoutButton variant="icon" className="p-2.5" />
                     </>
                   ) : (
                     <div className="flex items-center gap-2 ml-1.5 text-[13px] font-medium">
@@ -197,11 +192,14 @@ export function Header({
                   )}
                 </Link>
                 {isLoggedIn ? (
-                  <Link href="/my" className="p-2" aria-label="마이페이지">
-                    <div className="w-[22px] h-[22px] rounded-full bg-black text-white flex items-center justify-center text-[9px] font-bold">
-                      {(session?.user?.name ?? "U").charAt(0).toUpperCase()}
-                    </div>
-                  </Link>
+                  <>
+                    <Link href="/my" className="p-2" aria-label="마이페이지">
+                      <div className="w-[22px] h-[22px] rounded-full bg-black text-white flex items-center justify-center text-[9px] font-bold">
+                        {(session?.user?.name ?? "U").charAt(0).toUpperCase()}
+                      </div>
+                    </Link>
+                    <LogoutButton variant="icon" className="p-2" />
+                  </>
                 ) : (
                   <Link href="/login" className="p-2 text-gray-600" aria-label="로그인">
                     <User className="w-[20px] h-[20px]" strokeWidth={1.8} />
