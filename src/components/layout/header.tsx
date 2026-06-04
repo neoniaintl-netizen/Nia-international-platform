@@ -53,13 +53,13 @@ export function Header({
               {/* 로고 */}
               <Link href="/" className="flex items-center shrink-0" aria-label="NOVAREN 홈">
                 <Image
-                  src="/novaren-logo.png"
+                  src="/novaren-logo2.png"
                   alt="NOVAREN"
-                  width={150}
-                  height={50}
+                  width={210}
+                  height={28}
                   priority
                   unoptimized
-                  className="h-7 w-auto object-contain"
+                  className="h-6 w-auto object-contain"
                 />
               </Link>
 
