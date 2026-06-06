@@ -105,12 +105,6 @@ export async function registerAction(_prevState: any, formData: FormData) {
   }
 }
 
-// ─── 소셜 로그인 ───
-
-export async function socialLoginAction(provider: "kakao" | "naver") {
-  await signIn(provider, { redirectTo: "/" });
-}
-
 // ─── 로그아웃 ───
 
 export async function logoutAction() {

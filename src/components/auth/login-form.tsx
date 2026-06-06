@@ -5,17 +5,11 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { loginAction } from "@/actions/auth";
-import { SocialLoginButton } from "@/components/auth/social-login-button";
 import { Gift } from "lucide-react";
 import { safeCallbackUrl } from "@/lib/utils";
 
-export function LoginForm({
-  socialProviders = [],
-}: {
-  socialProviders?: ("kakao" | "naver")[];
-}) {
+export function LoginForm() {
   const [state, formAction, isPending] = useActionState(loginAction, null);
   const searchParams = useSearchParams();
   const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
@@ -69,22 +63,6 @@ export function LoginForm({
           비회원 주문조회
         </Link>
       </div>
-
-      {socialProviders.length > 0 && (
-        <>
-          <div className="relative my-8">
-            <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-gray-400">
-              또는
-            </span>
-          </div>
-
-          <div className="space-y-3">
-            {socialProviders.includes("kakao") && <SocialLoginButton provider="kakao" />}
-            {socialProviders.includes("naver") && <SocialLoginButton provider="naver" />}
-          </div>
-        </>
-      )}
 
       <div className="mt-8 p-4 bg-gray-50 rounded-xl text-center">
         <Gift className="w-5 h-5 mx-auto mb-2 text-[var(--sale)]" />

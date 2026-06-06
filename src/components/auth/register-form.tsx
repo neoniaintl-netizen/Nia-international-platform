@@ -6,14 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { registerAction } from "@/actions/auth";
-import { SocialLoginButton } from "@/components/auth/social-login-button";
-import { Separator } from "@/components/ui/separator";
 
-export function RegisterForm({
-  socialProviders = [],
-}: {
-  socialProviders?: ("kakao" | "naver")[];
-}) {
+export function RegisterForm() {
   const [state, formAction, isPending] = useActionState(registerAction, null);
 
   return (
@@ -137,22 +131,6 @@ export function RegisterForm({
           {isPending ? "가입 중..." : "가입하기"}
         </Button>
       </form>
-
-      {socialProviders.length > 0 && (
-        <>
-          <div className="relative my-8">
-            <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-gray-400">
-              간편 가입
-            </span>
-          </div>
-
-          <div className="space-y-3">
-            {socialProviders.includes("kakao") && <SocialLoginButton provider="kakao" />}
-            {socialProviders.includes("naver") && <SocialLoginButton provider="naver" />}
-          </div>
-        </>
-      )}
 
       <p className="text-center text-xs text-gray-400 mt-6">
         이미 계정이 있으신가요?{" "}
