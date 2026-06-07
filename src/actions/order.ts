@@ -45,6 +45,11 @@ export async function createOrder(_prevState: any, formData: FormData) {
   const paymentMethod = (formData.get("paymentMethod") as string) || "CARD";
   const couponCode = (formData.get("couponCode") as string)?.trim() || null;
   const usedPoints = parseInt(formData.get("usedPoints") as string) || 0;
+  // 선택 결제: 결제할 장바구니 항목 id (없으면 전체 결제 — 하위호환)
+  const selectedItemIds = ((formData.get("selectedItemIds") as string) ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
 
   if (!recipient || !phone || !zipCode || !address1) {
     return { error: "배송 정보를 모두 입력해주세요." };
@@ -55,9 +60,12 @@ export async function createOrder(_prevState: any, formData: FormData) {
     return { error: "위챗페이는 현재 준비 중입니다. 알리페이로 결제해주세요." };
   }
 
-  // Cart items
+  // Cart items (선택 결제 시 선택 항목만 — id 가 사용자 장바구니에 속해야 통과)
   const cartItems = await prisma.cartItem.findMany({
-    where: { userId },
+    where: {
+      userId,
+      ...(selectedItemIds.length > 0 ? { id: { in: selectedItemIds } } : {}),
+    },
     include: {
       product: {
         include: {

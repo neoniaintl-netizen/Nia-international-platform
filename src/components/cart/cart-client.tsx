@@ -145,7 +145,9 @@ export function CartClient({ items }: { items: CartItemData[] }) {
             <span className="font-bold">총 결제 금액</span>
             <span className="text-xl font-bold">{total.toLocaleString()}원</span>
           </div>
-          <Link href="/checkout">
+          <Link
+            href={`/checkout?items=${selectedItems.map((i) => i.id).join(",")}`}
+          >
             <Button
               className="w-full h-12 bg-black hover:bg-gray-800 text-white font-bold text-base mt-3"
               disabled={selectedItems.length === 0}

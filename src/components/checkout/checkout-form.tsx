@@ -40,6 +40,7 @@ export function CheckoutForm({
   funpayCurrency = "KRW",
   krwPerCny = 190,
   wechatEnabled = false,
+  selectedItemIds = [],
 }: {
   items: CartItem[];
   userPoints: number;
@@ -47,6 +48,7 @@ export function CheckoutForm({
   funpayCurrency?: string;
   krwPerCny?: number;
   wechatEnabled?: boolean;
+  selectedItemIds?: string[];
 }) {
   // 위챗은 운영 검증 전까지 숨김 (테스트 환경 9401)
   const availableMethods = PAYMENT_METHODS.filter(
@@ -151,6 +153,7 @@ export function CheckoutForm({
       <input type="hidden" name="paymentMethod" value={paymentMethod} />
       <input type="hidden" name="couponCode" value={appliedCoupon || ""} />
       <input type="hidden" name="usedPoints" value={usedPoints.toString()} />
+      <input type="hidden" name="selectedItemIds" value={selectedItemIds.join(",")} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left: Form */}

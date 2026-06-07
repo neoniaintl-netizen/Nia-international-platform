@@ -7,15 +7,29 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag } from "lucide-react";
 
-export default async function CheckoutPage() {
+export default async function CheckoutPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ items?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login?callbackUrl=/checkout");
 
-  const [cartItems, userPoints, couponCount] = await Promise.all([
+  const { items: itemsParam } = await searchParams;
+
+  const [allCartItems, userPoints, couponCount] = await Promise.all([
     getUserCart(session.user.id),
     getUserPoints(session.user.id),
     getUserCouponCount(session.user.id),
   ]);
+
+  // 선택 결제: items 쿼리(선택한 장바구니 항목 id)가 있으면 그 항목만, 없으면 전체.
+  const selectedIds = itemsParam
+    ? itemsParam.split(",").map((s) => s.trim()).filter(Boolean)
+    : null;
+  const cartItems = selectedIds
+    ? allCartItems.filter((i) => selectedIds.includes(i.id))
+    : allCartItems;
 
   if (cartItems.length === 0) {
     return (
@@ -58,6 +72,7 @@ export default async function CheckoutPage() {
         funpayCurrency={FUNPAY_CURRENCY}
         krwPerCny={FUNPAY_KRW_PER_CNY}
         wechatEnabled={FUNPAY_WECHAT_ENABLED}
+        selectedItemIds={cartItems.map((i) => i.id)}
       />
     </div>
   );

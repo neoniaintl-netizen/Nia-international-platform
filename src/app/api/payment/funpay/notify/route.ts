@@ -110,8 +110,16 @@ export async function POST(req: NextRequest) {
           });
         }
       });
-      // 장바구니 비움 (결제 성공 후)
-      await prisma.cartItem.deleteMany({ where: { userId: order.userId } });
+      // 장바구니에서 주문된 항목만 제거 (선택 결제 지원 — 미선택 항목은 유지)
+      for (const item of order.items) {
+        await prisma.cartItem.deleteMany({
+          where: {
+            userId: order.userId,
+            productId: item.productId,
+            variantId: item.variantId ?? null,
+          },
+        });
+      }
       console.log("[Funpay notify] 결제 확정", { refno, transid });
     } else {
       // ── 결제 실패 → 주문 취소 + 복원 ──
