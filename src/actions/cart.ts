@@ -29,6 +29,7 @@ export async function addToCart(productId: string, variantId: string, quantity =
     where: { userId_productId_variantId: { userId, productId, variantId } },
   });
 
+  let cartItemId: string;
   if (existing) {
     if (existing.quantity + quantity > variant.stock) {
       return { error: `재고가 부족합니다. (남은 수량: ${variant.stock}개)` };
@@ -37,18 +38,20 @@ export async function addToCart(productId: string, variantId: string, quantity =
       where: { id: existing.id },
       data: { quantity: existing.quantity + quantity },
     });
+    cartItemId = existing.id;
   } else {
     if (quantity > variant.stock) {
       return { error: `재고가 부족합니다. (남은 수량: ${variant.stock}개)` };
     }
-    await prisma.cartItem.create({
+    const created = await prisma.cartItem.create({
       data: { userId, productId, variantId, quantity },
     });
+    cartItemId = created.id;
   }
 
   revalidatePath("/cart");
   revalidatePath("/", "layout"); // 헤더 장바구니 카운트 갱신
-  return { success: true };
+  return { success: true, cartItemId };
 }
 
 // ─── 수량 변경 ───

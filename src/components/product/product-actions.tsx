@@ -104,7 +104,12 @@ export function ProductActions({
           toast.error(result.error);
           return;
         }
-        router.push("/checkout");
+        // Buy Now: 방금 담은 항목만 결제 (장바구니 전체가 아니라)
+        router.push(
+          result?.cartItemId
+            ? `/checkout?items=${result.cartItemId}`
+            : "/checkout"
+        );
       } catch (e: any) {
         toast.error(e?.message ?? "처리에 실패했습니다");
       }
