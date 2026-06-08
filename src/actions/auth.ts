@@ -5,7 +5,6 @@ import { signIn, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
-import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { safeCallbackUrl } from "@/lib/utils";
 
@@ -109,49 +108,9 @@ export async function registerAction(_prevState: any, formData: FormData) {
 // ─── 로그아웃 ───
 
 export async function logoutAction() {
-  // 1) Auth.js 표준 로그아웃 (정상 케이스: 현재 세션 쿠키 만료). redirect 는 끄고 클라이언트가 하드 리로드.
-  try {
-    await signOut({ redirect: false });
-  } catch {
-    // signOut 이 실패해도 아래에서 직접 만료시키므로 무시 (방어)
-  }
-
-  // 2) 방어적 전면 만료 — 표준 삭제가 매칭 못하는 잔존/레거시 세션 쿠키까지 제거.
-  //    이전 배포들에서 secure/도메인 옵션이 다르게 설정돼 남은 쿠키가 있으면, signOut 이 현재
-  //    스코프만 지우고 다른 스코프의 쿠키가 살아남아 새로고침/재접속 시 다시 로그인으로 인식된다.
-  //    → 알려진 모든 이름 × (host-only, apex-domain) 스코프 + 현재 남은 auth 계열 쿠키를 전부 만료.
-  const cookieStore = await cookies();
-  const hostname = ((await headers()).get("host") ?? "").split(":")[0];
-  const labels = hostname.split(".");
-  const apexDomain = labels.length >= 2 ? "." + labels.slice(-2).join(".") : null;
-
-  const KNOWN = [
-    "authjs.session-token",
-    "__Secure-authjs.session-token",
-    "next-auth.session-token",
-    "__Secure-next-auth.session-token",
-  ];
-  const present = cookieStore
-    .getAll()
-    .map((c) => c.name)
-    .filter((n) => /(authjs|next-auth)/i.test(n)); // 청크(.0/.1)·csrf·callback·레거시 포함
-  const targets = Array.from(new Set([...KNOWN, ...present]));
-
-  for (const name of targets) {
-    const secure = name.startsWith("__Secure-") || name.startsWith("__Host-");
-    const base = {
-      path: "/" as const,
-      expires: new Date(0),
-      maxAge: 0,
-      httpOnly: true,
-      sameSite: "lax" as const,
-      secure,
-    };
-    cookieStore.set(name, "", base); // (a) host-only 스코프
-    if (apexDomain && !name.startsWith("__Host-")) {
-      cookieStore.set(name, "", { ...base, domain: apexDomain }); // (b) apex 도메인 스코프
-    }
-  }
+  // 서버에서 세션 쿠키를 확실히 만료. (리다이렉트는 끄고, 클라이언트가 하드 리로드)
+  // 검증된 단순 버전 — 클라이언트 LogoutButton 이 이후 window.location 으로 하드 리로드한다.
+  await signOut({ redirect: false });
 }
 
 // ─── 아이디(이메일) 찾기 ───
