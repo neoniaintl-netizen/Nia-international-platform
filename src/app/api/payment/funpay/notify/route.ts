@@ -39,6 +39,13 @@ export async function POST(req: NextRequest) {
     return plain("FAIL");
   }
 
+  // 노티 수신 payload 전체 로그 (테스트 승인/실패 증빙 캡처용 — 서명 fgkey 만 제외)
+  {
+    const received = { ...params };
+    delete received.fgkey;
+    console.log("[Funpay notify] 수신", JSON.stringify(received));
+  }
+
   // 1) fgkey 검증
   if (!verifyFgkey(params)) {
     console.error("[Funpay notify] fgkey 검증 실패", { refno: params.refno });
@@ -120,7 +127,18 @@ export async function POST(req: NextRequest) {
           },
         });
       }
-      console.log("[Funpay notify] 결제 확정", { refno, transid });
+      console.log(
+        "[Funpay notify] 결제 확정(승인)",
+        JSON.stringify({
+          refno,
+          transid,
+          rescode,
+          reqcur: params.reqcur,
+          reqamt: params.reqamt,
+          paytype: params.paytype,
+          resmsg: params.resmsg,
+        })
+      );
     } else {
       // ── 결제 실패 → 주문 취소 + 복원 ──
       await prisma.$transaction(async (tx) => {
