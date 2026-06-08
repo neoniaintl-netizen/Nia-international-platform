@@ -5,11 +5,12 @@ import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * 로그아웃 버튼 — 클라이언트 signOut(next-auth/react) 기반.
+ * 로그아웃 버튼 — 클라이언트 signOut(next-auth/react) + 하드 리로드.
  *
- * 세션 쿠키를 만료시키고 useSession 구독자(헤더 아바타 등)를 즉시 갱신한 뒤 "/" 로 이동한다.
- * (서버액션 logoutAction 은 쿠키는 지우지만 RootLayout 의 SessionProvider 초기값이
- *  갱신되지 않아, 로그아웃 후에도 헤더가 로그인 상태로 남는 문제가 있어 클라이언트 signOut 으로 전환.)
+ * 세션 쿠키를 만료시킨 뒤 window.location 으로 "/" 를 하드 리로드한다.
+ * 하드 리로드로 (1) 헤더 아바타 갱신, (2) Next Router 캐시 무효화를 함께 처리한다.
+ * (서버액션 logoutAction 은 헤더가 안 바뀌고, 클라이언트 signOut 소프트 리다이렉트만으로는
+ *  로그인 중 prefetch 된 "/login→홈" 리다이렉트 캐시가 남아 로그인 링크가 홈으로 튕긴다.)
  *
  *  - variant="icon": 헤더용 아이콘 버튼
  *  - variant="row":  마이페이지 메뉴 행
@@ -21,8 +22,14 @@ export function LogoutButton({
   variant?: "icon" | "row";
   className?: string;
 }) {
-  const handleLogout = () => {
-    void signOut({ callbackUrl: "/" });
+  const handleLogout = async () => {
+    // 1) 세션 쿠키만 만료 (next-auth 자체 리다이렉트는 끔)
+    await signOut({ redirect: false });
+    // 2) 하드 리로드로 "/" 이동 → Next Router 캐시까지 비운다.
+    //    (소프트 네비게이션이면, 로그인 중 prefetch 된 "/login→홈" 미들웨어 리다이렉트가
+    //     캐시에 남아 로그아웃 후 로그인 링크 클릭 시 홈으로 튕기는 문제가 생김.
+    //     헤더 아바타가 안 바뀌는 문제도 전체 새로고침으로 함께 해결됨.)
+    window.location.replace("/");
   };
 
   if (variant === "row") {
