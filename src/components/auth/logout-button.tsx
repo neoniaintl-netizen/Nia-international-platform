@@ -1,17 +1,20 @@
 "use client";
 
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * 로그아웃 버튼 — 클라이언트 signOut(next-auth/react, 라우트 핸들러) + 하드 리로드.
+ * 로그아웃 버튼 — 클라이언트 signOut(next-auth/react, redirect:false) + 소프트 전환.
  *
- * 이 배포 환경에서 "서버액션" POST(logoutAction)가 실패(503)해 세션이 안 끊기는 문제가
- * 라이브에서 확인됨. 반면 NextAuth signout "라우트 핸들러"(/api/auth/signout)는 정상 동작
- * (세션 클리어 라이브 확인). 따라서 라우트 핸들러를 쓰는 클라이언트 signOut 으로 세션 쿠키를
- * 만료시킨 뒤 window.location 으로 하드 리로드한다.
- *  - 하드 리로드 → 헤더 갱신(아바타→로그인 아이콘) + Next Router 캐시 무효화.
+ * signOut(redirect:false)은 세션을 삭제하고 useSession 을 자동 갱신한다(Auth.js 공식 동작).
+ * 따라서 풀페이지 하드 리로드 없이 헤더가 즉시 로그아웃 상태로 바뀐다. 이후
+ *   - router.replace("/") : 소프트 전환(풀 리로드 X → 흰 화면 깜빡임/버벅임 제거).
+ *     홈은 dynamic(auth())이라 새 쿠키로 재요청 → 장바구니 수 등 서버 컴포넌트도 최신화.
+ * (router.refresh 는 안 씀: 보호페이지(/my 등)에서 로그아웃 시 refresh 가 그 페이지를 재요청해
+ *  미들웨어가 /login 으로 튕기는 레이스를 피하기 위함.)
+ * 드물게 signOut 자체가 실패하면 window.location 하드 리로드로 폴백한다.
  *
  *  - variant="icon": 헤더용 아이콘 버튼
  *  - variant="row":  마이페이지 메뉴 행
@@ -23,13 +26,14 @@ export function LogoutButton({
   variant?: "icon" | "row";
   className?: string;
 }) {
+  const router = useRouter();
   const handleLogout = async () => {
     try {
-      await signOut({ redirect: false }); // 라우트 핸들러로 세션 쿠키 만료
+      await signOut({ redirect: false }); // 세션 삭제 + useSession 자동 갱신(헤더 즉시 로그아웃)
+      router.replace("/"); // 소프트 전환(풀 리로드 X). 홈은 dynamic 이라 새 쿠키로 재요청됨.
     } catch {
-      // 무시 — 어떤 경우든 하드 리로드로 로그아웃 상태 재로드
+      window.location.replace("/"); // 드물게 signOut 실패 시 하드 리로드 폴백
     }
-    window.location.replace("/");
   };
 
   if (variant === "row") {

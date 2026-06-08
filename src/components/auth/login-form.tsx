@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -10,16 +10,17 @@ import { Gift } from "lucide-react";
 import { safeCallbackUrl } from "@/lib/utils";
 
 /**
- * 로그인 폼 — 클라이언트 signIn(next-auth/react) + 하드 리로드.
+ * 로그인 폼 — 클라이언트 signIn(next-auth/react, redirect:false) + 소프트 전환.
  *
- * 이전엔 서버액션 loginAction(signIn redirectTo)을 썼는데, 로그인 성공 후 "소프트"
- * 리다이렉트라 루트 레이아웃의 SessionProvider 가 로그아웃 세션을 그대로 유지 →
- * 헤더가 로그인 상태로 안 바뀌고(아바타 대신 로그인 아이콘), 그 아이콘을 누르면
- * 미들웨어가 홈으로 되돌려 "아무 동작 없음"처럼 보이는 문제가 있었다.
- * → 클라이언트 signOut 처럼, 로그인도 세션 쿠키를 설정한 뒤 window.location 으로
- *   하드 리로드해서 서버가 "로그인 세션"으로 새로 렌더하도록 한다.
+ * signIn(redirect:false)은 세션 쿠키를 설정하고 useSession 을 자동 갱신한다(Auth.js 공식 동작).
+ * 따라서 풀페이지 하드 리로드 없이 헤더가 즉시 로그인 상태(아바타/마이페이지)로 바뀐다. 이후
+ *   - router.push(목적지) : 소프트 전환(풀 리로드 X → 흰 화면 깜빡임/버벅임 제거).
+ *     홈은 dynamic(auth())이라 새 쿠키로 재요청 → 장바구니 수 등 서버 컴포넌트도 최신화.
+ * (이전 서버액션 방식은 소프트 리다이렉트라 useSession 이 안 바뀌어 헤더가 로그아웃 상태로
+ *  남는 버그가 있었음 → 클라이언트 signIn 으로 useSession 자동 갱신을 보장.)
  */
 export function LoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
   const [error, setError] = useState<string | null>(null);
@@ -46,8 +47,10 @@ export function LoginForm() {
         setIsPending(false);
         return;
       }
-      // 성공 — 하드 리로드로 이동(서버가 로그인 세션으로 재렌더 → 헤더 아바타/마이페이지 정상)
-      window.location.assign(callbackUrl || "/");
+      // 성공 — 소프트 전환(풀 리로드 X). signIn(redirect:false)이 useSession 을 자동 갱신해
+      // 헤더가 즉시 로그인 상태로 바뀐다. 홈은 dynamic(auth())이라 push 시 새 쿠키로 재요청되어
+      // 장바구니 수 등 서버 컴포넌트도 최신화된다.
+      router.push(callbackUrl || "/");
     } catch {
       setError("로그인 중 오류가 발생했습니다.");
       setIsPending(false);
