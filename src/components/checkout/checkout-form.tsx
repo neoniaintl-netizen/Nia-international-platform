@@ -10,6 +10,7 @@ import Image from "next/image";
 import { createOrder } from "@/actions/order";
 import { applyCouponCode } from "@/actions/coupon";
 import { DaumPostcodeButton } from "@/components/shared/daum-postcode";
+import { calculateShipping, SHIPPING_NOTICE } from "@/lib/shipping";
 
 interface CartItem {
   id: string;
@@ -105,7 +106,7 @@ export function CheckoutForm({
     const price = item.product.salePrice ?? item.product.originalPrice;
     return sum + price * item.quantity;
   }, 0);
-  const shipping = subtotal >= 30000 ? 0 : 3000;
+  const shipping = calculateShipping(subtotal);
   const discount = couponDiscount + usedPoints;
   const total = subtotal - discount + shipping;
   const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -344,7 +345,7 @@ export function CheckoutForm({
                 <span>{shipping === 0 ? "무료" : `${shipping.toLocaleString()}원`}</span>
               </div>
               {shipping === 0 && (
-                <p className="text-xs text-green-600">3만원 이상 무료배송 적용</p>
+                <p className="text-xs text-green-600">{SHIPPING_NOTICE}</p>
               )}
               {discount > 0 && (
                 <>

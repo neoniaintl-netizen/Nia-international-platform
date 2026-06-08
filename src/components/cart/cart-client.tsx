@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { CartItemRow } from "./cart-item-row";
 import { removeSelectedFromCart } from "@/actions/cart";
+import { calculateShipping, SHIPPING_NOTICE } from "@/lib/shipping";
 import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
 
@@ -68,7 +69,7 @@ export function CartClient({ items }: { items: CartItemData[] }) {
     return sum + price * item.quantity;
   }, 0);
 
-  const shipping = subtotal >= 30000 ? 0 : subtotal > 0 ? 3000 : 0;
+  const shipping = calculateShipping(subtotal);
   const total = subtotal + shipping;
 
   if (items.length === 0) {
@@ -137,7 +138,7 @@ export function CartClient({ items }: { items: CartItemData[] }) {
               <span>{shipping === 0 ? "무료" : `${shipping.toLocaleString()}원`}</span>
             </div>
             {shipping === 0 && subtotal > 0 && (
-              <p className="text-xs text-green-600">3만원 이상 무료배송 적용</p>
+              <p className="text-xs text-green-600">{SHIPPING_NOTICE}</p>
             )}
           </div>
           <Separator />

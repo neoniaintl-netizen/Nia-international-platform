@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { calculateShipping } from "@/lib/shipping";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -86,7 +87,7 @@ export async function createOrder(_prevState: any, formData: FormData) {
     const price = item.product.salePrice ?? item.product.originalPrice;
     return sum + price * item.quantity;
   }, 0);
-  const shippingFee = totalAmount >= 30000 ? 0 : 3000;
+  const shippingFee = calculateShipping(totalAmount);
 
   // --- Coupon validation ---
   let couponDiscount = 0;
