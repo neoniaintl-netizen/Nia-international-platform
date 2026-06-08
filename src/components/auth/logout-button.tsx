@@ -1,16 +1,17 @@
 "use client";
 
-import { logoutAction } from "@/actions/auth";
+import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * 로그아웃 버튼 — 서버 signOut(세션 쿠키 확실 만료) + 하드 리로드.
+ * 로그아웃 버튼 — 클라이언트 signOut(next-auth/react, 라우트 핸들러) + 하드 리로드.
  *
- * 클라이언트 signOut(next-auth/react)은 이 환경(Auth.js v5 beta)에서 세션 쿠키를
- * 한 번에 못 끊는 경우가 있어(새로고침/재접속 시 로그인 유지), 서버 액션 logoutAction
- * (signOut)으로 쿠키를 확실히 만료시킨 뒤 window.location 으로 하드 리로드한다.
- *  - 하드 리로드 → 헤더 아바타 갱신 + Next Router 캐시 무효화(로그아웃 후 로그인 링크 정상화).
+ * 이 배포 환경에서 "서버액션" POST(logoutAction)가 실패(503)해 세션이 안 끊기는 문제가
+ * 라이브에서 확인됨. 반면 NextAuth signout "라우트 핸들러"(/api/auth/signout)는 정상 동작
+ * (세션 클리어 라이브 확인). 따라서 라우트 핸들러를 쓰는 클라이언트 signOut 으로 세션 쿠키를
+ * 만료시킨 뒤 window.location 으로 하드 리로드한다.
+ *  - 하드 리로드 → 헤더 갱신(아바타→로그인 아이콘) + Next Router 캐시 무효화.
  *
  *  - variant="icon": 헤더용 아이콘 버튼
  *  - variant="row":  마이페이지 메뉴 행
@@ -24,9 +25,9 @@ export function LogoutButton({
 }) {
   const handleLogout = async () => {
     try {
-      await logoutAction(); // 서버에서 세션 쿠키 만료
+      await signOut({ redirect: false }); // 라우트 핸들러로 세션 쿠키 만료
     } catch {
-      // 무시 — 어떤 경우에도 하드 리로드로 로그아웃 상태 재로드
+      // 무시 — 어떤 경우든 하드 리로드로 로그아웃 상태 재로드
     }
     window.location.replace("/");
   };
