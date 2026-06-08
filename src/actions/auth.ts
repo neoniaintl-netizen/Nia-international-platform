@@ -108,7 +108,8 @@ export async function registerAction(_prevState: any, formData: FormData) {
 // ─── 로그아웃 ───
 
 export async function logoutAction() {
-  await signOut({ redirectTo: "/" });
+  // 서버에서 세션 쿠키를 확실히 만료. (리다이렉트는 끄고, 클라이언트가 하드 리로드)
+  await signOut({ redirect: false });
 }
 
 // ─── 아이디(이메일) 찾기 ───
