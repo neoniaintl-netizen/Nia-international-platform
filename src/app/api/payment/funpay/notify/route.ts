@@ -30,6 +30,23 @@ function plain(text: string) {
   });
 }
 
+/** ICB 노티에서 원거래번호(transid) 추출 — 필드명이 다를 수 있어 후보를 대소문자 무시로 탐색 */
+function extractTransId(params: Record<string, string>): string {
+  const lower: Record<string, string> = {};
+  for (const k of Object.keys(params)) lower[k.toLowerCase()] = params[k];
+  const candidates = [
+    "transid", "trans_id", "transactionid", "transaction_id",
+    "tradeno", "trade_no", "tradenumber", "tradeid", "trade_id",
+    "tid", "trxid", "trx_id", "tno", "trno",
+    "apprno", "approvalno", "approval_no",
+    "pgtid", "pg_tid", "orgtransid", "org_transid", "ictransid", "mtransid",
+  ];
+  for (const c of candidates) {
+    if (lower[c]) return lower[c];
+  }
+  return "";
+}
+
 export async function POST(req: NextRequest) {
   let params: Record<string, string> = {};
   try {
@@ -39,12 +56,13 @@ export async function POST(req: NextRequest) {
     return plain("FAIL");
   }
 
-  // 노티 수신 payload 전체 로그 (테스트 승인/실패 증빙 캡처용 — 서명 fgkey 만 제외)
-  {
-    const received = { ...params };
-    delete received.fgkey;
-    console.log("[Funpay notify] 수신", JSON.stringify(received));
-  }
+  // 노티 수신 payload (서명 fgkey 제외) — 로그 + DB 저장(pgRaw) 공용
+  const rawPayload = (() => {
+    const r = { ...params };
+    delete r.fgkey;
+    return JSON.stringify(r);
+  })();
+  console.log("[Funpay notify] 수신", rawPayload);
 
   // 1) fgkey 검증
   if (!verifyFgkey(params)) {
@@ -54,7 +72,9 @@ export async function POST(req: NextRequest) {
 
   const refno = params.refno;
   const rescode = params.rescode ?? params.resultcode ?? "";
-  const transid = params.transid ?? params.tradeno ?? "";
+  // 거래번호(transid): ICB 노티의 필드명이 환경마다 다를 수 있어 후보를 대소문자 무시 탐색.
+  // (transid 가 비면 환불 시 주문번호가 대신 가서 환불이 안 되므로 폭넓게 잡는다.)
+  const transid = extractTransId(params);
   if (!refno) return plain("FAIL");
 
   const order = await prisma.order.findUnique({
@@ -93,6 +113,7 @@ export async function POST(req: NextRequest) {
             data: {
               status: "COMPLETED",
               transactionId: transid || order.payment.transactionId,
+              pgRaw: rawPayload, // 노티 원본 저장 (디버그 + 실제 거래번호 필드 확인)
               paidAt: new Date(),
             },
           });

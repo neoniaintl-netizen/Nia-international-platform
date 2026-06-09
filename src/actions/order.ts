@@ -366,6 +366,19 @@ export async function cancelOrder(orderId: string) {
         voidamt: refundAmt, // 전체 취소
         reasoncode: "R000", // 단순변심
       });
+      // 환불 응답 + "보낸 transid" 를 저장·로깅 (성공/실패 무관하게 — 원인 진단용).
+      // sentTransid 가 주문번호(ORD-…)면 = 노티에서 실거래번호를 못 받아 환불이 안 되는 것.
+      const refundRaw = JSON.stringify({
+        sentTransid: order.payment.transactionId,
+        sentCur: refundCur,
+        sentAmt: refundAmt,
+        response: refundRes ?? null,
+      });
+      console.log("[cancelOrder] refund.icb", refundRaw);
+      await prisma.payment.update({
+        where: { id: order.payment.id },
+        data: { refundRaw },
+      });
       const code = String(refundRes?.rescode ?? refundRes?.resultcode ?? "");
       if (code !== FUNPAY_SUCCESS_CODE) {
         return {

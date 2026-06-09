@@ -412,6 +412,8 @@ model Payment {
   pgCurrency    String? // 실제 PG 결제 통화 (예: "CNY")
   pgAmount      Decimal?      @db.Decimal(18, 2) // 외화 결제 금액 (예: 10339.42) — 환불 시 이 값 사용
   fxRate        Decimal?      @db.Decimal(18, 4) // 적용 환율 (1 CNY 당 KRW, 예: 190)
+  pgRaw         String?       @db.Text // 결제 노티 원본 payload (디버그 + 환불 거래번호 추출용)
+  refundRaw     String?       @db.Text // 환불(refund.icb) 응답 원본 (디버그)
   paidAt        DateTime?
   cancelledAt   DateTime?
   createdAt     DateTime      @default(now())
