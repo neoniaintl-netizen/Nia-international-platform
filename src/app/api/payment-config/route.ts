@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { auth } from "@/lib/auth";
-import { isFunpayConfigured, FUNPAY_API_BASE, FUNPAY_MID } from "@/lib/payment/funpay";
+import { isFunpayConfigured, FUNPAY_API_BASE, FUNPAY_MID, FUNPAY_WECHAT_ENABLED } from "@/lib/payment/funpay";
 
 /**
  * GET /api/payment-config
@@ -21,6 +21,8 @@ export async function GET() {
     apiBase: FUNPAY_API_BASE,
     isProduction: FUNPAY_API_BASE.includes("online.funpay") && !FUNPAY_API_BASE.includes("onlinetest"),
     configured: isFunpayConfigured(),
+    wechatEnabled: FUNPAY_WECHAT_ENABLED, // 위챗페이 노출/허용 플래그
+    notifyBase: process.env.NEXT_PUBLIC_BASE_URL ?? null, // 노티(statusurl)/복귀(returnurl) 도메인
     midTail: FUNPAY_MID ? FUNPAY_MID.slice(-4) : null,
     secretSet: Boolean(secret),
     secretLen: secret.length,
