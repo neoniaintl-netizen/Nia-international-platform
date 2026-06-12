@@ -73,11 +73,10 @@ const NOTICES = [
   { title: "봄 시즌 프로모션 안내", date: "2026.03.15" },
 ];
 
-type PaymentLogo = "novarenpay" | "kakaopay" | "alipay";
+type PaymentLogo = "novarenpay" | "alipay";
 
 const PAYMENT_BENEFITS: Array<{ logo: PaymentLogo; text: string }> = [
   { logo: "novarenpay", text: "NOVARENPay 첫 결제 시 5천원 할인" },
-  { logo: "kakaopay", text: "카카오페이 × 페이머니 10만원 이상 결제 시 4천원 할인" },
   { logo: "alipay", text: "AliPay 결제 시 위안화 직결제 지원" },
 ];
 
@@ -90,18 +89,6 @@ function PaymentLogoIcon({ logo }: { logo: PaymentLogo }) {
         aria-label="Alipay"
       >
         支
-      </span>
-    );
-  }
-  if (logo === "kakaopay") {
-    return (
-      <span
-        className="inline-flex h-5 items-center justify-center gap-[2px] rounded-[4px] px-1 text-[9px] font-bold text-black"
-        style={{ backgroundColor: "#FFEB00" }}
-        aria-label="Kakao Pay"
-      >
-        <span className="inline-block h-[5px] w-[5px] rounded-full bg-black" />
-        pay
       </span>
     );
   }
