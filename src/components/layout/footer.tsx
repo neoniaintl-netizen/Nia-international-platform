@@ -268,7 +268,6 @@ export function Footer() {
               "AMEX",
               "AliPay",
               "WeChat Pay",
-              "NOVARENPay",
             ].map((method) => (
               <span
                 key={method}
