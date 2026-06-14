@@ -73,10 +73,10 @@ const NOTICES = [
   { title: "봄 시즌 프로모션 안내", date: "2026.03.15" },
 ];
 
-type PaymentLogo = "novarenpay" | "alipay";
+type PaymentLogo = "novaren" | "alipay";
 
 const PAYMENT_BENEFITS: Array<{ logo: PaymentLogo; text: string }> = [
-  { logo: "novarenpay", text: "NOVARENPay 첫 결제 시 5천원 할인" },
+  { logo: "novaren", text: "신규가입 시 할인쿠폰 즉시 지급" },
   { logo: "alipay", text: "AliPay 결제 시 위안화 직결제 지원" },
 ];
 
@@ -96,7 +96,7 @@ function PaymentLogoIcon({ logo }: { logo: PaymentLogo }) {
     <span
       className="inline-flex h-5 w-5 items-center justify-center rounded-[4px] text-[10px] font-bold text-white"
       style={{ backgroundColor: "#0A0A0A" }}
-      aria-label="NOVAREN Pay"
+      aria-label="NOVAREN"
     >
       N
     </span>
