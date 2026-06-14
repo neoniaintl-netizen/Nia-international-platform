@@ -8,21 +8,12 @@ export const metadata: Metadata = {
 const PAYMENT_EVENTS = [
   {
     id: 1,
-    title: "NOVARENPay 첫 결제 혜택",
-    description: "NOVARENPay 첫 결제 시 5,000원 즉시 할인",
-    period: "2026.04.01 ~ 2026.04.30",
-    badge: "진행중",
-    conditions: ["NOVARENPay 첫 결제 고객 대상", "최소 결제금액 30,000원 이상", "1인 1회 한정"],
+    title: "신규가입 할인쿠폰",
+    description: "NOVAREN 신규 회원가입 시 할인쿠폰 즉시 발급",
+    period: "상시 진행",
+    badge: "상시",
+    conditions: ["신규 회원가입 고객 대상", "가입 즉시 발급", "1인 1회 한정"],
     bgColor: "#000",
-  },
-  {
-    id: 2,
-    title: "카카오페이 × 페이머니 할인",
-    description: "카카오페이 페이머니 10만원 이상 결제 시 4,000원 할인",
-    period: "2026.04.01 ~ 2026.04.30",
-    badge: "진행중",
-    conditions: ["카카오페이 페이머니 결제 시 적용", "월 1회, 선착순 2,000명"],
-    bgColor: "#FEE500",
   },
   {
     id: 3,
@@ -54,7 +45,7 @@ const PAYMENT_EVENTS = [
 ];
 
 const SUPPORTED_METHODS = [
-  "VISA", "Mastercard", "JCB", "AMEX", "AliPay", "WeChat Pay", "NOVARENPay", "KakaoPay",
+  "VISA", "Mastercard", "JCB", "AMEX", "AliPay", "WeChat Pay",
 ];
 
 export default function PaymentEventPage() {

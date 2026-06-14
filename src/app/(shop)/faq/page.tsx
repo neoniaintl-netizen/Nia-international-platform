@@ -12,7 +12,7 @@ const FAQS = [
     category: "주문/결제",
     question: "어떤 결제 수단을 지원하나요?",
     answer:
-      "NOVAREN는 VISA, Mastercard, JCB, AMEX 등 주요 해외 카드와 AliPay, WeChat Pay, NOVARENPay, KakaoPay를 지원합니다. 중국 고객의 경우 AliPay 또는 WeChat Pay로 위안화 직결제가 가능합니다.",
+      "NOVAREN는 VISA, Mastercard, JCB, AMEX 등 주요 해외 카드와 AliPay, WeChat Pay를 지원합니다. 중국 고객의 경우 AliPay 또는 WeChat Pay로 위안화 직결제가 가능합니다.",
   },
   {
     category: "주문/결제",

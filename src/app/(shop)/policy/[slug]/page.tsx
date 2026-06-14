@@ -71,7 +71,7 @@ const POLICIES: Record<string, { title: string; content: string }> = {
 
 2. 지원 결제수단
 - 신용카드: VISA, Mastercard, JCB, AMEX, 국내 주요 카드사
-- 간편결제: 카카오페이, 네이버페이, 토스페이
+- 간편결제: 네이버페이, 토스페이
 - 해외결제: AliPay, WeChat Pay (중국 고객 대상)
 - 계좌이체, 가상계좌
 
