@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { CategoryMenu } from "./category-menu";
 import { CHANNELS } from "@/lib/constants";
+import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "./language-switcher";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { MenuBrand, MenuCategory } from "@/lib/queries";
@@ -29,6 +31,8 @@ export function Header({
   const isLoggedIn = status === "authenticated";
   const pathname = usePathname();
   const searchRef = useRef<HTMLInputElement>(null);
+  const tCh = useTranslations("Channel");
+  const tH = useTranslations("Header");
 
   useEffect(() => {
     if (searchOpen && searchRef.current) searchRef.current.focus();
@@ -81,7 +85,7 @@ export function Header({
                           : "text-[var(--ink-muted)]/70 hover:text-[var(--ink)]"
                       )}
                     >
-                      {channel.displayName}
+                      {tCh(channel.slug)}
                       {isActive && (
                         <span className="absolute bottom-0 left-3 right-3 h-[1px] bg-[var(--ink)]" />
                       )}
@@ -99,6 +103,7 @@ export function Header({
 
               {/* 데스크톱: 검색 + 유틸리티 */}
               <div className="hidden lg:flex items-center ml-auto gap-1">
+                <LanguageSwitcher />
                 <form
                   action="/search"
                   className={cn(
@@ -110,7 +115,7 @@ export function Header({
                   <input
                     ref={searchRef}
                     name="q"
-                    placeholder="Search"
+                    placeholder={tH("searchPlaceholder")}
                     onFocus={() => setSearchFocused(true)}
                     onBlur={() => setSearchFocused(false)}
                     className="w-full h-10 pl-10 pr-4 bg-[var(--paper)] border border-[var(--line)] rounded-none text-sm text-[var(--ink)] placeholder:text-[var(--ink-muted)]/60 placeholder:uppercase placeholder:tracking-[0.1em] placeholder:text-[11px] focus:outline-none focus:border-[var(--ink)] focus:bg-white transition-all"
@@ -164,6 +169,7 @@ export function Header({
 
               {/* 모바일: 검색 + 장바구니 + 마이 */}
               <div className="flex items-center ml-auto lg:hidden gap-0.5">
+                <LanguageSwitcher className="-ml-1" />
                 <button
                   className="p-2 text-gray-600"
                   onClick={() => setSearchOpen(!searchOpen)}
@@ -210,7 +216,7 @@ export function Header({
               <input
                 ref={searchRef}
                 name="q"
-                placeholder="브랜드, 상품, 스타일 검색"
+                placeholder={tH("searchPlaceholderMobile")}
                 className="w-full h-10 pl-10 pr-10 bg-[var(--paper)] border border-[var(--line)] rounded-none text-sm placeholder:text-[var(--ink-muted)]/60 focus:outline-none focus:border-[var(--ink)] focus:bg-white transition-all"
               />
               <button

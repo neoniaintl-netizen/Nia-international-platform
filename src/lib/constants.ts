@@ -10,14 +10,14 @@ export const CHANNELS = [
 ] as const;
 
 export const NAV_TABS = [
-  { label: "추천", href: "/" },
-  { label: "랭킹", href: "/ranking" },
-  { label: "세일", href: "/products?sort=sale" },
-  { label: "기획전", href: "/events" },
-  { label: "룩북", href: "/lookbook" },
-  { label: "발매", href: "/release" },
-  { label: "매거진", href: "/magazine" },
-  { label: "아울렛", href: "/outlet" },
+  { key: "recommend", label: "추천", href: "/" },
+  { key: "ranking", label: "랭킹", href: "/ranking" },
+  { key: "sale", label: "세일", href: "/products?sort=sale" },
+  { key: "event", label: "기획전", href: "/events" },
+  { key: "lookbook", label: "룩북", href: "/lookbook" },
+  { key: "release", label: "발매", href: "/release" },
+  { key: "magazine", label: "매거진", href: "/magazine" },
+  { key: "outlet", label: "아울렛", href: "/outlet" },
 ] as const;
 
 export const MOBILE_NAV_ITEMS = [

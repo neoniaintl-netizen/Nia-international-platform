@@ -1,0 +1,26 @@
+{
+  "Channel": {
+    "golf": "골프",
+    "sports": "스포츠",
+    "outdoor": "아웃도어",
+    "beauty": "뷰티",
+    "women": "여성의류"
+  },
+  "Nav": {
+    "recommend": "추천",
+    "ranking": "랭킹",
+    "sale": "세일",
+    "event": "기획전",
+    "lookbook": "룩북",
+    "release": "발매",
+    "magazine": "매거진",
+    "outlet": "아울렛"
+  },
+  "Header": {
+    "searchPlaceholder": "검색",
+    "searchPlaceholderMobile": "브랜드, 상품, 스타일 검색"
+  },
+  "Language": {
+    "label": "언어"
+  }
+}

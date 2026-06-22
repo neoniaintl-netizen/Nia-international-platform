@@ -1,0 +1,26 @@
+{
+  "Channel": {
+    "golf": "高尔夫",
+    "sports": "运动",
+    "outdoor": "户外",
+    "beauty": "美妆",
+    "women": "女装"
+  },
+  "Nav": {
+    "recommend": "推荐",
+    "ranking": "排行",
+    "sale": "特卖",
+    "event": "专题",
+    "lookbook": "穿搭",
+    "release": "发售",
+    "magazine": "杂志",
+    "outlet": "奥莱"
+  },
+  "Header": {
+    "searchPlaceholder": "搜索",
+    "searchPlaceholderMobile": "搜索品牌、商品、风格"
+  },
+  "Language": {
+    "label": "语言"
+  }
+}

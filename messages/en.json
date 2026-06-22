@@ -1,0 +1,26 @@
+{
+  "Channel": {
+    "golf": "Golf",
+    "sports": "Sports",
+    "outdoor": "Outdoor",
+    "beauty": "Beauty",
+    "women": "Women"
+  },
+  "Nav": {
+    "recommend": "For You",
+    "ranking": "Ranking",
+    "sale": "Sale",
+    "event": "Events",
+    "lookbook": "Lookbook",
+    "release": "Release",
+    "magazine": "Magazine",
+    "outlet": "Outlet"
+  },
+  "Header": {
+    "searchPlaceholder": "Search",
+    "searchPlaceholderMobile": "Search brands, products, styles"
+  },
+  "Language": {
+    "label": "Language"
+  }
+}

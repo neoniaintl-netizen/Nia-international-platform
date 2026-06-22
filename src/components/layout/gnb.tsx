@@ -4,10 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { CHANNELS, NAV_TABS } from "@/lib/constants";
+import { useTranslations } from "next-intl";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export function GNB() {
   const pathname = usePathname();
+  const tNav = useTranslations("Nav");
+  const tCh = useTranslations("Channel");
 
   return (
     <nav
@@ -32,7 +35,7 @@ export function GNB() {
                         : "text-[var(--ink-muted)]/70"
                     )}
                   >
-                    {channel.displayName}
+                    {tCh(channel.slug)}
                   </Link>
                 );
               })}
@@ -60,7 +63,7 @@ export function GNB() {
                       : "text-[var(--ink-muted)]/70 hover:text-[var(--ink)]"
                   )}
                 >
-                  {tab.label}
+                  {tNav(tab.key)}
                   {isActive && (
                     <span className="absolute bottom-0 left-0 right-0 h-[1px] bg-[var(--ink)]" />
                   )}

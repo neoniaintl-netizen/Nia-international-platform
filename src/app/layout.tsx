@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import AuthSessionProvider from "@/components/providers/session-provider";
 import { auth } from "@/lib/auth";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
 // 한글: Pretendard Variable (globals.css에서 @import)
 // 숫자: Geist Mono (가격 표시용)
@@ -27,13 +29,17 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await auth();
+  const locale = await getLocale();
+  const messages = await getMessages();
   return (
     <html
-      lang="ko"
+      lang={locale}
       className={`${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        <AuthSessionProvider session={session}>{children}</AuthSessionProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <AuthSessionProvider session={session}>{children}</AuthSessionProvider>
+        </NextIntlClientProvider>
         <Toaster position="bottom-center" />
       </body>
     </html>
