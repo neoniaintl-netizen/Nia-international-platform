@@ -3,8 +3,8 @@ import Image from "next/image";
 import { ArrowRight, ShoppingBag, Store, ShieldCheck, Headphones } from "lucide-react";
 
 /**
- * NOVAREN Sourcing System 섹션 — 에디토리얼 스플릿 레이아웃.
- * 좌측: 큰 타이틀 + CTA / 우측: 4단계 소싱 프로세스 패널 / 하단: full-width 키워드 띠.
+ * NOVAREN Sourcing System 섹션 — 프리미엄 에디토리얼 스플릿 레이아웃.
+ * 좌측: 큰 타이틀 + CTA / 우측: 4단계 소싱 프로세스(프로스티드 글래스 패널) / 하단: full-width 키워드 띠.
  *
  * 메시지 컨셉:
  *   "실시간 재고 쇼핑몰이 아니라, 주문 후 오프라인 매장에서 상품을 확보해 검수 후 출고"
@@ -38,10 +38,11 @@ export function BrandStatement() {
       <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-white/[0.06] blur-[180px] pointer-events-none" />
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-white/[0.04] blur-[160px] pointer-events-none" />
 
-      {/* 배경 대형 'S' 장식 — 중앙 충돌 제거: 우측 스텝 패널 뒤로 이동(+살짝 off-edge) */}
+      {/* 배경 대형 'S' — 묵직한 면 대신 얇은 아웃라인으로 (프리미엄). 우측 패널 뒤로 */}
       <div
         aria-hidden
-        className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-[22%] text-[260px] sm:text-[300px] lg:text-[520px] font-bold text-white/[0.04] leading-none tracking-[-0.05em] pointer-events-none select-none num"
+        style={{ WebkitTextStroke: "1.5px rgba(255,255,255,0.08)", color: "transparent" }}
+        className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-[12%] text-[260px] sm:text-[320px] lg:text-[560px] font-bold leading-none tracking-[-0.05em] pointer-events-none select-none num"
       >
         S
       </div>
@@ -93,23 +94,37 @@ export function BrandStatement() {
             </div>
           </div>
 
-          {/* 우측: 소싱 4단계 — 하나의 글래스 패널로 그룹핑 (좌우 무게 균형) */}
+          {/* 우측: 소싱 4단계 — 프로스티드 글래스 패널 (라이트 엣지 + 호버 인터랙션) */}
           <div className="lg:pl-8">
-            <div className="border border-white/10 bg-white/[0.02] backdrop-blur-sm">
-              <ul className="divide-y divide-white/10">
+            <div className="relative border border-white/10 bg-gradient-to-br from-white/[0.07] via-white/[0.02] to-transparent backdrop-blur-md">
+              {/* 상단 라이트 엣지 — 가운데가 밝은 헤어라인 */}
+              <span
+                aria-hidden
+                className="absolute top-0 inset-x-8 h-px bg-gradient-to-r from-transparent via-white/45 to-transparent"
+              />
+              <ul className="divide-y divide-white/[0.07]">
                 {STEPS.map((s, idx) => (
                   <li
                     key={s.title}
-                    className="group flex items-start gap-5 p-5 lg:p-6 hover:bg-white/[0.03] transition-colors"
+                    className="group relative flex items-start gap-5 p-6 lg:p-7 transition-colors hover:bg-white/[0.03]"
                   >
-                    <div className="shrink-0 w-12 h-12 flex items-center justify-center border border-white/20 bg-white/[0.04] group-hover:border-white group-hover:bg-white/10 transition-colors">
-                      <s.icon className="w-5 h-5 text-white" strokeWidth={1.5} />
+                    {/* 호버 시 좌측 액센트 바 */}
+                    <span
+                      aria-hidden
+                      className="absolute left-0 top-0 bottom-0 w-[2px] bg-white origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-300"
+                    />
+                    <div className="shrink-0 w-12 h-12 flex items-center justify-center border border-white/20 bg-white/[0.04] group-hover:bg-white group-hover:border-white transition-colors">
+                      <s.icon
+                        className="w-5 h-5 text-white group-hover:text-[var(--ink)] transition-colors"
+                        strokeWidth={1.5}
+                      />
                     </div>
                     <div className="flex-1 pt-0.5">
-                      <div className="flex items-center gap-3 mb-1">
-                        <span className="text-[10px] text-white/30 num">
+                      <div className="flex items-center gap-2.5 mb-1.5">
+                        <span className="text-[11px] tracking-[0.25em] text-white/40 num">
                           {String(idx + 1).padStart(2, "0")}
                         </span>
+                        <span aria-hidden className="h-px w-5 bg-white/25" />
                         <h3 className="text-sm lg:text-base font-semibold tracking-wide">
                           {s.title}
                         </h3>
@@ -125,7 +140,7 @@ export function BrandStatement() {
 
         {/* 하단 full-width 키워드 띠 — 4단계 → 4키워드 (01~04 번호로 연결) */}
         <div className="mt-14 lg:mt-20 pt-8 border-t border-white/10">
-          <ul className="flex flex-wrap items-center justify-center lg:justify-between gap-x-8 gap-y-3 text-[11px] uppercase tracking-[0.3em] text-white/45">
+          <ul className="flex flex-wrap items-center justify-center lg:justify-between gap-x-8 gap-y-3 text-[11px] uppercase tracking-[0.32em] text-white/45">
             {FLOW.map((w, i) => (
               <li key={w} className="flex items-center gap-3">
                 <span className="text-white/25 num text-[10px]">{String(i + 1).padStart(2, "0")}</span>
