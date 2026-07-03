@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 const BASE_URL =
   process.env.AUTH_URL ??
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://nkbus-production.up.railway.app";
+  "https://kfashionly.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPaths: MetadataRoute.Sitemap = [

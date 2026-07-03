@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 const BASE_URL =
   process.env.AUTH_URL ??
   process.env.NEXT_PUBLIC_SITE_URL ??
-  "https://nkbus-production.up.railway.app";
+  "https://kfashionly.com";
 
 export default function robots(): MetadataRoute.Robots {
   return {
