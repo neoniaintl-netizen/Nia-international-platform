@@ -17,23 +17,14 @@ const FOOTER_NAV = [
   {
     titleKey: "storesTitle",
     links: [
+      // 실제 매장만 노출 (/stores 페이지와 일치 — 가상 매장 목록은 2026-07 제거)
       { label: "NOVAREN 스토어", href: "/stores" },
-      { label: "NOVAREN 스탠다드", href: "/stores" },
-      { label: "NOVAREN 엠프티", href: "/stores" },
-      { label: "NOVAREN 스퀘어", href: "/stores" },
-      { label: "NOVAREN 테라스", href: "/stores" },
-      { label: "아즈니섬", href: "/stores" },
-      { label: "NOVAREN 골프", href: "/stores" },
     ],
   },
   {
     titleKey: "businessTitle",
     links: [
-      { label: "29CM", href: "/about" },
-      { label: "솔드아웃", href: "/about" },
-      { label: "엠프티", href: "/about" },
       { label: "NOVAREN 파트너스", href: "/partner" },
-      { label: "NOVAREN 스튜디오", href: "/about" },
       { label: "NOVAREN 트레이딩", href: "/about" },
       { label: "NOVAREN 로지스틱스", href: "/about" },
     ],
