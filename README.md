@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NOVAREN (노바렌)
 
-## Getting Started
+한국 골프/스포츠/아웃도어/패션 상품을 중국 고객에게 판매하는 구매대행 쇼핑몰.
+(주)니아인터내셔널 운영 · Production: https://kfashionly.com
 
-First, run the development server:
+## 스택
+
+- Next.js 16 (App Router) + TypeScript
+- Auth.js v5 (credentials)
+- Prisma 7 + PostgreSQL (Railway)
+- next-intl — KR/EN/CN, cookie 모드
+- Funpay/ICB PG — 알리페이/위챗페이
+
+## 로컬 개발
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npx prisma generate
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+빌드는 `npm run build` (내부적으로 `next build --webpack` — 한글 폴더 경로 때문에 Turbopack 사용 불가).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+환경 변수는 `.env.example` 참고. DB·인증은 `.env`, Funpay 결제는 `.env.local`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 배포
 
-## Learn More
+`git push origin main` → Railway 자동 배포 (node22/npm10).
+**의존성 변경 시 lockfile을 npm 10으로 재생성해야 함** — 절차는 `CLAUDE.md` 참고.
 
-To learn more about Next.js, take a look at the following resources:
+## 문서
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `CLAUDE.md` — 작업 규칙 (빌드/배포 제약, 보안 규칙, i18n 정책)
+- `PLATFORM_PURPOSE.md` — 사업 배경, 브랜드 목록, 크롤링 분석
+- `DEPLOY.md` — Railway 초기 설정 가이드

@@ -1,17 +1,17 @@
-# NKBUS 플랫폼 목적 (작업 시 우선 참고)
+# NOVAREN 플랫폼 목적 (작업 시 우선 참고)
 
 ## 사이트 정체성
 
-- **상호명**: 니아인터내셔널
-- **서비스명**: NKBUS (엔큐버스)
+- **상호명**: (주)니아인터내셔널
+- **서비스명**: NOVAREN (노바렌) — 舊 NKBUS(엔큐버스)에서 리브랜딩
 - **대표자**: 윤지언
 - **사업자등록번호**: 291-81-0245
 - **통신판매업**: 2022-서울 강남-0
 - **소재지**: 서울특별시 강남구 논현로102길 5(역삼동) 4층
 - **고객센터**: 1544-7199 / 평일 09:00 ~ 18:00 (점심 12:00 ~ 13:00)
-- **사업 형태**: 한국·해외 골프 브랜드 의류·신발·모자·액세서리 구매대행 + 직판 e-commerce
-- **production URL**: https://nkbus-production.up.railway.app/
-- **GitHub repo**: https://github.com/hamudo271/NKBUS
+- **사업 형태**: 한국 골프/스포츠/아웃도어/패션 상품을 중국 고객에게 판매하는 구매대행 e-commerce
+- **production URL**: https://kfashionly.com (Railway 프로젝트 "natural-friendship")
+- **GitHub repo**: https://github.com/neoniaintl-netizen/Nia-international-platform
 
 ## 1차 카테고리 — **골프웨어** (최우선)
 
@@ -67,10 +67,10 @@
 
 ## 결제·주문
 
-- **PG**: PortOne(아임포트) V2 도입 예정 — 심사 준비 중
-- 결제수단: 카드, 카카오페이, 네이버페이, 토스페이, 가상계좌, 알리페이/위챗페이 (해외)
-- 결제대행 위탁: PortOne (주식회사 아임포트)
-- 안전거래: 우리은행 채무지급보증
+- **PG**: Funpay/ICB(아이씨비) — 알리페이·위챗페이 공식 파트너 연동 (도입 완료, 알리페이 실결제 검증됨)
+- 결제수단: 알리페이, 위챗페이 (위챗페이는 `FUNPAY_WECHAT_ENABLED` 활성화됨, 실결제 테스트 미완)
+- 연동 방식: SHA-256 `fgkey` 서명, `payment.icb` POST, 취소는 `refund.icb`, notify 웹훅으로 PAID 확정
+- (과거 PortOne/아임포트 도입 예정이었으나 Funpay/ICB로 변경됨)
 - **결제 혜택**: 가입 후 첫 결제 시 5,000원 할인
 
 ## 작업 시 핵심 원칙
@@ -114,3 +114,5 @@
 - `2026-05-09 ~ 10` 대표자 이름 윤지현 → 윤지언 수정
 - `2026-05-10 ~ 11` PG 심사용 보안 강화 / cleanup / 일괄 마이그 / Playwright 추출 시도 — 부작용으로 사용자 요청에 의해 롤백
 - `2026-05-11` `3c032f4` (대표자 이름 수정 직후 시점)으로 코드 롤백 + 본 PLATFORM_PURPOSE.md 추가
+- `2026-06월` NKBUS → NOVAREN 리브랜딩, kfashionly.com 도메인 연결, Funpay/ICB 결제 도입(알리페이 실결제 검증), next-intl KR/EN/CN 다국어(헤더·GNB·푸터)
+- `2026-07-03` 본 문서를 리브랜딩 이후 정보로 갱신 (정체성/결제 섹션)
