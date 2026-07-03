@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { CartItemRow } from "./cart-item-row";
 import { removeSelectedFromCart } from "@/actions/cart";
 import { calculateShipping, SHIPPING_NOTICE } from "@/lib/shipping";
+import { useKrwPerCny, formatCny } from "@/components/providers/currency-provider";
 import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
 
@@ -31,6 +32,7 @@ interface CartItemData {
 export function CartClient({ items }: { items: CartItemData[] }) {
   const [selected, setSelected] = useState<Set<string>>(() => new Set(items.map((i) => i.id)));
   const [isPending, startTransition] = useTransition();
+  const krwPerCny = useKrwPerCny();
 
   const allSelected = selected.size === items.length && items.length > 0;
 
@@ -146,6 +148,14 @@ export function CartClient({ items }: { items: CartItemData[] }) {
             <span className="font-bold">총 결제 금액</span>
             <span className="text-xl font-bold">{total.toLocaleString()}원</span>
           </div>
+          {krwPerCny != null && total > 0 && (
+            <div className="flex justify-between items-center text-sm -mt-1">
+              <span className="text-gray-500">위안화 결제 금액</span>
+              <span className="font-semibold text-gray-700">
+                ≈ {formatCny(total / krwPerCny)}
+              </span>
+            </div>
+          )}
           <Link
             href={`/checkout?items=${selectedItems.map((i) => i.id).join(",")}`}
           >

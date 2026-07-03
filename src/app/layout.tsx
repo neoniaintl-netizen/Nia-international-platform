@@ -3,6 +3,7 @@ import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import AuthSessionProvider from "@/components/providers/session-provider";
+import { CurrencyProvider } from "@/components/providers/currency-provider";
 import { auth } from "@/lib/auth";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -31,6 +32,14 @@ export default async function RootLayout({
   const session = await auth();
   const locale = await getLocale();
   const messages = await getMessages();
+  // 결제와 동일한 환율로 전 페이지 ≈¥ 표시 (결제통화가 CNY 일 때만)
+  const fxRate = Number(process.env.FUNPAY_KRW_CNY_RATE ?? "0");
+  const krwPerCny =
+    (process.env.FUNPAY_CURRENCY ?? "").toUpperCase() === "CNY" &&
+    Number.isFinite(fxRate) &&
+    fxRate > 0
+      ? fxRate
+      : null;
   return (
     <html
       lang={locale}
@@ -38,7 +47,9 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <AuthSessionProvider session={session}>{children}</AuthSessionProvider>
+          <CurrencyProvider krwPerCny={krwPerCny}>
+            <AuthSessionProvider session={session}>{children}</AuthSessionProvider>
+          </CurrencyProvider>
         </NextIntlClientProvider>
         <Toaster position="bottom-center" />
       </body>
