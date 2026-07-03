@@ -334,7 +334,8 @@ export class ShopifyCrawler extends BaseCrawler {
 
   // ─── 유틸리티 ───
 
-  private parsePrice(text: string | undefined): number {
+  // 소수점 처리가 필요해 베이스 parsePrice를 오버라이드
+  protected parsePrice(text: string | undefined): number {
     if (!text) return 0;
     // 소수점이 있으면 그대로, 아니면 정수
     const hasDecimal = /\.\d{2}$/.test(text);

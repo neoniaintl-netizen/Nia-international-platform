@@ -256,12 +256,6 @@ export class GenericCrawler extends BaseCrawler {
 
   // ─── 유틸 ───
 
-  private parsePrice(text: string | undefined): number {
-    if (!text) return 0;
-    const num = parseInt(text.replace(/[^0-9]/g, ""), 10);
-    return isNaN(num) ? 0 : num;
-  }
-
   /** 상대 URL → 절대 URL 변환 */
   private resolveUrl(href: string, html: string): string {
     if (href.startsWith("http")) return href;

@@ -405,11 +405,4 @@ export class MusinsaCrawler extends BaseCrawler {
     if (url.startsWith("/")) return `https://image.musinsa.com${url}`;
     return url;
   }
-
-  /** 가격 문자열 → 숫자 */
-  private parsePrice(text: string | undefined): number {
-    if (!text) return 0;
-    const num = parseInt(text.replace(/[^0-9]/g, ""), 10);
-    return isNaN(num) ? 0 : num;
-  }
 }

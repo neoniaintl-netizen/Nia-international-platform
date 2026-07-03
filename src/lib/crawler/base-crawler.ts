@@ -45,6 +45,13 @@ export abstract class BaseCrawler implements ICrawler {
     return new Promise((r) => setTimeout(r, ms));
   }
 
+  /** 가격 문자열 → 숫자 */
+  protected parsePrice(text: string | undefined): number {
+    if (!text) return 0;
+    const num = parseInt(text.replace(/[^0-9]/g, ""), 10);
+    return isNaN(num) ? 0 : num;
+  }
+
   /**
    * 상품 이미지 통합 수집
    * - og:image

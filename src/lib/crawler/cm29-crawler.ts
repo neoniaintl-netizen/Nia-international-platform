@@ -293,10 +293,4 @@ export class Cm29Crawler extends BaseCrawler {
       variants: variants.length > 0 ? variants : undefined,
     };
   }
-
-  private parsePrice(text: string | undefined): number {
-    if (!text) return 0;
-    const num = parseInt(text.replace(/[^0-9]/g, ""), 10);
-    return isNaN(num) ? 0 : num;
-  }
 }

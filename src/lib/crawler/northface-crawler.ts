@@ -246,7 +246,8 @@ export class NorthFaceCrawler extends BaseCrawler {
     return last || "아웃도어";
   }
 
-  private parsePrice(text: string | undefined | null): number {
+  // null 허용 + 1000원 미만 필터가 필요해 베이스 parsePrice를 오버라이드
+  protected parsePrice(text: string | undefined | null): number {
     if (!text) return 0;
     const num = parseInt(String(text).replace(/[^0-9]/g, ""), 10);
     return isNaN(num) || num < 1000 ? 0 : num;
