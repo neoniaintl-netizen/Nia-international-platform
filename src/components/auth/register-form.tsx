@@ -47,6 +47,21 @@ export function RegisterForm() {
           />
         </div>
 
+        {/* Phone (선택 — 아이디 찾기에 사용) */}
+        <div className="space-y-1.5">
+          <Label htmlFor="phone" className="text-sm font-medium">
+            휴대폰 번호 <span className="text-gray-400 font-normal">(선택)</span>
+          </Label>
+          <Input
+            id="phone"
+            name="phone"
+            type="tel"
+            placeholder="010-0000-0000 · 아이디 찾기에 사용됩니다"
+            className="h-12 bg-gray-50 border-gray-200 rounded-lg text-sm"
+            autoComplete="tel"
+          />
+        </div>
+
         {/* Password */}
         <div className="space-y-1.5">
           <Label htmlFor="password" className="text-sm font-medium">
@@ -56,7 +71,7 @@ export function RegisterForm() {
             id="password"
             name="password"
             type="password"
-            placeholder="8~30자 영문/숫자/특수문자 조합"
+            placeholder="8~30자, 영문과 숫자를 모두 포함"
             className="h-12 bg-gray-50 border-gray-200 rounded-lg text-sm"
             required
             minLength={8}

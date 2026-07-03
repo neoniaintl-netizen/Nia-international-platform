@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { safeCallbackUrl } from "@/lib/utils";
+import { isEmailConfigured, sendEmail, passwordResetEmailHtml } from "@/lib/email";
 
 // ─── 로그인 ───
 
@@ -45,12 +46,18 @@ export async function registerAction(_prevState: any, formData: FormData) {
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
   const name = formData.get("name") as string;
+  const phone = ((formData.get("phone") as string) ?? "").trim();
   const agreeTerms = formData.get("agreeTerms") === "on";
   const agreePrivacy = formData.get("agreePrivacy") === "on";
 
   // Validation
   if (!email || !password || !name) {
     return { error: "모든 필수 항목을 입력해주세요." };
+  }
+
+  // 휴대폰 번호(선택) — 입력했다면 형식 확인. 아이디 찾기에 사용된다.
+  if (phone && !/^[0-9+\-\s]{9,20}$/.test(phone)) {
+    return { error: "휴대폰 번호 형식이 올바르지 않습니다." };
   }
 
   if (password.length < 8 || password.length > 30) {
@@ -81,14 +88,23 @@ export async function registerAction(_prevState: any, formData: FormData) {
   // Create user
   const passwordHash = await bcrypt.hash(password, 12);
 
-  await prisma.user.create({
-    data: {
-      email,
-      name,
-      passwordHash,
-      role: "CUSTOMER",
-    },
-  });
+  try {
+    await prisma.user.create({
+      data: {
+        email,
+        name,
+        phone: phone || null,
+        passwordHash,
+        role: "CUSTOMER",
+      },
+    });
+  } catch (e: any) {
+    // 중복 체크와 생성 사이의 레이스 — unique 제약(P2002)을 친절한 메시지로
+    if (e?.code === "P2002") {
+      return { error: "이미 가입된 이메일입니다." };
+    }
+    throw e;
+  }
 
   // Auto login after register
   try {
@@ -137,7 +153,10 @@ export async function findIdAction(_prevState: any, formData: FormData) {
   });
 
   if (!user) {
-    return { error: "일치하는 회원 정보가 없습니다." };
+    return {
+      error:
+        "일치하는 회원 정보가 없습니다. 가입 시 휴대폰 번호를 등록하지 않으셨다면 고객센터(1544-7199)로 문의해주세요.",
+    };
   }
 
   return {
@@ -152,22 +171,31 @@ export async function findIdAction(_prevState: any, formData: FormData) {
 export async function requestPasswordResetAction(
   _prevState: any,
   formData: FormData
-) {
+): Promise<{ success?: boolean; message?: string; error?: string }> {
   const email = (formData.get("email") as string)?.trim();
 
   if (!email) {
     return { error: "이메일을 입력해주세요." };
   }
 
+  // SMTP 미설정이면 발송된 척하지 않고 정직하게 안내
+  if (!isEmailConfigured() && process.env.NODE_ENV === "production") {
+    return {
+      error:
+        "이메일 발송 기능 점검 중입니다. 고객센터(1544-7199, 평일 09:00~18:00)로 문의해주시면 비밀번호 재설정을 도와드리겠습니다.",
+    };
+  }
+
   const user = await prisma.user.findUnique({ where: { email } });
 
   // 사용자 존재 여부와 관계없이 동일한 응답(보안상 열거 방지)
+  const successResponse = {
+    success: true,
+    message:
+      "입력하신 이메일로 비밀번호 재설정 안내를 발송했습니다. 1시간 내에 메일의 링크를 클릭해주세요. 메일이 오지 않으면 스팸함 확인 후 고객센터(1544-7199)로 문의해주세요.",
+  };
   if (!user) {
-    return {
-      success: true,
-      message:
-        "입력하신 이메일로 비밀번호 재설정 안내가 발송됩니다. 메일이 오지 않으면 고객센터(1544-7199)로 문의해주세요.",
-    };
+    return successResponse;
   }
 
   // 암호학적으로 안전한 256-bit 토큰 (예측 불가)
@@ -178,18 +206,34 @@ export async function requestPasswordResetAction(
     data: { identifier: email, token, expires },
   });
 
-  // production 로그에 토큰 평문 노출 금지 — 이메일 전송은 별도 구현 예정
+  const base =
+    process.env.NEXT_PUBLIC_BASE_URL ??
+    process.env.AUTH_URL ??
+    "http://localhost:3000";
+  const resetUrl = `${base}/reset-password?token=${token}`;
+
+  // production 로그에 토큰 평문 노출 금지
   if (process.env.NODE_ENV !== "production") {
-    console.log(
-      `[reset-token:dev] ${email} → /reset-password?token=${token}`
-    );
+    console.log(`[reset-token:dev] ${email} → ${resetUrl}`);
   }
 
-  return {
-    success: true,
-    message:
-      "입력하신 이메일로 비밀번호 재설정 안내를 발송했습니다. 1시간 내에 메일의 링크를 클릭해주세요.",
-  };
+  if (isEmailConfigured()) {
+    try {
+      await sendEmail({
+        to: email,
+        subject: "[NOVAREN] 비밀번호 재설정 안내",
+        html: passwordResetEmailHtml(resetUrl),
+      });
+    } catch (e: any) {
+      console.error("[password-reset] 메일 발송 실패", { error: e?.message });
+      return {
+        error:
+          "메일 발송에 실패했습니다. 잠시 후 다시 시도하시거나 고객센터(1544-7199)로 문의해주세요.",
+      };
+    }
+  }
+
+  return successResponse;
 }
 
 // ─── 비밀번호 재설정 ───
