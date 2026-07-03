@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button";
  * 일정 주기로 router.refresh() 해서 서버에서 PAID 확정됐는지 다시 조회.
  * 일정 시간 내 확정 안 되면 "확인 지연" 안내 (노티는 최대 55분까지 재시도되므로 주문내역에서 확인 유도).
  */
-export function PaymentPending({ maxSeconds = 40 }: { maxSeconds?: number }) {
+// 노티가 40~60초대에 도착하는 경우가 있어 3분까지 폴링 (이후엔 수동 "다시 확인" 버튼)
+export function PaymentPending({ maxSeconds = 180 }: { maxSeconds?: number }) {
   const router = useRouter();
   const [elapsed, setElapsed] = useState(0);
 

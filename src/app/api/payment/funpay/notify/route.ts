@@ -5,6 +5,7 @@ import {
   FUNPAY_SUCCESS_CODE,
   FUNPAY_PROCESSING_CODE,
 } from "@/lib/payment/funpay";
+import { restoreOrderResources } from "@/lib/order-restore";
 
 /**
  * POST /api/payment/funpay/notify  (statusurl)
@@ -98,15 +99,42 @@ export async function POST(req: NextRequest) {
 
   const isSuccess = rescode === FUNPAY_SUCCESS_CODE;
 
+  // 금액 교차검증 (심층 방어) — 노티의 결제 금액·통화가 주문 생성 시 PG 에 보낸 값과 다르면 확정 거부.
+  // fgkey 가 파라미터 전체를 서명하므로 위조는 이미 차단되지만, 요청/노티 불일치 이상 징후를 잡는다.
+  if (isSuccess && order.payment?.pgAmount != null && params.reqamt) {
+    const expected = Number(order.payment.pgAmount);
+    const got = Number(params.reqamt);
+    const currencyMismatch =
+      Boolean(order.payment.pgCurrency && params.reqcur) &&
+      order.payment.pgCurrency !== params.reqcur;
+    if (
+      currencyMismatch ||
+      (Number.isFinite(expected) && Number.isFinite(got) && Math.abs(expected - got) > 0.005)
+    ) {
+      console.error("[Funpay notify] 금액/통화 불일치 — 확정 거부, 수동 확인 필요", {
+        refno,
+        expected: `${order.payment.pgAmount} ${order.payment.pgCurrency}`,
+        got: `${params.reqamt} ${params.reqcur}`,
+      });
+      return plain("FAIL");
+    }
+  }
+
   try {
     if (isSuccess) {
       // ── 결제 성공 확정 ──
       const earnPoints = Math.floor(order.finalAmount * 0.01);
+      let won = true;
       await prisma.$transaction(async (tx) => {
-        await tx.order.update({
-          where: { id: order.id },
+        // CAS: PENDING → PAID 전이를 이긴 쪽만 후속 처리 (취소와의 경합 방지)
+        const res = await tx.order.updateMany({
+          where: { id: order.id, status: "PENDING" },
           data: { status: "PAID", paidAt: new Date() },
         });
+        if (res.count === 0) {
+          won = false;
+          return;
+        }
         if (order.payment) {
           await tx.payment.update({
             where: { id: order.payment.id },
@@ -138,6 +166,21 @@ export async function POST(req: NextRequest) {
           });
         }
       });
+      if (!won) {
+        // 그 사이 주문이 취소됨(CANCELLED 등) — 그런데 결제 성공 노티가 왔다 = 돈은 받은 상태.
+        // 자동으로 되살리지 않고 크게 로그를 남겨 수동 환불/확인 대상으로 표시. pgRaw 는 저장.
+        console.error(
+          "[Funpay notify] 결제 성공 노티 수신했으나 주문이 이미 다른 상태로 전이됨 — 수동 환불/확인 필요",
+          { refno, transid, rescode }
+        );
+        if (order.payment) {
+          await prisma.payment.update({
+            where: { id: order.payment.id },
+            data: { pgRaw: rawPayload, transactionId: transid || order.payment.transactionId },
+          });
+        }
+        return plain("SUCCESS");
+      }
       // 장바구니에서 주문된 항목만 제거 (선택 결제 지원 — 미선택 항목은 유지)
       for (const item of order.items) {
         await prisma.cartItem.deleteMany({
@@ -163,60 +206,20 @@ export async function POST(req: NextRequest) {
     } else {
       // ── 결제 실패 → 주문 취소 + 복원 ──
       await prisma.$transaction(async (tx) => {
-        await tx.order.update({
-          where: { id: order.id },
+        // CAS: PENDING → CANCELLED 전이를 이긴 쪽만 복원 실행 (이중 복원 방지)
+        const res = await tx.order.updateMany({
+          where: { id: order.id, status: "PENDING" },
           data: { status: "CANCELLED" },
         });
+        if (res.count === 0) return; // 이미 취소/확정됨 — 멱등
         if (order.payment) {
           await tx.payment.update({
             where: { id: order.payment.id },
-            data: { status: "FAILED" },
+            data: { status: "FAILED", pgRaw: rawPayload },
           });
         }
-        // 재고 복원
-        for (const item of order.items) {
-          if (item.variantId) {
-            await tx.productVariant.update({
-              where: { id: item.variantId },
-              data: { stock: { increment: item.quantity } },
-            });
-          }
-        }
-        // 쿠폰 복원
-        if (order.couponId) {
-          await tx.userCoupon.updateMany({
-            where: { userId: order.userId, couponId: order.couponId, usedAt: { not: null } },
-            data: { usedAt: null },
-          });
-          await tx.coupon.update({
-            where: { id: order.couponId },
-            data: { usedCount: { decrement: 1 } },
-          });
-        }
-        // 사용 포인트 복원
-        if (order.discountAmount > 0) {
-          const used = await tx.pointHistory.findFirst({
-            where: { userId: order.userId, type: "USE_ORDER", description: { contains: order.orderNumber } },
-          });
-          if (used) {
-            const bal =
-              (
-                await tx.pointHistory.aggregate({
-                  where: { userId: order.userId },
-                  _sum: { amount: true },
-                })
-              )._sum.amount ?? 0;
-            await tx.pointHistory.create({
-              data: {
-                userId: order.userId,
-                amount: -used.amount, // USE_ORDER 는 음수였으므로 양수로 환원
-                balance: bal - used.amount,
-                type: "ADMIN_ADJUST",
-                description: `결제 실패 환원 (${order.orderNumber})`,
-              },
-            });
-          }
-        }
+        // 재고(+품절 해제)·쿠폰·포인트 복원 — src/lib/order-restore.ts 공용 로직
+        await restoreOrderResources(tx, order);
       });
       console.warn("[Funpay notify] 결제 실패 → 주문 취소", { refno, rescode, resmsg: params.resmsg });
     }

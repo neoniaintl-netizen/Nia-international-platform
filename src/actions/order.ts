@@ -3,6 +3,8 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { calculateShipping } from "@/lib/shipping";
+import { restoreOrderResources } from "@/lib/order-restore";
+import { sweepStalePendingOrders } from "@/lib/order-cleanup";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -36,6 +38,9 @@ function generateOrderNumber() {
 
 export async function createOrder(_prevState: any, formData: FormData) {
   const userId = await getUserId();
+
+  // 방치된 PENDING 주문 기회적 정리 (비동기, 체크아웃 지연 없음 — 인스턴스당 5분 스로틀)
+  sweepStalePendingOrders();
 
   const recipient = formData.get("recipient") as string;
   const phone = formData.get("phone") as string;
@@ -182,16 +187,26 @@ export async function createOrder(_prevState: any, formData: FormData) {
 
   const orderNumber = generateOrderNumber();
 
-  const order = await prisma.$transaction(async (tx) => {
-    // 1. Stock decrement
+  let order;
+  try {
+    order = await prisma.$transaction(async (tx) => {
+    // 1. Stock decrement — 조건부 차감(stock >= quantity 일 때만)으로 동시 주문 오버셀 방지.
+    //    사전 검증(위)은 스냅샷이라 동시 주문 시 음수 재고가 가능했음.
     for (const item of cartItems) {
       if (item.variantId) {
-        const variant = await tx.productVariant.update({
-          where: { id: item.variantId },
+        const dec = await tx.productVariant.updateMany({
+          where: { id: item.variantId, stock: { gte: item.quantity } },
           data: { stock: { decrement: item.quantity } },
         });
+        if (dec.count === 0) {
+          throw new Error(`OUT_OF_STOCK:${item.product.name}`);
+        }
+        const variant = await tx.productVariant.findUnique({
+          where: { id: item.variantId },
+          select: { stock: true },
+        });
         // If stock is now 0, check if all variants are sold out
-        if (variant.stock <= 0) {
+        if ((variant?.stock ?? 0) <= 0) {
           const activeVariants = await tx.productVariant.count({
             where: { productId: item.productId, stock: { gt: 0 } },
           });
@@ -279,7 +294,14 @@ export async function createOrder(_prevState: any, formData: FormData) {
 
     // 적립 포인트(earn)는 결제 확정(노티) 시점에 지급 → /api/payment/funpay/notify
     return newOrder;
-  });
+    });
+  } catch (e: any) {
+    if (typeof e?.message === "string" && e.message.startsWith("OUT_OF_STOCK:")) {
+      const name = e.message.slice("OUT_OF_STOCK:".length);
+      return { error: `"${name}" 재고가 방금 소진되었습니다. 장바구니를 확인해주세요.` };
+    }
+    throw e;
+  }
 
   // ── Funpay 결제 승인 파라미터 생성 (브라우저가 이 값으로 payment.icb 에 POST submit) ──
   // (isFunpayConfigured / 환산은 트랜잭션 전에 이미 검증 — charge 재사용)
@@ -390,70 +412,29 @@ export async function cancelOrder(orderId: string) {
     }
   }
 
+  let won = false;
   await prisma.$transaction(async (tx) => {
-    // Restore stock
-    for (const item of order.items) {
-      if (item.variantId) {
-        await tx.productVariant.update({
-          where: { id: item.variantId },
-          data: { stock: { increment: item.quantity } },
-        });
-        // If product was SOLDOUT, set back to ACTIVE
-        await tx.product.updateMany({
-          where: { id: item.productId, status: "SOLDOUT" },
-          data: { status: "ACTIVE" },
-        });
-      }
-    }
-
-    // Cancel order
-    await tx.order.update({
-      where: { id: orderId },
+    // CAS: 취소 가능 상태에서 CANCELLED 로의 전이를 이긴 쪽만 복원 실행.
+    // (노티 실패 처리·자동 정리와 동시에 와도 복원은 정확히 한 번)
+    const res = await tx.order.updateMany({
+      where: { id: orderId, status: { in: ["PAID", "PENDING", "PREPARING"] } },
       data: { status: "CANCELLED" },
     });
+    if (res.count === 0) return;
+    won = true;
 
-    // Cancel payment
     await tx.payment.updateMany({
       where: { orderId },
       data: { status: "CANCELLED", cancelledAt: new Date() },
     });
 
-    // Restore points if used
-    if (order.discountAmount > 0) {
-      // Check if points were used (there should be a USE_ORDER record)
-      const pointUsage = await tx.pointHistory.findFirst({
-        where: { userId, type: "USE_ORDER", description: { contains: order.orderNumber } },
-      });
-      if (pointUsage) {
-        const currentBalance = (await tx.pointHistory.aggregate({
-          where: { userId },
-          _sum: { amount: true },
-        }))._sum.amount ?? 0;
-
-        await tx.pointHistory.create({
-          data: {
-            userId,
-            amount: Math.abs(pointUsage.amount),
-            balance: currentBalance + Math.abs(pointUsage.amount),
-            type: "ADMIN_ADJUST",
-            description: `주문 취소 환불 (${order.orderNumber})`,
-          },
-        });
-      }
-    }
-
-    // Restore coupon if used
-    if (order.couponId) {
-      await tx.userCoupon.updateMany({
-        where: { userId, couponId: order.couponId },
-        data: { usedAt: null },
-      });
-      await tx.coupon.update({
-        where: { id: order.couponId },
-        data: { usedCount: { decrement: 1 } },
-      });
-    }
+    // 재고(+품절 해제)·쿠폰·포인트 복원 — src/lib/order-restore.ts 공용 로직
+    await restoreOrderResources(tx, order);
   });
+
+  if (!won) {
+    return { error: "이미 취소되었거나 처리 중인 주문입니다. 주문 내역을 새로고침해주세요." };
+  }
 
   revalidatePath("/my/orders");
   revalidatePath("/my");
