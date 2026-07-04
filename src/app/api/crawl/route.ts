@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCrawler } from "@/lib/crawler";
 import { importCrawledProducts } from "@/lib/crawler/product-importer";
+import { requireOpsToken } from "@/lib/ops-auth";
 
 /**
  * POST /api/crawl
@@ -15,9 +16,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { sourceSite, targetUrl, maxItems = 50, apiKey } = body;
 
-    // API 키 검증
+    // API 키 검증 — 미설정이면 무조건 차단 (fail-closed)
     const validKey = process.env.CRAWL_API_KEY;
-    if (validKey && apiKey !== validKey) {
+    if (!validKey || validKey.length < 16 || apiKey !== validKey) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -96,6 +97,9 @@ export async function POST(req: NextRequest) {
  * 크롤링 작업 상태 조회
  */
 export async function GET(req: NextRequest) {
+  const block = requireOpsToken(req);
+  if (block) return block;
+
   const jobId = req.nextUrl.searchParams.get("jobId");
 
   if (jobId) {

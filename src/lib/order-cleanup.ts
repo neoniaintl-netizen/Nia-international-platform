@@ -28,6 +28,10 @@ export function sweepStalePendingOrders(): void {
   cancelStalePendingOrders().catch((e) => {
     console.error("[order-cleanup] 스윕 실패", { error: e?.message });
   });
+  // 결제/주문 불일치 감지 — 자동 수정하지 않고 표시(reconcileNote)+로그만. 스윕과 독립 실행.
+  flagInconsistentOrders().catch((e) => {
+    console.error("[order-cleanup] 불일치 감지 실패", { error: e?.message });
+  });
 }
 
 export async function cancelStalePendingOrders(
@@ -48,6 +52,13 @@ export async function cancelStalePendingOrders(
     // 결제 완료 기록이 있는 PENDING = 불일치. 자동 취소 금지, 수동 확인 대상.
     if (order.payment?.status === "COMPLETED") {
       console.error("[order-cleanup] 결제 COMPLETED 인데 주문 PENDING — 수동 확인 필요", {
+        orderNumber: order.orderNumber,
+      });
+      continue;
+    }
+    // 노티 금액/통화 불일치 이력이 있는 주문 = 실제 결제 여부 불확실. 자동 취소 금지, 수동 확인 대상.
+    if (order.payment?.pgRaw?.startsWith("MISMATCH:")) {
+      console.error("[order-cleanup] 노티 금액 불일치 이력 있음 — 수동 확인 필요", {
         orderNumber: order.orderNumber,
       });
       continue;
@@ -77,4 +88,78 @@ export async function cancelStalePendingOrders(
     console.log(`[order-cleanup] 방치 PENDING 주문 ${cancelled}건 취소·복원`);
   }
   return cancelled;
+}
+
+/**
+ * 결제/주문 상태 불일치 감지 — **자동 수정하지 않고** 관리자 확인용으로 표시(reconcileNote)+로그만 남긴다.
+ * (환불 도중 크래시 등으로 돈은 움직였는데 DB 상태가 어긋난 건을 사람이 판단하도록)
+ *
+ * 감지 대상:
+ *  (a) 결제는 종료(CANCELLED/REFUNDED)인데 주문은 아직 종료(CANCELLED/RETURNED)가 아님
+ *  (b) 반품요청이 PENDING 인데 결제는 이미 REFUNDED (반품 완료 처리가 중간에 끊긴 케이스)
+ *
+ * 이미 표시된(reconcileNote 존재) 건은 건너뛰어 로그 스팸/덮어쓰기를 방지한다.
+ */
+const RECONCILE_BUFFER_MINUTES = 15;
+
+export async function flagInconsistentOrders(): Promise<number> {
+  let flagged = 0;
+  // 정상 취소/환불이 진행 중인 짧은 창(결제는 종료로 락됐으나 주문 tx 미완)을 불일치로 오탐하지 않도록,
+  // 결제 종료 시각(cancelledAt)이 이 기준보다 오래된 건만 표시한다.
+  const bufferCutoff = new Date(Date.now() - RECONCILE_BUFFER_MINUTES * 60 * 1000);
+
+  // (a) 결제 종료 ↔ 주문 미종료 불일치
+  const mismatched = await prisma.order.findMany({
+    where: {
+      reconcileNote: null,
+      status: { notIn: ["CANCELLED", "RETURNED"] },
+      payment: {
+        is: { status: { in: ["CANCELLED", "REFUNDED"] }, cancelledAt: { lt: bufferCutoff } },
+      },
+    },
+    include: { payment: true },
+    take: BATCH_SIZE,
+    orderBy: { createdAt: "asc" },
+  });
+  for (const order of mismatched) {
+    const note = `결제상태 ${order.payment?.status} 이나 주문상태 ${order.status} — 결제/주문 불일치. 실제 환불 여부(refundedAt=${order.payment?.refundedAt ? "있음" : "없음"}) 확인 후 수동 처리 필요.`;
+    console.error("[order-cleanup] 불일치(결제종료·주문미종료) 감지 — 수동 확인 필요", {
+      orderNumber: order.orderNumber,
+      orderStatus: order.status,
+      paymentStatus: order.payment?.status,
+      refundedAt: order.payment?.refundedAt ?? null,
+    });
+    await prisma.order.update({ where: { id: order.id }, data: { reconcileNote: note } });
+    flagged += 1;
+  }
+
+  // (b) 반품요청 PENDING ↔ 결제 REFUNDED (반품 완료 처리 중단)
+  const stuckReturns = await prisma.returnRequest.findMany({
+    where: {
+      status: "PENDING",
+      order: {
+        reconcileNote: null,
+        payment: { is: { status: "REFUNDED", cancelledAt: { lt: bufferCutoff } } },
+      },
+    },
+    include: { order: { include: { payment: true } } },
+    take: BATCH_SIZE,
+    orderBy: { createdAt: "asc" },
+  });
+  for (const rr of stuckReturns) {
+    const refundedAt = rr.order.payment?.refundedAt ?? null;
+    const note = `반품요청 PENDING 이나 결제 REFUNDED — 반품 완료 처리 중단 가능. 환불확정(refundedAt=${refundedAt ? "있음" : "없음"}) 확인 후 재승인/수동 처리 필요.`;
+    console.error("[order-cleanup] 불일치(반품 PENDING·결제 REFUNDED) 감지 — 수동 확인 필요", {
+      orderNumber: rr.order.orderNumber,
+      returnRequestId: rr.id,
+      refundedAt,
+    });
+    await prisma.order.update({ where: { id: rr.orderId }, data: { reconcileNote: note } });
+    flagged += 1;
+  }
+
+  if (flagged > 0) {
+    console.log(`[order-cleanup] 결제/주문 불일치 ${flagged}건 표시(reconcileNote)`);
+  }
+  return flagged;
 }

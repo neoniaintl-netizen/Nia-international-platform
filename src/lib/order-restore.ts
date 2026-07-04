@@ -25,19 +25,25 @@ export type RestorableOrder = {
 
 export async function restoreOrderResources(
   tx: Prisma.TransactionClient,
-  order: RestorableOrder
+  order: RestorableOrder,
+  options?: { stock?: boolean }
 ): Promise<void> {
   // 1) 재고 복원 + 품절 해제 (재고가 살아났으면 SOLDOUT → ACTIVE)
-  for (const item of order.items) {
-    if (item.variantId) {
-      await tx.productVariant.update({
-        where: { id: item.variantId },
-        data: { stock: { increment: item.quantity } },
-      });
-      await tx.product.updateMany({
-        where: { id: item.productId, status: "SOLDOUT" },
-        data: { status: "ACTIVE" },
-      });
+  //    options.stock === false 이면 재고 복원을 건너뛴다 — 이미 출고됐을 수 있는 주문(예: 환불 후
+  //    상태 경합으로 배송처리된 건)에서 실물 회수 전 재고를 늘리면 오버셀이 되므로.
+  const restoreStock = options?.stock !== false;
+  if (restoreStock) {
+    for (const item of order.items) {
+      if (item.variantId) {
+        await tx.productVariant.update({
+          where: { id: item.variantId },
+          data: { stock: { increment: item.quantity } },
+        });
+        await tx.product.updateMany({
+          where: { id: item.productId, status: "SOLDOUT" },
+          data: { status: "ACTIVE" },
+        });
+      }
     }
   }
 

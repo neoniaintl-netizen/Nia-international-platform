@@ -4,6 +4,7 @@ import {
   verifyFgkey,
   FUNPAY_SUCCESS_CODE,
   FUNPAY_PROCESSING_CODE,
+  extractTransId,
 } from "@/lib/payment/funpay";
 import { restoreOrderResources } from "@/lib/order-restore";
 
@@ -29,23 +30,6 @@ function plain(text: string) {
     status: 200,
     headers: { "Content-Type": "text/plain; charset=utf-8" },
   });
-}
-
-/** ICB 노티에서 원거래번호(transid) 추출 — 필드명이 다를 수 있어 후보를 대소문자 무시로 탐색 */
-function extractTransId(params: Record<string, string>): string {
-  const lower: Record<string, string> = {};
-  for (const k of Object.keys(params)) lower[k.toLowerCase()] = params[k];
-  const candidates = [
-    "transid", "trans_id", "transactionid", "transaction_id",
-    "tradeno", "trade_no", "tradenumber", "tradeid", "trade_id",
-    "tid", "trxid", "trx_id", "tno", "trno",
-    "apprno", "approvalno", "approval_no",
-    "pgtid", "pg_tid", "orgtransid", "org_transid", "ictransid", "mtransid",
-  ];
-  for (const c of candidates) {
-    if (lower[c]) return lower[c];
-  }
-  return "";
 }
 
 export async function POST(req: NextRequest) {
@@ -116,6 +100,11 @@ export async function POST(req: NextRequest) {
         expected: `${order.payment.pgAmount} ${order.payment.pgCurrency}`,
         got: `${params.reqamt} ${params.reqcur}`,
       });
+      // 자동 정리(sweep)가 이 주문을 실수로 취소하지 않도록 마커 저장 (수동 확인 전까지 PENDING 유지)
+      await prisma.payment.update({
+        where: { id: order.payment.id },
+        data: { pgRaw: `MISMATCH:${rawPayload}` },
+      }).catch(() => {});
       return plain("FAIL");
     }
   }

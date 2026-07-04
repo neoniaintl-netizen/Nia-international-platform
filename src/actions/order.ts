@@ -16,6 +16,8 @@ import {
   formatFunpayAmount,
   funpayErrorMessage,
   cancelPayment,
+  queryPayment,
+  extractTransId,
   FUNPAY_ENDPOINTS,
   FUNPAY_SUCCESS_CODE,
   FUNPAY_WECHAT_ENABLED,
@@ -86,6 +88,9 @@ export async function createOrder(_prevState: any, formData: FormData) {
   if (cartItems.length === 0) {
     return { error: "장바구니가 비어있습니다." };
   }
+  if (cartItems.some((item) => !Number.isInteger(item.quantity) || item.quantity < 1)) {
+    return { error: "장바구니 수량이 올바르지 않습니다. 장바구니를 다시 확인해주세요." };
+  }
 
   // Calculate subtotal
   const totalAmount = cartItems.reduce((sum, item) => {
@@ -122,7 +127,7 @@ export async function createOrder(_prevState: any, formData: FormData) {
         couponDiscount = coupon.maxDiscount;
       }
     } else {
-      couponDiscount = coupon.discountValue;
+      couponDiscount = Math.min(coupon.discountValue, totalAmount);
     }
 
     validCoupon = coupon;
@@ -262,24 +267,38 @@ export async function createOrder(_prevState: any, formData: FormData) {
       },
     });
 
-    // 3. Mark coupon as used
+    // 3. Mark coupon as used — CAS: usedAt:null 인 상태를 이긴 요청만 사용 처리 (동시 주문 중복 사용 방지)
     if (validUserCoupon) {
-      await tx.userCoupon.update({
-        where: { id: validUserCoupon.id },
+      const wonCoupon = await tx.userCoupon.updateMany({
+        where: { id: validUserCoupon.id, usedAt: null },
         data: { usedAt: new Date() },
       });
-      await tx.coupon.update({
-        where: { id: validCoupon.id },
+      if (wonCoupon.count === 0) {
+        throw new Error("COUPON_ALREADY_USED");
+      }
+      const couponQuotaWhere: any = { id: validCoupon.id };
+      if (validCoupon.totalQuantity) {
+        couponQuotaWhere.usedCount = { lt: validCoupon.totalQuantity };
+      }
+      const wonQuota = await tx.coupon.updateMany({
+        where: couponQuotaWhere,
         data: { usedCount: { increment: 1 } },
       });
+      if (wonQuota.count === 0) {
+        throw new Error("COUPON_SOLD_OUT");
+      }
     }
 
-    // 4. Deduct points
+    // 4. Deduct points — 트랜잭션 내부에서 잔액 재확인 (동시 주문으로 인한 음수 잔액 방지)
     if (pointsDiscount > 0) {
       const currentBalance = (await tx.pointHistory.aggregate({
         where: { userId },
         _sum: { amount: true },
       }))._sum.amount ?? 0;
+
+      if (currentBalance < pointsDiscount) {
+        throw new Error("INSUFFICIENT_POINTS");
+      }
 
       await tx.pointHistory.create({
         data: {
@@ -299,6 +318,15 @@ export async function createOrder(_prevState: any, formData: FormData) {
     if (typeof e?.message === "string" && e.message.startsWith("OUT_OF_STOCK:")) {
       const name = e.message.slice("OUT_OF_STOCK:".length);
       return { error: `"${name}" 재고가 방금 소진되었습니다. 장바구니를 확인해주세요.` };
+    }
+    if (e?.message === "COUPON_ALREADY_USED") {
+      return { error: "이미 사용된 쿠폰입니다." };
+    }
+    if (e?.message === "COUPON_SOLD_OUT") {
+      return { error: "쿠폰이 모두 소진되었습니다." };
+    }
+    if (e?.message === "INSUFFICIENT_POINTS") {
+      return { error: "보유 적립금이 부족합니다." };
     }
     throw e;
   }
@@ -361,10 +389,33 @@ export async function cancelOrder(orderId: string) {
     return { error: "취소할 수 없는 주문 상태입니다." };
   }
 
+  // 크래시 복구: 결제 상태는 이미 CANCELLED/REFUNDED 인데 주문은 아직 취소 안 된 상태(=환불 도중 크래시).
+  //  - refundedAt(실제 환불 확정) 있음 → 환불은 끝난 것. 환불 재호출 없이 아래 트랜잭션으로 DB만 마무리(자가치유).
+  //  - refundedAt 없음 → 실제 환불 여부 불명. 자동 진행 금지(이중환불/무환불취소 방지) → 관리자 확인으로 넘김.
+  if (
+    order.payment &&
+    (order.payment.status === "CANCELLED" || order.payment.status === "REFUNDED") &&
+    !order.payment.refundedAt
+  ) {
+    return {
+      error: "환불 처리 상태 확인이 필요한 주문입니다. 고객센터(1544-7199)로 문의해주세요.",
+    };
+  }
+
   // 결제 완료된 주문이면 Funpay 실제 환불 먼저 호출 (성공해야 DB 취소)
+  let refunded = false;
   if (order.payment?.status === "COMPLETED" && order.payment.transactionId) {
     if (!isFunpayConfigured()) {
       return { error: "환불 설정이 완료되지 않았습니다. 관리자에게 문의해주세요." };
+    }
+    // CAS 선점: COMPLETED → CANCELLED 전이를 이긴 요청만 실제 refund.icb 호출.
+    // (더블클릭/두 탭 동시 취소 시 이중 환불 방지 — 진 쪽은 여기서 즉시 종료)
+    const lock = await prisma.payment.updateMany({
+      where: { id: order.payment.id, status: "COMPLETED" },
+      data: { status: "CANCELLED", cancelledAt: new Date() },
+    });
+    if (lock.count === 0) {
+      return { error: "이미 취소 처리 중이거나 완료된 주문입니다. 새로고침 후 확인해주세요." };
     }
     try {
       // 환불 금액은 결제 시 저장한 pgAmount/pgCurrency 사용 (재계산 아님 → 환율 변동 무관).
@@ -379,10 +430,22 @@ export async function cancelOrder(orderId: string) {
         refundCur = charge.reqcur;
         refundAmt = charge.reqamt;
       }
+      const svc = funpayServiceType(order.paymentMethod ?? "ALIPAY");
+      // transactionId 가 주문번호로 남아있으면(노티에서 실거래번호를 못 받은 경우) PG 조회로 보정 시도.
+      let transid = order.payment.transactionId;
+      if (transid === order.orderNumber) {
+        try {
+          const queryRes = await queryPayment({ refno: order.orderNumber, servicetype: svc });
+          const realTransid = extractTransId(queryRes ?? {});
+          if (realTransid) transid = realTransid;
+        } catch {
+          // 조회 실패 시 기존 값으로 계속 진행 (환불 실패 시 아래에서 로그로 남음)
+        }
+      }
       const refundRes = await cancelPayment({
         refundRefno: generateOrderNumber(), // 취소는 매번 새 유니크 refno (명세)
-        transid: order.payment.transactionId,
-        servicetype: funpayServiceType(order.paymentMethod ?? "ALIPAY"),
+        transid,
+        servicetype: svc,
         reqcur: refundCur,
         reqamt: refundAmt,
         voidamt: refundAmt, // 전체 취소
@@ -391,7 +454,7 @@ export async function cancelOrder(orderId: string) {
       // 환불 응답 + "보낸 transid" 를 저장·로깅 (성공/실패 무관하게 — 원인 진단용).
       // sentTransid 가 주문번호(ORD-…)면 = 노티에서 실거래번호를 못 받아 환불이 안 되는 것.
       const refundRaw = JSON.stringify({
-        sentTransid: order.payment.transactionId,
+        sentTransid: transid,
         sentCur: refundCur,
         sentAmt: refundAmt,
         response: refundRes ?? null,
@@ -403,11 +466,27 @@ export async function cancelOrder(orderId: string) {
       });
       const code = String(refundRes?.rescode ?? refundRes?.resultcode ?? "");
       if (code !== FUNPAY_SUCCESS_CODE) {
+        // 환불 실패 — 잠금 해제(COMPLETED로 복원)하여 재시도 가능하게 함
+        await prisma.payment.update({
+          where: { id: order.payment.id },
+          data: { status: "COMPLETED", cancelledAt: null },
+        });
         return {
           error: `결제 취소(환불)에 실패했습니다. ${funpayErrorMessage(code)}`,
         };
       }
+      // 실제 환불 성공 확정 — refundedAt 기록(유일한 "환불됨" 진실 소스). 이후 반드시 취소·복원까지 마쳐야 함.
+      await prisma.payment.update({
+        where: { id: order.payment.id },
+        data: { refundedAt: new Date() },
+      });
+      refunded = true;
     } catch (e: any) {
+      // 요청 자체가 실패 — 잠금 해제(COMPLETED로 복원)하여 재시도 가능하게 함
+      await prisma.payment.update({
+        where: { id: order.payment.id },
+        data: { status: "COMPLETED", cancelledAt: null },
+      });
       return { error: `환불 요청 중 오류가 발생했습니다. (${e?.message ?? "unknown"})` };
     }
   }
@@ -420,7 +499,33 @@ export async function cancelOrder(orderId: string) {
       where: { id: orderId, status: { in: ["PAID", "PENDING", "PREPARING"] } },
       data: { status: "CANCELLED" },
     });
-    if (res.count === 0) return;
+    if (res.count === 0) {
+      // 이미 환불까지 마친 뒤 주문이 취소 가능 범위를 벗어났다면(예: 그 사이 관리자 배송처리)
+      // 돈은 이미 고객에게 돌아갔으므로 강제로 취소·복원하고 크게 로깅한다(수동 확인 대상).
+      if (refunded) {
+        // 환불은 끝났으나 그 사이 주문이 배송처리 등으로 취소 범위를 벗어남.
+        // 실물이 이미 출고됐을 수 있으므로 재고는 복원하지 않고(오버셀 방지) 쿠폰·포인트만 복원한다.
+        // 주문에는 회수확인 필요 메모를 남겨 관리자가 실물 회수/재고를 수동 처리하게 한다.
+        console.error(
+          "[cancelOrder] 환불 완료 후 주문 상태 예외 — 강제 취소(재고 제외 복원, 회수확인 필요)",
+          { orderId, orderNumber: order.orderNumber, status: order.status }
+        );
+        await tx.order.update({
+          where: { id: orderId },
+          data: {
+            status: "CANCELLED",
+            reconcileNote: `환불 완료 후 취소 처리 — 직전 주문상태 ${order.status}. 실물 출고 여부 및 재고 회수 수동 확인 필요.`,
+          },
+        });
+        await tx.payment.updateMany({
+          where: { orderId },
+          data: { status: "CANCELLED", cancelledAt: new Date() },
+        });
+        await restoreOrderResources(tx, order, { stock: false });
+        won = true;
+      }
+      return;
+    }
     won = true;
 
     await tx.payment.updateMany({

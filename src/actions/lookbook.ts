@@ -1,15 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/db";
-import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-
-async function requireAdmin() {
-  const session = await auth();
-  if ((session?.user as any)?.role !== "ADMIN") {
-    throw new Error("관리자 권한이 필요합니다.");
-  }
-}
+import { requireAdmin } from "./admin/shared";
 
 export async function createLookbookAction(_prev: any, formData: FormData) {
   await requireAdmin();

@@ -124,8 +124,12 @@ export async function changePassword(_prevState: any, formData: FormData) {
     return { error: "모든 항목을 입력해주세요." };
   }
 
-  if (newPassword.length < 6) {
-    return { error: "새 비밀번호는 6자 이상이어야 합니다." };
+  if (newPassword.length < 8 || newPassword.length > 30) {
+    return { error: "새 비밀번호는 8~30자로 입력해주세요." };
+  }
+
+  if (!/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+    return { error: "새 비밀번호는 영문과 숫자를 모두 포함해야 합니다." };
   }
 
   if (newPassword !== confirmPassword) {

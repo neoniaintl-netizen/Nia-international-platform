@@ -351,6 +351,26 @@ async function postForm(url: string, params: Record<string, string>): Promise<an
   }
 }
 
+/** ICB 응답(노티/조회)에서 원거래번호(transid) 추출 — 필드명이 다를 수 있어 후보를 대소문자 무시로 탐색 */
+export function extractTransId(params: Record<string, unknown>): string {
+  const lower: Record<string, string> = {};
+  for (const k of Object.keys(params)) {
+    const v = params[k];
+    if (v != null) lower[k.toLowerCase()] = String(v);
+  }
+  const candidates = [
+    "transid", "trans_id", "transactionid", "transaction_id",
+    "tradeno", "trade_no", "tradenumber", "tradeid", "trade_id",
+    "tid", "trxid", "trx_id", "tno", "trno",
+    "apprno", "approvalno", "approval_no",
+    "pgtid", "pg_tid", "orgtransid", "org_transid", "ictransid", "mtransid",
+  ];
+  for (const c of candidates) {
+    if (lower[c]) return lower[c];
+  }
+  return "";
+}
+
 /** 결제 결과 조회 (단건) — /payment/query.icb */
 export async function queryPayment(input: {
   refno: string;

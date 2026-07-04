@@ -5,6 +5,13 @@ import path from "path";
 import { randomUUID } from "crypto";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const EXT_BY_TYPE: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
+const ALLOWED_CATEGORIES = ["general", "review", "profile", "snap"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function POST(req: NextRequest) {
@@ -16,7 +23,8 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const files = formData.getAll("files") as File[];
-    const category = (formData.get("category") as string) || "general";
+    const rawCategory = (formData.get("category") as string) || "general";
+    const category = ALLOWED_CATEGORIES.includes(rawCategory) ? rawCategory : "general";
 
     if (!files.length) {
       return NextResponse.json({ error: "파일을 선택해주세요." }, { status: 400 });
@@ -45,8 +53,8 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // 파일 저장
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      // 파일 저장 — 확장자는 검증된 MIME 타입에서 결정 (파일명 신뢰 안 함)
+      const ext = EXT_BY_TYPE[file.type];
       const fileName = `${randomUUID()}.${ext}`;
       const uploadDir = path.join(process.cwd(), "public", "uploads", category);
 

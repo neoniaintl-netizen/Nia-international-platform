@@ -15,6 +15,10 @@ async function getUserId() {
 export async function addToCart(productId: string, variantId: string, quantity = 1) {
   const userId = await getUserId();
 
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    return { error: "수량이 올바르지 않습니다." };
+  }
+
   // 옵션이 해당 상품의 것인지 검증 (조작 요청 차단: 상품 A + 옵션 B 혼합 방지)
   const variant = await prisma.productVariant.findUnique({ where: { id: variantId } });
   if (!variant || variant.productId !== productId || !variant.isActive) {
@@ -59,8 +63,19 @@ export async function addToCart(productId: string, variantId: string, quantity =
 export async function updateCartQuantity(cartItemId: string, quantity: number) {
   const userId = await getUserId();
 
-  if (quantity < 1) {
+  if (!Number.isInteger(quantity) || quantity < 1) {
     return removeFromCart(cartItemId);
+  }
+
+  const item = await prisma.cartItem.findUnique({
+    where: { id: cartItemId },
+    include: { variant: true },
+  });
+  if (!item || item.userId !== userId) {
+    return { error: "장바구니 항목을 찾을 수 없습니다." };
+  }
+  if (item.variant && quantity > item.variant.stock) {
+    return { error: `재고가 부족합니다. (남은 수량: ${item.variant.stock}개)` };
   }
 
   await prisma.cartItem.updateMany({

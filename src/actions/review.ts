@@ -127,6 +127,7 @@ export async function deleteReview(reviewId: string, productId: string) {
 
 export async function toggleHelpful(reviewId: string) {
   try {
+    await getUserId(); // 로그인 필수화 — 익명 무제한 조작 차단 (사용자별 1회 제한은 별도 테이블 필요)
     await prisma.review.update({
       where: { id: reviewId },
       data: { helpfulCount: { increment: 1 } },
