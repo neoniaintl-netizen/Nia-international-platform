@@ -21,10 +21,10 @@ const SLIDE_INTERVAL = 4000;
 
 export function SpringCollection({
   products,
-  eyebrow = "Spring Edit 2026",
-  title = "봄과 어울리는 코디",
-  subtitle = "산뜻한 봄날을 위한 큐레이션",
-  linkHref = "/products?season=spring",
+  eyebrow = "Summer Edit 2026",
+  title = "여름과 어울리는 코디",
+  subtitle = "가볍고 시원한 여름을 위한 큐레이션",
+  linkHref = "/products?sort=newest",
   linkLabel = "View All",
 }: SpringCollectionProps) {
   const [pageIndex, setPageIndex] = useState(0);

@@ -65,7 +65,7 @@ const PAYMENT_BENEFITS = [
   { logo: "alipay" as const, key: "benefitAlipay" },
 ];
 
-const PAYMENT_METHODS = ["VISA", "Mastercard", "JCB", "AMEX", "AliPay", "WeChat Pay"];
+const PAYMENT_METHODS = ["AliPay", "WeChat Pay"];
 
 function PaymentLogoIcon({ logo }: { logo: "novaren" | "alipay" }) {
   if (logo === "alipay") {
@@ -228,12 +228,6 @@ export function Footer() {
         </div>
 
         <div className="mt-5 space-y-2 text-xs text-gray-400 leading-relaxed">
-          <p>
-            {t("escrowNote")}{" "}
-            <span className="text-gray-500 underline cursor-pointer">
-              {t("escrowConfirm")}
-            </span>
-          </p>
           <p>{t("agencyNote")}</p>
         </div>
 
@@ -281,20 +275,6 @@ export function Footer() {
           <Link href="/policy/cctv" className="text-gray-500 hover:text-black">
             {t("cctv")}
           </Link>
-        </div>
-
-        {/* Certifications */}
-        <div className="mt-6 space-y-2 text-xs text-gray-400">
-          <p>{t("certText")}</p>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 border border-[var(--line)] rounded-none px-2 py-1 text-[10px] font-medium text-[var(--ink-muted)] uppercase tracking-[0.15em]">
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-              ISMS
-            </span>
-            <span className="text-gray-400">{t("ismsText")}</span>
-          </div>
         </div>
 
         {/* Social icons */}

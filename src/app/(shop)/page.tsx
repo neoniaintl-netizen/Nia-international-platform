@@ -99,7 +99,7 @@ export default async function HomePage() {
         />
       )}
 
-      {/* 8) Spring Collection — 봄 코디 추천 자동 슬라이드 */}
+      {/* 8) Season Collection — 시즌 코디 추천 자동 슬라이드 (현재 Summer Edit, 문구는 spring-collection.tsx 기본값) */}
       <SpringCollection
         products={whatsNew.slice(0, 12).map(toProductCard)}
       />

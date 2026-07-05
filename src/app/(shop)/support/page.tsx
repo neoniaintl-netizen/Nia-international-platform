@@ -39,7 +39,7 @@ const SAFETY_FEATURES = [
   },
   {
     title: "개인정보 보호",
-    description: "ISMS 인증 기반의 안전한 개인정보 관리 체계를 운영합니다.",
+    description: "관련 법령에 따른 안전한 개인정보 관리 체계를 운영합니다.",
   },
   {
     title: "통관 대행",
