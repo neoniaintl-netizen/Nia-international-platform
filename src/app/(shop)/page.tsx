@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { HeroBanner } from "@/components/home/hero-banner";
 import { BrandTicker } from "@/components/home/brand-ticker";
 import { FeaturedGrid } from "@/components/home/featured-grid";
@@ -16,6 +17,7 @@ import {
 import { toProductCard } from "@/lib/mappers";
 
 export default async function HomePage() {
+  const t = await getTranslations("Home");
   const [ranked, sale, newProducts, golf, focusSlug] = await Promise.all([
     getRankedProducts(8),
     getSaleProducts(8),
@@ -51,7 +53,7 @@ export default async function HomePage() {
       <FeaturedGrid
         eyebrow="What's New"
         title="New Arrivals"
-        subtitle="가장 먼저 만나는 신상품 컬렉션"
+        subtitle={t("newArrivalsSubtitle")}
         linkHref="/products?sort=newest"
         linkLabel="Shop All"
         products={whatsNew.slice(0, 16).map(toProductCard)}
@@ -62,7 +64,7 @@ export default async function HomePage() {
         <FeaturedGrid
           eyebrow="Golf Select"
           title="Golf Select"
-          subtitle="필드와 일상을 넘나드는 프리미엄 골프웨어 셀렉션"
+          subtitle={t("golfSelectSubtitle")}
           linkHref="/category/golf"
           linkLabel="View Golf"
           columns={4}
@@ -78,7 +80,7 @@ export default async function HomePage() {
         <FeaturedGrid
           eyebrow="Limited Offer"
           title="Time Sale"
-          subtitle="한정 시즌, 한정 가격으로 만나는 셀렉션"
+          subtitle={t("timeSaleSubtitle")}
           linkHref="/products?sort=sale"
           linkLabel="View Sale"
           columns={4}
@@ -91,7 +93,7 @@ export default async function HomePage() {
         <FeaturedGrid
           eyebrow="Brand in Focus"
           title={brandFocusName || "Featured Brand"}
-          subtitle="이번 시즌 주목해야 할 브랜드의 시그니처 아이템"
+          subtitle={t("brandFocusSubtitle")}
           linkHref={`/brands/${focusSlug}`}
           linkLabel="View Brand"
           columns={4}

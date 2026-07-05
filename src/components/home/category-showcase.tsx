@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { ArrowRight } from "lucide-react";
 
 interface CategoryCard {
@@ -13,50 +14,53 @@ interface CategoryCard {
 }
 
 /**
- * 4개 카테고리 카드 — 사용자가 이미지 추가하면 imageUrl 만 채우면 됨.
- */
-const DEFAULT_CATEGORIES: CategoryCard[] = [
-  {
-    label: "Golf",
-    subLabel: "골프",
-    description: "필드 위 정제된 실루엣",
-    href: "/category/golf",
-    imageUrl: "/categories/golf.png",
-    badge: "Featured",
-  },
-  {
-    label: "Sports",
-    subLabel: "스포츠",
-    description: "퍼포먼스 × 일상",
-    href: "/category/sports",
-    imageUrl: "/categories/sports.png",
-  },
-  {
-    label: "Outdoor",
-    subLabel: "아웃도어",
-    description: "도시와 자연 사이",
-    href: "/category/outdoor",
-    imageUrl: "/categories/outdoor.png",
-  },
-  {
-    label: "Women",
-    subLabel: "여성의류",
-    description: "단단하고 유연한 무드",
-    href: "/category/women",
-    imageUrl: "/categories/women.png",
-  },
-];
-
-/**
  * 카테고리 쇼케이스 — 3 × 2 그리드 (lg) / 2 × 3 (md) / 1열 (mobile).
  * 이미지 있는 카드: object-cover + bottom 그라디언트 오버레이.
  * 이미지 없는 카드: 미니멀 다크 그라디언트 + 큰 타이포.
+ * 기본 4개 카드는 subLabel(Channel)·description(Home) 번역 키로 렌더.
+ * 사용자가 이미지 추가하면 imageUrl 만 채우면 됨.
  */
 export function CategoryShowcase({
-  categories = DEFAULT_CATEGORIES,
+  categories,
 }: {
   categories?: CategoryCard[];
 }) {
+  const t = useTranslations("Home");
+  const tc = useTranslations("Channel");
+
+  const defaultCategories: CategoryCard[] = [
+    {
+      label: "Golf",
+      subLabel: tc("golf"),
+      description: t("catGolfDesc"),
+      href: "/category/golf",
+      imageUrl: "/categories/golf.png",
+      badge: "Featured",
+    },
+    {
+      label: "Sports",
+      subLabel: tc("sports"),
+      description: t("catSportsDesc"),
+      href: "/category/sports",
+      imageUrl: "/categories/sports.png",
+    },
+    {
+      label: "Outdoor",
+      subLabel: tc("outdoor"),
+      description: t("catOutdoorDesc"),
+      href: "/category/outdoor",
+      imageUrl: "/categories/outdoor.png",
+    },
+    {
+      label: "Women",
+      subLabel: tc("women"),
+      description: t("catWomenDesc"),
+      href: "/category/women",
+      imageUrl: "/categories/women.png",
+    },
+  ];
+  const cards = categories ?? defaultCategories;
+
   return (
     <section className="py-14 lg:py-20 bg-[var(--paper)]">
       <div className="max-w-[1400px] mx-auto px-4 lg:px-8">
@@ -71,7 +75,7 @@ export function CategoryShowcase({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          {categories.map((cat) => (
+          {cards.map((cat) => (
             <Link
               key={cat.href}
               href={cat.href}

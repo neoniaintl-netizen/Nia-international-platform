@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { ArrowRight, ShoppingBag, Store, ShieldCheck, Headphones } from "lucide-react";
 
 /**
@@ -11,16 +12,18 @@ import { ArrowRight, ShoppingBag, Store, ShieldCheck, Headphones } from "lucide-
  *   = 큐레이션 → 매장 소싱 → 검수 → 출고 (CURATE · SOURCE · VERIFY · SHIP)
  */
 
+// subtitle은 Home.sourcingStep{n} 번역 키로 렌더 (컴포넌트 내부)
 const STEPS = [
-  { icon: ShoppingBag, title: "Curated Selection", subtitle: "검증된 브랜드 상품 중심 큐레이션" },
-  { icon: Store, title: "Store Sourcing", subtitle: "주문 후 오프라인 매장 재고 확인" },
-  { icon: ShieldCheck, title: "Quality Check", subtitle: "상품 확보 후 검수 및 출고" },
-  { icon: Headphones, title: "Buyer Support", subtitle: "국내·해외 바이어 주문 지원" },
+  { icon: ShoppingBag, title: "Curated Selection" },
+  { icon: Store, title: "Store Sourcing" },
+  { icon: ShieldCheck, title: "Quality Check" },
+  { icon: Headphones, title: "Buyer Support" },
 ];
 
 const FLOW = ["Curate", "Source", "Verify", "Ship"];
 
 export function BrandStatement() {
+  const t = useTranslations("Home");
   return (
     <section className="relative overflow-hidden bg-[var(--ink)] text-white">
       {/* 배경 이미지 — banner-4 (JPG, 88% 압축) */}
@@ -58,15 +61,15 @@ export function BrandStatement() {
 
             {/* 마침표 제거 — 줄바꿈 리듬으로 단정함. 쉼표는 두 절을 잇는 구분으로 유지 */}
             <h2 className="text-4xl md:text-6xl lg:text-[78px] font-bold tracking-[-0.03em] leading-[0.98] mb-8">
-              브랜드를 고르고,
+              {t("sourcingTitle1")}
               <br />
-              매장에서 확보합니다
+              {t("sourcingTitle2")}
             </h2>
 
             <p className="text-sm lg:text-base text-white/65 max-w-xl leading-relaxed mb-10">
-              NOVAREN는 골프·스포츠·아웃도어 브랜드 상품을 큐레이션하고,
+              {t("sourcingDesc1")}
               <br className="hidden sm:block" />
-              주문 후 오프라인 매장 재고 확인과 상품 확보 과정을 거쳐 출고합니다.
+              {t("sourcingDesc2")}
             </p>
 
             {/* CTA 위계: 주(채움) 크게 / 보조(텍스트 링크) */}
@@ -129,7 +132,9 @@ export function BrandStatement() {
                           {s.title}
                         </h3>
                       </div>
-                      <p className="text-[13px] text-white/55 leading-relaxed">{s.subtitle}</p>
+                      <p className="text-[13px] text-white/55 leading-relaxed">
+                        {t(`sourcingStep${idx + 1}`)}
+                      </p>
                     </div>
                   </li>
                 ))}

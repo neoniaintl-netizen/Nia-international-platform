@@ -66,5 +66,33 @@
     "bizNumberLabel": "사업자등록번호",
     "mailOrderLabel": "통신판매업신고번호",
     "brandName": "노바렌"
+  },
+  "Home": {
+    "newArrivalsSubtitle": "가장 먼저 만나는 신상품 컬렉션",
+    "golfSelectSubtitle": "필드와 일상을 넘나드는 프리미엄 골프웨어 셀렉션",
+    "timeSaleSubtitle": "한정 시즌, 한정 가격으로 만나는 셀렉션",
+    "brandFocusSubtitle": "이번 시즌 주목해야 할 브랜드의 시그니처 아이템",
+    "sourcingTitle1": "브랜드를 고르고,",
+    "sourcingTitle2": "매장에서 확보합니다",
+    "sourcingDesc1": "NOVAREN는 골프·스포츠·아웃도어 브랜드 상품을 큐레이션하고,",
+    "sourcingDesc2": "주문 후 오프라인 매장 재고 확인과 상품 확보 과정을 거쳐 출고합니다.",
+    "sourcingStep1": "검증된 브랜드 상품 중심 큐레이션",
+    "sourcingStep2": "주문 후 오프라인 매장 재고 확인",
+    "sourcingStep3": "상품 확보 후 검수 및 출고",
+    "sourcingStep4": "국내·해외 바이어 주문 지원",
+    "seasonTitle": "여름과 어울리는 코디",
+    "seasonSubtitle": "가볍고 시원한 여름을 위한 큐레이션",
+    "catGolfDesc": "필드 위 정제된 실루엣",
+    "catSportsDesc": "퍼포먼스 × 일상",
+    "catOutdoorDesc": "도시와 자연 사이",
+    "catWomenDesc": "단단하고 유연한 무드",
+    "spotlightSubtitle": "지금 주목해야 할 골프 셀렉션"
+  },
+  "MobileNav": {
+    "home": "홈",
+    "category": "카테고리",
+    "search": "검색",
+    "wishlist": "좋아요",
+    "my": "마이"
   }
 }

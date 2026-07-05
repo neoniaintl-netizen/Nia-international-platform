@@ -66,5 +66,33 @@
     "bizNumberLabel": "Business Reg. No.",
     "mailOrderLabel": "Mail-Order Sales No.",
     "brandName": "NOVAREN"
+  },
+  "Home": {
+    "newArrivalsSubtitle": "A first look at the newest arrivals",
+    "golfSelectSubtitle": "A premium golfwear selection, from the course to the city",
+    "timeSaleSubtitle": "A limited-time selection at limited prices",
+    "brandFocusSubtitle": "Signature pieces from the brand to watch this season",
+    "sourcingTitle1": "You pick the brand,",
+    "sourcingTitle2": "we secure it in store",
+    "sourcingDesc1": "NOVAREN curates products from golf, sports and outdoor brands,",
+    "sourcingDesc2": "confirming offline store stock and securing each item after your order, before it ships.",
+    "sourcingStep1": "A curation centered on verified brand products",
+    "sourcingStep2": "Offline store stock confirmed after your order",
+    "sourcingStep3": "Inspected and shipped once secured",
+    "sourcingStep4": "Order support for domestic and international buyers",
+    "seasonTitle": "Styled for summer",
+    "seasonSubtitle": "A light, cool curation for the season",
+    "catGolfDesc": "Refined silhouettes on the field",
+    "catSportsDesc": "Performance × everyday",
+    "catOutdoorDesc": "Between city and nature",
+    "catWomenDesc": "Structured yet fluid moods",
+    "spotlightSubtitle": "The golf selection to watch right now"
+  },
+  "MobileNav": {
+    "home": "Home",
+    "category": "Categories",
+    "search": "Search",
+    "wishlist": "Wishlist",
+    "my": "My"
   }
 }

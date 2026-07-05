@@ -66,5 +66,33 @@
     "bizNumberLabel": "营业执照号",
     "mailOrderLabel": "通信销售业申报号",
     "brandName": "NOVAREN"
+  },
+  "Home": {
+    "newArrivalsSubtitle": "抢先遇见最新上架单品",
+    "golfSelectSubtitle": "穿梭于球场与日常的高端高尔夫服饰精选",
+    "timeSaleSubtitle": "限定时间、限定价格的精选",
+    "brandFocusSubtitle": "本季最值得关注品牌的标志性单品",
+    "sourcingTitle1": "挑选品牌，",
+    "sourcingTitle2": "由门店确保现货",
+    "sourcingDesc1": "NOVAREN 精选高尔夫·运动·户外品牌商品，",
+    "sourcingDesc2": "下单后经过线下门店库存确认与商品备货流程后发货。",
+    "sourcingStep1": "以经过验证的品牌商品为核心的精选",
+    "sourcingStep2": "下单后确认线下门店库存",
+    "sourcingStep3": "商品备货后检验并发货",
+    "sourcingStep4": "支持国内外买家订单",
+    "seasonTitle": "适合夏日的穿搭",
+    "seasonSubtitle": "轻盈清爽的夏日精选",
+    "catGolfDesc": "球场上的利落剪影",
+    "catSportsDesc": "运动表现 × 日常",
+    "catOutdoorDesc": "城市与自然之间",
+    "catWomenDesc": "刚柔并济的格调",
+    "spotlightSubtitle": "当下最值得关注的高尔夫精选"
+  },
+  "MobileNav": {
+    "home": "首页",
+    "category": "分类",
+    "search": "搜索",
+    "wishlist": "收藏",
+    "my": "我的"
   }
 }

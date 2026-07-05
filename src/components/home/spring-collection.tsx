@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { ProductCardData } from "@/components/product/product-card";
@@ -22,11 +23,14 @@ const SLIDE_INTERVAL = 4000;
 export function SpringCollection({
   products,
   eyebrow = "Summer Edit 2026",
-  title = "여름과 어울리는 코디",
-  subtitle = "가볍고 시원한 여름을 위한 큐레이션",
+  title,
+  subtitle,
   linkHref = "/products?sort=newest",
   linkLabel = "View All",
 }: SpringCollectionProps) {
+  const t = useTranslations("Home");
+  const resolvedTitle = title ?? t("seasonTitle");
+  const resolvedSubtitle = subtitle ?? t("seasonSubtitle");
   const [pageIndex, setPageIndex] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(4);
   const [isPaused, setIsPaused] = useState(false);
@@ -72,10 +76,10 @@ export function SpringCollection({
               {eyebrow}
             </p>
             <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">
-              {title}
+              {resolvedTitle}
             </h2>
-            {subtitle && (
-              <p className="mt-2 text-sm text-[var(--ink)]/60">{subtitle}</p>
+            {resolvedSubtitle && (
+              <p className="mt-2 text-sm text-[var(--ink)]/60">{resolvedSubtitle}</p>
             )}
           </div>
           <Link

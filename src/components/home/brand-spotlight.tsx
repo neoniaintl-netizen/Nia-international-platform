@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { SectionHeader } from "@/components/home/section-header";
 
 interface BrandItem {
@@ -87,13 +88,14 @@ const DEFAULT_FEATURED: BrandItem[] = [
 export function BrandSpotlight({
   brands = DEFAULT_FEATURED,
 }: BrandSpotlightProps) {
+  const t = useTranslations("Home");
   return (
     <section className="py-10 lg:py-20 bg-[var(--paper)]">
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
         <SectionHeader
           eyebrow="Curated Houses"
           title="Featured Brands"
-          subtitle="지금 주목해야 할 골프 셀렉션"
+          subtitle={t("spotlightSubtitle")}
           linkHref="/brands"
           linkLabel="All Brands"
         />

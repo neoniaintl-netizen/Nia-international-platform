@@ -2,24 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Home, LayoutGrid, Search, Heart, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { label: "홈", href: "/", icon: Home },
-  { label: "카테고리", href: "/category", icon: LayoutGrid },
-  { label: "검색", href: "/search", icon: Search },
-  { label: "좋아요", href: "/wishlist", icon: Heart },
-  { label: "마이", href: "/my", icon: User },
-];
+  { labelKey: "home", href: "/", icon: Home },
+  { labelKey: "category", href: "/category", icon: LayoutGrid },
+  { labelKey: "search", href: "/search", icon: Search },
+  { labelKey: "wishlist", href: "/wishlist", icon: Heart },
+  { labelKey: "my", href: "/my", icon: User },
+] as const;
 
 export function MobileNav() {
   const pathname = usePathname();
+  const t = useTranslations("MobileNav");
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 safe-area-bottom">
       <div className="flex items-center justify-around h-14 px-2">
-        {items.map(({ label, href, icon: Icon }) => {
+        {items.map(({ labelKey, href, icon: Icon }) => {
           const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
             <Link
@@ -31,7 +33,7 @@ export function MobileNav() {
               )}
             >
               <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 1.5} />
-              <span className="text-[10px]">{label}</span>
+              <span className="text-[10px]">{t(labelKey)}</span>
             </Link>
           );
         })}
