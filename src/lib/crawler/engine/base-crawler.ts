@@ -50,11 +50,9 @@ export async function fetchJson<T = unknown>(url: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-/** 모든 어댑터 공통 인터페이스. 사이트별 수집/파싱 구현. */
+/** 모든 어댑터 공통 인터페이스. 사이트별 list→detail 수집을 내부에서 처리. */
 export interface Adapter {
   readonly platform: string;
-  /** 리스트/sitemap/API에서 상품 상세 URL 목록 수집 */
-  collectProductUrls(cfg: SiteConfig, limit: number): Promise<string[]>;
-  /** 상세 HTML/JSON → CrawledProduct */
-  parseDetail(raw: string, url: string, cfg: SiteConfig): CrawledProduct | null;
+  /** 사이트에서 최대 limit개 상품을 수집해 CrawledProduct[]로 반환. */
+  collect(cfg: SiteConfig, opts: { limit: number }): Promise<CrawledProduct[]>;
 }

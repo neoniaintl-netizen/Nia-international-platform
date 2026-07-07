@@ -6,5 +6,7 @@ import "./types.test";
 import "./robots.test";
 import "./base-crawler.test";
 import "./scheduler.test";
+import "./adapters.test";
+import "./storage.test";
 
 report();
