@@ -2,7 +2,7 @@
 // 파일럿 3개(Phase 2)만 strategy 확정. 나머지는 Phase 3에서 상세 검증 후 추가.
 import { validateSiteConfig, type SiteConfig } from "./engine/types";
 
-export const SITES: SiteConfig[] = [
+const RAW_SITES: SiteConfig[] = [
   // ── 파일럿 3개 (Phase 2) ──
   {
     id: "markandlona",
@@ -30,7 +30,9 @@ export const SITES: SiteConfig[] = [
     strategy: "static_html",
     listEndpoint: "https://southcape.shop/goods/goods_list.php?cateCd=002",
   },
-].map(validateSiteConfig);
+];
+
+export const SITES: SiteConfig[] = RAW_SITES.map(validateSiteConfig);
 
 export function getSite(id: string): SiteConfig | undefined {
   return SITES.find((s) => s.id === id);

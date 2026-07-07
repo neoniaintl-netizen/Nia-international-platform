@@ -9,38 +9,47 @@ function abs(src: string): string {
   return src.startsWith("//") ? `https:${src}` : src;
 }
 
-/** Cafe24 상세 HTML → CrawledProduct. (순수 함수 — fixture 테스트 대상) */
-export function parseCafe24Detail(html: string, url: string, cfg: SiteConfig): CrawledProduct | null {
-  const $ = cheerio.load(html);
+interface LdProduct {
+  name?: string;
+  offers?: { price?: string | number } | { price?: string | number }[];
+}
 
-  let ld: Record<string, unknown> | null = null;
+/** HTML에서 JSON-LD Product 노드 추출 (@graph 지원). */
+function findLdProduct($: cheerio.CheerioAPI): LdProduct | null {
+  let found: LdProduct | null = null;
   $('script[type="application/ld+json"]').each((_, el) => {
     try {
-      const d = JSON.parse($(el).text() || "{}");
+      const d = JSON.parse($(el).text() || "{}") as Record<string, unknown>;
+      const graph = d["@graph"];
       const prod =
         d["@type"] === "Product"
           ? d
-          : Array.isArray(d["@graph"])
-            ? d["@graph"].find((x: Record<string, unknown>) => x["@type"] === "Product")
+          : Array.isArray(graph)
+            ? graph.find((x) => (x as Record<string, unknown>)["@type"] === "Product")
             : null;
       if (prod) {
-        ld = prod;
+        found = prod as LdProduct;
         return false;
       }
     } catch {
       /* skip malformed ld+json */
     }
   });
+  return found;
+}
+
+/** Cafe24 상세 HTML → CrawledProduct. (순수 함수 — fixture 테스트 대상) */
+export function parseCafe24Detail(html: string, url: string, cfg: SiteConfig): CrawledProduct | null {
+  const $ = cheerio.load(html);
+  const ld = findLdProduct($);
 
   const nameFromVar = html.match(/product_name\s*=\s*['"]([^'"]+)['"]/)?.[1];
-  const name = String(
-    (ld?.name as string) || nameFromVar || $('meta[property="og:title"]').attr("content") || "",
-  )
+  const name = String(ld?.name || nameFromVar || $('meta[property="og:title"]').attr("content") || "")
     .replace(/\s*[|\-–].*$/, "")
     .trim();
   if (!name) return null;
 
-  const offers = ld?.offers as Record<string, unknown> | Record<string, unknown>[] | undefined;
+  const offers = ld?.offers;
   const offer = Array.isArray(offers) ? offers[0] : offers;
   let price = offer?.price ? Math.round(parseFloat(String(offer.price))) : 0;
   if (!price) {
