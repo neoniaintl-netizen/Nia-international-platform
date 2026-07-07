@@ -50,3 +50,13 @@ next-env.d.ts
 
 # 로컬 인수인계 문서 (리포에 커밋하지 않음)
 HANDOFF.md
+
+# 크롤러 정찰 원본 덤프 (대용량, 재생성 가능) — 파일럿 테스트 fixture만 커밋
+docs/crawler-fixtures/**
+!docs/crawler-fixtures/.gitkeep
+!docs/crawler-fixtures/markandlona/
+!docs/crawler-fixtures/markandlona/products.json
+!docs/crawler-fixtures/anewgolf/
+!docs/crawler-fixtures/anewgolf/detail-1.html
+!docs/crawler-fixtures/southcape/
+!docs/crawler-fixtures/southcape/detail-1.html
