@@ -64,3 +64,5 @@ docs/crawler-fixtures/**
 !docs/crawler-fixtures/amazingcre/detail-1.html
 !docs/crawler-fixtures/descentegolf/
 !docs/crawler-fixtures/descentegolf/detail-1.html
+!docs/crawler-fixtures/pxg/
+!docs/crawler-fixtures/pxg/detail-1.html

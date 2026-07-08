@@ -1,0 +1,2005 @@
+
+<!DOCTYPE html>
+<!--[if IE 6]> <html class="no-js lt-ie10 lt-ie9 lt-ie8 ie6" lang="ko-KR"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie10 lt-ie9 lt-ie8 ie7" lang="ko-KR"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie10 lt-ie9 ie8" lang="ko-KR"> <![endif]-->
+<!--[if IE 9]> <html class="no-js lt-ie10 ie9" lang="ko-KR"> <![endif]-->
+<!--[if gt IE 9]><!--> <html class="no-js" lang="ko-KR"> <!--<![endif]-->
+
+<head>
+
+	<script src="/pc/resource/js/lib/jquery-1.12.4.min.js"></script>
+
+		<script>
+	let isIOS = (/iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream
+	//document.write(isIOS);
+	if (isIOS == true) {
+		jQuery.ajax({
+			type: "POST",
+			url: "/ext/ipad.asp",
+			dataType : "JSON",
+			success: function(data) {
+				top.location.href="/main/main.asp";
+			},
+			error: function(e) {
+			}
+		});			
+	}
+		</script>
+
+	<meta charset="UTF-8">
+	<meta name="format-detection" content="telephone=no">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+
+	<meta name="google-site-verification" content="kBGY1ytD-6EKzDDEYfjwoy70VVxXAgJy9svQqGdtdTQ" />
+	<meta name="naver-site-verification" content="486526fa656629bf4ec7a28e4827d75e72f68fb2" />	
+	
+	<link href="https://pxg.speedycdn.net/favicon.ico?v=20190917" type="image/x-icon" rel="shortcut icon"/> 
+	<link href="https://pxg.speedycdn.net/favicon.ico?v=20190917" type="image/x-icon" rel="icon"/> 	
+<title>PXG 공식 온라인 스토어</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi">
+
+<link rel="stylesheet" href="/pc/resource/css/normalize.css?v=2022090702">
+<link rel="stylesheet" href="/pc/resource/css/opt-default.css?v=202405021359">
+<link rel="stylesheet" href="/pc/resource/css/slick.css?v=2022090702">
+<link rel="stylesheet" href="https://pxg.speedycdn.net/pc/resource/css/jquery.mCustomScrollbar.css">
+<link rel="stylesheet" href="/pc/resource/css/layout.css?v=202506051307">
+<link rel="stylesheet" href="/pc/resource/css/product.css?v=202605181458">
+<link rel="stylesheet" href="/pc/resource/css/sub.css?v=202606041608">
+<link rel="stylesheet" href="https://pxg.speedycdn.net/pc/resource/css/swiper-bundle.min.css">
+
+
+<script>
+	/* #HJ 2022-09-15추가함 IE 에서의 처리 S */
+	if(/MSIE \d|Trident.*rv:/.test(navigator.userAgent)) {
+		window.location='microsoft-edge:'+window.location; 
+		setTimeout(function() {
+			top.location.href="https://support.microsoft.com/ko-kr/microsoft-edge/%EC%9D%B4-%EC%9B%B9-%EC%82%AC%EC%9D%B4%ED%8A%B8%EB%8A%94-microsoft-edge%EC%97%90%EC%84%9C-%EB%8D%94-%EC%9E%98-%EC%9E%91%EB%8F%99%ED%95%A9%EB%8B%88%EB%8B%A4-160fa918-d581-4932-9e4e-1075c4713595?ui=ko-kr&rs=ko-kr&ad=kr";
+		},1000);
+	}
+	/* #HJ 2022-09-15추가함 IE 에서의 처리 E */
+</script>
+
+<script src="https://pxg.speedycdn.net/pc/resource/js/lib/greensock/TweenMax.min.js"></script>
+<!-- jQuery 는 최상단 initialize.asp 로 옮겼음 -->
+<script src="https://pxg.speedycdn.net/pc/resource/js/lib/mighty.base.1.5.7.min.js"></script>
+<script src="https://pxg.speedycdn.net/pc/resource/js/lib/mighty.sort.1.3.0.min.js"></script>
+<script src="https://pxg.speedycdn.net/pc/resource/js/lib/slick.min.js"></script>
+<script src="https://pxg.speedycdn.net/pc/resource/js/lib/jquery.mCustomScrollbar.min.js"></script>
+<script src="https://pxg.speedycdn.net/pc/resource/js/lib/swiper-bundle.min.js"></script>
+<script src="https://pxg.speedycdn.net/pc/resource/js/lib/SmoothScroll.js"></script>
+<script src="https://pxg.speedycdn.net/pc/resource/js/lib/matizResizeMap.1.0.0.min.js"></script>
+
+<script>
+		var suzzestGetArr = new Array();
+		var suzzestSetArr = new Array();
+	    function suzzestGet(v1,v2,v3,v4,v5,v6){
+			suzzestGetArr.push({a:v1,b:v2,c:v3,d:v4,e:v5,f:v6});
+	    }
+	    function suzzestSet(v1,v2,v3,v4,v5,v6){
+			suzzestSetArr.push({a:v1,b:v2,c:v3,d:v4,e:v5,f:v6});
+	    }
+	
+		$.cachedScript = function( url, options ) {
+				options = $.extend( options || {}, {
+				dataType: "script",
+				cache: true,
+				url: url,
+				async: false
+			});
+			return $.ajax( options );
+		};
+	
+		$(function() {
+			function async_call(js, cb){
+				$.cachedScript(js).done(function() {
+					if(cb != undefined){
+						return eval(cb)();
+					}
+				})
+			}
+			async_call('//service.stylecomment.com/common/js/social.js');
+		});
+</script>	
+
+
+<!-- Groobee -->
+<!-- <script type="text/javascript"> -->
+<!-- (function(a,i,u,e,o) { -->
+<!-- a[u]=a[u]||function(){(a[u].q=a[u].q||[]).push(arguments)}; -->
+<!-- })(window, document, "groobee"); -->
+<!-- groobee("serviceKey", "4ac92cbf4eb24958bfdd574a6949b722"); -->
+<!-- groobee("siteType", "custom"); -->
+<!-- </script> -->
+<!-- <script charset="utf-8" src=" //static.groobee.io/dist/g2/groobee.init.min.js"></script> -->
+<!-- End of Groobee -->
+
+<script type="text/javascript" charset="UTF-8" src="//t1.daumcdn.net/adfit/static/kp.js"></script>
+<script type="text/javascript">
+      kakaoPixel('868661801595943823').pageView();
+</script>
+
+
+<script src="/pc/resource/js/pages/default.js?v=202604301805"></script>
+<script src="/pc/resource/js/pages/members.js?v=202604301805"></script>
+<script src="/pc/resource/js/pages/login.js?v=202604301805"></script>
+
+
+<script type="text/javascript"> (function(c,l,a,r,i,t,y){ c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)}; t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i; y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y); })(window, document, "clarity", "script", "eqbds262zs"); </script>
+
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MNCTZDZ');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-58F44NB');</script>
+<!-- End Google Tag Manager -->
+
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '2490001774534723');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=2490001774534723&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
+<!-- 상단 선언 스크립트 : 모든페이지 공통 상단 필수 -->
+<!-- 2025-07-25 PlayD TERA Log Definition Script Start -->
+<script>
+(function(win,name){
+	win['LogAnalyticsObject']=name;
+	win[name]=win[name]||function(){(win[name].q=win[name].q||[]).push(arguments)}
+})(window,'_LA');
+</script>
+
+<!-- 250911 EG MS클래리티 로그 분석 -->
+<script type="text/javascript">
+	(function(c,l,a,r,i,t,y){ c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)}; t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i; y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y); })(window, document, "clarity", "script", "t8bhc8rstf");
+</script>
+
+
+
+	<!-- 개별 css, js -->
+	<script src="/pc/resource/js/pages/view.js?v=202607061109"></script>
+	<script src="/pc/resource/js/pages/review.js?v=2022090702"></script>
+	<script src='/pc/resource/js/pages/clipboard.min.js'></script>
+	<script src='/pc/resource/js/pages/copyurl.js'></script>
+	<script src="/pc/resource/js/pages/searchZip.js?v=20240710"></script> 
+	<script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<style>
+	/* 2024-05-08 스크롤 고정 배너 추가 */
+	.fix-banner-box {
+		position: sticky;
+		bottom: 0;
+		z-index: 1;
+	}
+	.fix-banner-box .banner {
+		position: absolute;
+		right: 30px;
+		bottom: 30px;
+		width: 110px;
+		height: 110px;
+	}
+	.fix-banner-box .banner a {display: block;}
+	.fix-banner-box .banner img {
+		width: 100%;
+		object-fit: contain;
+	}
+	/* //2024-05-08 스크롤 고정 배너 추가 */
+	</style>
+
+
+<script>
+kakaoPixel('868661801595943823').viewContent({
+	id: '9874'
+});
+</script>
+
+
+	<meta name="title" content="MEN COLOR BLOCKED KNIT HYBRID COLLAR SHORT SLEEVE | PXG" />
+	<meta name="description" content="&nbsp;" />
+	<meta name="keywords" content="MEN COLOR BLOCKED KNIT HYBRID COLLAR SHORT SLEEVE,MEN COLOR BLOCKED KNIT HYBRID COLLAR SHORT SLEEVE,PXG,PXG," />
+	<meta name="image" content="http://www.pxg.co.kr/data/ProductImages/a/2/PKMCM221621.jpg" />
+	<meta property="og:url" content="https://www.pxg.co.kr/product/view.asp?pno=9874" />
+	<meta property="og:title" content="MEN COLOR BLOCKED KNIT HYBRID COLLAR SHORT SLEEVE | PXG" />
+	<meta property="og:description" content="" />
+	<meta property="og:image" content="http://www.pxg.co.kr/data/ProductImages/a/2/PKMCM221621.jpg" />	
+	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content="PXGKOREA" />
+	<meta property="og:locale" content="ko_KR" />
+
+	<meta property="product:image"      content="http://www.pxg.co.kr/data/ProductImages/a/2/PKMCM221621.jpg" />
+	<meta property="product:plural_title"      content="MEN COLOR BLOCKED KNIT HYBRID COLLAR SHORT SLEEVE" />
+	<meta property="product:price:amount"      content="399000"/>
+	<meta property="product:price:currency"    content="KRW"/>  
+
+
+</head>
+
+<body class="" data-scrollbar>
+	<!-- start of :: wrap -->
+	<div id="wrap">
+        <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-58F44NB"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<!--  start of : skipNavi -->
+<ul id="skipNavi">
+	<li><a href="#contents">본문내용 바로가기</a></li>
+	<li><a href="#footer">하단메뉴 바로가기</a></li>
+</ul>
+<!-- // end of  skipNavi -->
+
+<!-- start of :: header -->
+<header id="header">
+
+	
+	<div class="con">
+		<div class="inner">
+			<!-- logo -->
+			<h1 class="logo">
+				<a href="/">PXG</a>
+			</h1>
+			<!-- //logo -->
+
+			<!-- gnb -->
+			<nav class="gnb _type_arr">
+				<ul>
+					<!-- Depth 1 -->
+					<li class="_menu_club">
+						<a href="/main/club.asp">CLUB</a>
+
+						<!-- Depth 2 -->
+						<div class="club-depth2-box">
+							<ul>
+								<li class="">
+									<a href="/product/list.asp?cno=205" data-menu-name="DRIVERS">DRIVERS</a>
+									<!-- Depth 3 -->
+									<div class="club-depth3-box">
+
+										<ul>
+
+											<li>
+												<a href="https://www.pxg.co.kr/product/list.asp?cno=949" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/TourMid_110×110.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">LIGHTNING</p>
+														<p class="txt2 ">Faster. More Forgiving. More Versatile.</p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=629" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/DEPTH_driver_03_blackops_d.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">BLACK OPS</p>
+														<p class="txt2 ">Breakthrough Technology. Premium Quality. Unbelievable Performance.</p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=927" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/110_와일드캣_드라이버.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">WILDCAT</p>
+														<p class="txt2 "></p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+										</ul>
+
+										<a href="/main/club.asp" class="shop-all">SHOP ALL</a>
+									</div>
+									<!-- //Depth 3 -->
+
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=207" data-menu-name="FAIRWAYS">FAIRWAYS</a>									
+
+									<!-- Depth 3 -->
+									<div class="club-depth3-box">
+
+										<ul>
+
+											<li>
+												<a href="https://www.pxg.co.kr/product/list.asp?cno=951" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/Fairway_110×110.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">LIGHTNING</p>
+														<p class="txt2 ">Faster. More Forgiving. More Versatile.</p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=631" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/DEPTH_fairway_04_blackops_d.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">BLACK OPS</p>
+														<p class="txt2 ">Effortless Performance, Ultimate Control.</p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=323" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/DEPTH_fw_01_gen6_d_1.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">GEN6</p>
+														<p class="txt2 ">Versatile Powerhouse</p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=929" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/110_와일드캣_우드.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">WILDCAT</p>
+														<p class="txt2 "></p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+										</ul>
+
+
+										<a href="/main/club.asp" class="shop-all">SHOP ALL</a>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=208" data-menu-name="HYBRIDS">HYBRIDS</a>
+
+									<!-- Depth 3 -->
+									<div class="club-depth3-box">
+
+										<ul>
+
+											<li>
+												<a href="https://www.pxg.co.kr/product/list.asp?cno=953" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/Hybrid_110×110.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">LIGHTNING</p>
+														<p class="txt2 ">Faster. More Forgiving. More Versatile.</p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=633" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/DEPTH_hybrid_04_blackops_d.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">BLACK OPS</p>
+														<p class="txt2 ">Effortless Performance, Ultimate Control.</p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=931" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/110_와일드캣_하이브리드.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">WILDCAT</p>
+														<p class="txt2 "></p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+										</ul>
+
+
+										<a href="/main/club.asp" class="shop-all">SHOP ALL</a>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=209" data-menu-name="IRONS">IRONS</a>
+
+									<!-- Depth 3 -->
+									<div class="club-depth3-box">
+
+										<ul>
+
+											<li>
+												<a href="/product/list.asp?cno=955" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/110.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">GEN8</p>
+														<p class="txt2 "></p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=903" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/DEPTH_iron_gen7_d.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">GEN7</p>
+														<p class="txt2 "></p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=327" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/DEPTH_iron_01_gen6_d_1.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">GEN6</p>
+														<p class="txt2 ">Game-changing accuracy</p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="https://www.pxg.co.kr/product/list.asp?cno=602" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/DEPTH_iron_05_bhwk_d.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">BLACK HAWK</p>
+														<p class="txt2 ">Game-changing accuracy</p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=933" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/110_와일드캣_아이언.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">WILDCAT</p>
+														<p class="txt2 "></p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+										</ul>
+
+
+										<a href="/main/club.asp" class="shop-all">SHOP ALL</a>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=235" data-menu-name="WEDGES">WEDGES</a>
+
+									<!-- Depth 3 -->
+									<div class="club-depth3-box">
+
+										<ul>
+
+											<li>
+												<a href="/product/list.asp?cno=907" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/DEPTH_wedge_sugardaddy3_d.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">SUGAR DADDY III</p>
+														<p class="txt2 "></p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="https://www.pxg.co.kr/product/list.asp?cno=958" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/110_1.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">STICK`EM</p>
+														<p class="txt2 ">SPECIAL LUNCH</p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+										</ul>
+
+										<a href="/main/club.asp" class="shop-all">SHOP ALL</a>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=210" data-menu-name="PUTTERS">PUTTERS</a>
+
+									<!-- Depth 3 -->
+									<div class="club-depth3-box">
+
+										<ul>
+
+											<li>
+												<a href="/product/list.asp?cno=915" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/CLUB_gnb_allan.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">ZERO TORQUE</p>
+														<p class="txt2 "></p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=364" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/DEPTH_putter_01_batred2_d.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">BATTLE READY II</p>
+														<p class="txt2 ">Game-changing advancements</p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=917" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/CLUB_gnb_tourbrandon.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">TOUR SERIES </br>BRANDON</p>
+														<p class="txt2 "></p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=923" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/GNB_blackhawk_d.jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">BLACK HAWK</p>
+														<p class="txt2 "></p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+										</ul>
+
+
+										<a href="/main/club.asp" class="shop-all">SHOP ALL</a>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=936" data-menu-name="WEDGES">WILDCAT COLLECTION</a>
+
+									<!-- Depth 3 -->
+									<div class="club-depth3-box">
+
+										<ul>
+
+											<li>
+												<a href="/product/list.asp?cno=936" target="_self" >
+													<div class="bg">
+														<img src="https://pxg.speedycdn.net/data/banner/110_와일드캣_풀세트(컬렉션).jpg?q=90" alt="">
+													</div>
+
+													<div class="txt-box">
+														<p class="txt1">WILDCAT COLLECTION</p>
+														<p class="txt2 "></p><!-- _type_new -->
+													</div>
+												</a>
+											</li>
+
+										</ul>
+
+										<a href="/main/club.asp" class="shop-all">SHOP ALL</a>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li style="display:none;">
+									<a href="/product/list.asp?cno=238" data-menu-name="GEARS">GEARS</a>
+
+									<!-- Depth 3 -->
+									<div class="club-depth3-box">
+
+
+										<a href="/main/club.asp" class="shop-all">SHOP ALL</a>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li style="display:none;">
+									<a href="/product/list.asp?cno=241" data-menu-name="BALLS">ETC</a>
+
+									<!-- Depth 3 -->
+									<div class="club-depth3-box">
+
+
+										<a href="/main/club.asp" class="shop-all">SHOP ALL</a>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+							</ul>
+						</div>
+						<!-- //Depth 2 -->
+					</li>
+						<!-- //Depth 1 -->
+
+					<!-- Depth 1 -->
+					<li class="_menu_apparel">
+						<a href="/main/apparel.asp">APPAREL</a>
+
+						<!-- Depth 2 -->
+						<div class="apparel-depth2-box _type_apparel">
+							<ul>
+								<li>
+									<a href="/product/list.asp?cno=101">WOMEN</a>
+
+									
+									<!-- Depth 3 -->
+									<div class="apparel-depth3-box">
+									<ul>
+
+										<li>
+											<a href="/product/list.asp?cno=134" >OUTER</a>
+										</li>
+
+										<li>
+											<a href="/product/list.asp?cno=121" >T-SHIRTS</a>
+										</li>
+
+										<li>
+											<a href="/product/list.asp?cno=128" >SWEATER</a>
+										</li>
+
+										<li>
+											<a href="/product/list.asp?cno=191" >ONEPIECE</a>
+										</li>
+
+										<li>
+											<a href="/product/list.asp?cno=131" >PANTS</a>
+										</li>
+
+										<li>
+											<a href="/product/list.asp?cno=133" >SKIRTS</a>
+										</li>
+
+									</ul>
+									</div>
+									<!-- //Depth 3 -->
+
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=100">MEN</a>
+
+									
+									<!-- Depth 3 -->
+									<div class="apparel-depth3-box">
+									<ul>
+
+										<li>
+											<a href="/product/list.asp?cno=116" >OUTER</a>
+										</li>
+
+										<li>
+											<a href="/product/list.asp?cno=106" >T-SHIRTS</a>
+										</li>
+
+										<li>
+											<a href="/product/list.asp?cno=108" >SWEATER</a>
+										</li>
+
+										<li>
+											<a href="/product/list.asp?cno=113" >PANTS</a>
+										</li>
+
+									</ul>
+									</div>
+									<!-- //Depth 3 -->
+
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=300">ACC</a>
+
+									
+									<!-- Depth 3 -->
+									<div class="apparel-depth3-box">
+									<ul>
+
+										<li>
+											<a href="/product/list.asp?cno=307" >HEADWEARS</a>
+										</li>
+
+										<li>
+											<a href="/product/list.asp?cno=315" >SOCKS</a>
+										</li>
+
+									</ul>
+									</div>
+									<!-- //Depth 3 -->
+
+
+								</li>
+
+								<li style="display:none;">
+									<a href="/product/list.asp?cno=640">SUNGLASSES</a>
+								</li>
+
+								<li style="display:none;">
+									<a href="/product/list.asp?cno=650">SHOES</a>
+								</li>
+
+								<li>
+									<a href="/product/best.asp">BEST</a>
+								</li>
+
+								<li>
+									<a href="https://golfnuts.co.kr/category/pxg-outlet/340" target="_blank">PREMIUM&nbsp;OUTLET</a>
+								</li>
+							</ul>
+
+							<a href="/main/apparel.asp" class="shop-all">SHOP ALL</a>
+						</div>
+						<!-- //Depth 2 -->
+					</li>
+					<!-- //Depth 1 -->
+
+
+
+
+					<!-- //Depth 1 -->
+					<li class="_menu_apparel">
+						<a href="/main/gear.asp">GEAR</a>
+
+						<!-- Depth 2 -->
+						<div class="apparel-depth2-box _type_gear">
+							<ul>
+								<li>
+									<a href="/product/list.asp?cno=700">BAGS</a>
+
+									
+									<!-- Depth 3 -->
+									<div class="apparel-depth3-box">
+										<ul>
+
+											<li>
+												<a href="/product/list.asp?cno=312">GOLF BAGS</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=313">BOSTON BAGS</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=314">POUCHES</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=636">ETC</a>
+											</li>
+
+											<li>
+												<a href="/product/list.asp?cno=957">클럽 매장 전용</a>
+											</li>
+
+										</ul>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=650">SHOES</a>
+
+									
+									<!-- Depth 3 -->
+									<div class="apparel-depth3-box">
+										<ul>
+
+											<li>
+												<a href="/product/list.asp?cno=652">SHOES</a>
+											</li>
+
+										</ul>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=701">GLOVES</a>
+
+									
+									<!-- Depth 3 -->
+									<div class="apparel-depth3-box">
+										<ul>
+
+											<li>
+												<a href="/product/list.asp?cno=610">GLOVES</a>
+											</li>
+
+										</ul>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=702">BALLS</a>
+
+									
+									<!-- Depth 3 -->
+									<div class="apparel-depth3-box">
+										<ul>
+
+											<li>
+												<a href="/product/list.asp?cno=382">BALLS</a>
+											</li>
+
+										</ul>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=640">SUNGLASSES</a>
+
+									
+									<!-- Depth 3 -->
+									<div class="apparel-depth3-box">
+										<ul>
+
+											<li>
+												<a href="/product/list.asp?cno=642">SUNGLASSES</a>
+											</li>
+
+										</ul>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li>
+									<a href="/product/list.asp?cno=703">ETC</a>
+
+									
+									<!-- Depth 3 -->
+									<div class="apparel-depth3-box">
+										<ul>
+
+											<li>
+												<a href="/product/list.asp?cno=310">BELTS</a>
+											</li>
+
+											<!--li>
+												<a href="/product/list.asp?cno=599">WATCH</a>
+											</li-->
+
+											<li>
+												<a href="/product/list.asp?cno=318">ETC</a>
+											</li>
+											<!--li>
+												<a href="/product/list.asp?cno=909">LINEAGE M X PXG</a>
+											</li-->
+
+										</ul>
+									</div>
+									<!-- //Depth 3 -->
+								</li>
+
+								<li>
+									<a href="https://golfnuts.co.kr/category/pxg-outlet/340" target="_blank">PREMIUM&nbsp;OUTLET</a>
+								</li>
+							</ul>
+
+							<a href="/main/gear.asp" class="shop-all">SHOP ALL</a>
+						</div>
+						<!-- //Depth 2 -->
+					</li>
+					<!-- Depth 1 -->					
+				</ul>
+			</nav>
+			<!-- //gnb -->			
+
+			<!-- util -->
+			<div class="util">
+				<!-- gnb -->
+				<nav class="gnb">
+					<ul>
+						
+						<!--li>
+							<a href="/promotion/251203/lightning.asp" class="_menu_style1">2026 LIGHTNING</a>
+						</li-->
+						
+
+						<li>
+
+							<a href="/style/women.asp">STYLE</a>
+
+						</li>
+						<li>
+							<a href="/promotion/list.asp">PROMOTION<span style="font-size:0"> sale</span></a>
+						</li>
+						<li>
+							<a href="/fitting/index.asp">FITTING</a>
+						</li>	
+						
+
+
+						<!-- 2024-07-16 7월 22일(월) 00시 부터 노출 -->
+						<!-- 2025-02-28 오전 10시 ~ 2025-06-30일까지 타이틀변경 -->
+						
+						<li>
+							<a href="https://www.golfnuts.co.kr/category/pxg-outlet/340" target="_blank">GOLF NUTS</a>
+						</li>
+						
+					</ul>
+				</nav>
+				<!-- //gnb -->
+
+				<!-- account, cart, search, store -->
+				<div>
+				
+					<div class="h-account">
+						<a href="javascript:void(0);">account</a>
+
+						<!-- account layer -->
+						<div class="account__layer">
+							<div class="cn">
+								<a href="#" class="h-login__btn h-login__btn99">로그인</a>
+								<!--<a href="#" class="h-join__btn">TROOPS 가입</a>-->
+								<a href="/customer/level2024.asp" class="">TROOPS 가입</a>
+								<a href="/mypage/mypage.asp" class="">마이페이지</a>
+								<a href="/mypage/coupon.asp">쿠폰등록</a>
+								
+								<div>
+									<a href="#" id="popStoremember">매장 회원 정보 조회</a>
+								</div>
+								
+							</div>
+						</div>
+						<!-- //account layer -->
+					</div>
+				
+
+					<div class="h-cart">
+						<a href="/order/cart.asp" data-num="0" id="cartCnt">cart</a>
+					</div>
+
+					<div class="h-latest">
+						<a href="/mypage/latest.asp">latest</a>
+					</div>
+
+					<div class="h-search">
+						<button type="button">search</button>
+					</div>
+				</div>
+
+				<div>
+					<div class="h-store">
+						<a href="/store/store.asp">store</a>
+					</div>
+				</div>
+				<!-- //account, cart, search, store -->
+			</div>
+			<!-- //util -->
+		</div>
+	</div>
+</header>		
+<!-- // end of :: header -->		
+
+<!-- search layer -->
+<div class="search__layer">
+	<div class="con">
+			<form action="javascript:searchRun();" name="searchForm" id="searchForm" method="get"  autocomplete="off">
+		<div class="keyword-box">
+			<input type="search" placeholder="검색어 입력" id="searchItem" name="searchItem" onfocus="korealanguge();" value=""/>
+			<button type="button" class="search__btn" onclick="javascript:searchRun();">검색</button>
+		</div>
+			</form>
+<script type="text/javascript">
+
+	$(document).ready(function(){
+		$('#searchItem').css("ime-mode", "active");
+	});
+	function korealanguge(){
+		$('#searchItem').css("ime-mode", "active");
+	}
+
+</script>
+			<form name="searchFormReal" method="get"  autocomplete="off" action="/search/search.asp">
+				<input type="hidden" name="sWord" value />
+			</form>		
+
+	</div>
+</div>
+<!-- //search layer -->	<script src="/pc/resource/js/pages/popup_v2.js?v=202211301634"></script>
+
+		<!-- start of :: contents -->
+		<div id="contents" class="goods__contents _view_v250210"> <!-- 2025-02-10 클래스 추가 _view_v250210 -->
+					<form method="post"	action="javascript:;"	id="form1" name="form1">
+						<input type="hidden" name="DirectBuy"	value="0" />
+						<input type="hidden" name="ProductNo" id="pno"	value="9874" />
+						<input type="hidden" name="suzzestcategory"   value="800100106" />
+						<input type="hidden" name="ProductCategoryNo"   value="106" />
+						<input type="hidden" name="ProductColor" value="BLACK" />
+						<input type="hidden" name="ProductColorCode" id="ProductColorCode" value="21" />
+						<input type="hidden" name="ProductPrice" id="ProductPriceSale" value="399000" />
+						<input type="hidden" name="ProductStyle" id="ProductStyle" value="PKMCM2216" />
+						<input type="hidden" name="ProductCode" id="ProductCode" value="PKMCM221621" />
+						<input type="hidden" name="BrandCode" id="BrandCode" value="A" />
+						<input type="hidden" name="reviewProductNo_temp" id="reviewProductNo_temp" value="9874">
+
+
+						<input type="hidden" name="ProductOption1" id="ProductOption1" value="" />
+						<input type="hidden" name="ProductOption2" id="ProductOption2" value="" />
+
+						<input type="hidden" name="puttersOption" id="puttersOption" value="0" />
+						<input type="hidden" name="IsLength" id="IsLength" value="0" />
+						
+
+						<input type="hidden" name="gaPname" id="gaPname" value="MEN COLOR BLOCKED KNIT HYBRID COLLAR SHORT SLEEVE" />
+						<input type="hidden" name="gaPCate" id="gaPCate" value="APPAREL > MEN > T-SHIRTS" />
+						<input type="hidden" name="IsO2O" id="IsO2O" value="1" />
+			<section class="goods-view-box">
+				<h2 class="hidden">상품 상세</h2>
+
+				<!-- 상단 상품 배너 -->
+				<div class="top-goods-info">
+
+
+					<div class="photo" style="background-image: url(/data/ProductImages/top_pc/PKMCM221621.jpg?q=90);"></div>
+
+					<div class="info">
+						
+						<p class="txt1">T-SHIRTS</p>
+						
+						<p class="txt2">
+							MEN COLOR BLOCKED KNIT HYBRID COLLAR SHORT SLEEVE
+						</p>
+					</div>
+
+					<div class="move-scroll _bk">
+						<p class="txt">Scroll to Discover</p>
+
+						<div class="mouse">
+						</div>
+					</div>
+
+					
+				</div>
+				<!-- //상단 상품 배너 -->
+
+				<!-- 상품 이미지, 상품 정보, 상품 옵션 선택 -->
+				<div class="goods-info-box">
+
+
+
+					<!-- 상품 이미지 -->
+					<div class="left">
+						
+
+						<ul>
+
+						
+							<li><img src="https://pxg.speedycdn.net/data/ProductImages/model02/4/PKMCM221621.jpg?q=90" alt="" ></li>
+
+							<li><img src="https://pxg.speedycdn.net/data/ProductImages/model03/4/PKMCM221621.jpg?q=90" alt="" ></li>
+
+							<li><img src="https://pxg.speedycdn.net/data/ProductImages/model04/4/PKMCM221621.jpg?q=90" alt="" ></li>
+
+
+							<li><img src="https://pxg.speedycdn.net/data/ProductImages/a/4/PKMCM221621.jpg?q=90" alt="" /></li>
+
+
+							<li><img src="https://pxg.speedycdn.net/data/ProductImages/b/4/PKMCM221621.jpg?q=90" alt="" /></li>
+
+
+							<li><img src="https://pxg.speedycdn.net/data/ProductImages/c/4/PKMCM221621.jpg?q=90" alt="" /></li>
+
+
+							<li><img src="https://pxg.speedycdn.net/data/ProductImages/d/4/PKMCM221621.jpg?q=90" alt="" /></li>
+
+
+							<li><img src="https://pxg.speedycdn.net/data/ProductImages/e/4/PKMCM221621.jpg?q=90" alt="" /></li>
+
+
+							<li><img src="https://pxg.speedycdn.net/data/ProductImages/f/4/PKMCM221621.jpg?q=90" alt="" /></li>
+
+						</ul>
+
+					
+						
+					</div>
+					<!-- //상품 이미지 -->
+
+					<!-- 상품 정보, 상품 옵션 선택 -->
+					<div class="right">
+						<div class="goods-info">
+							<div class="btn-box">
+								<div>
+									<button type="button" class="wish__btn  wish" data-wish="9874">11</button> <!-- 활성화시 클래스 on -->
+								</div>
+
+								<div class="goods-share-box">
+									<button type="button" class="share__btn">share</button>
+									<div class="ssSocial-Sharing" style="display:none;"
+										data-requestUrl="https://www.pxg.co.kr/product/view.asp?pno=9874" 
+										data-requestSns="F,KL,NV">
+									</div>
+									<div class="goods-share__layer">
+										<a href="javascript:shareTo('facebook');void(0);" class="facebook__share">facebook share</a>
+										<a href="javascript:shareTo('kakaolink');void(0);" class="kakaotalk__share">kakaotalk share</a>
+										<a href="javascript:shareTo('naver');void(0);" class="naverblog__share">naverblog share</a>
+										<a href="javascript:;" id="pageURL1_copy" data-clipboard-text="https://www.pxg.co.kr/product/view.asp?pno=9874" class="url__share">url copy</a>
+									</div>
+								</div>
+							</div>
+							<p class="type">T-SHIRTS</p>
+							<p class="eng-name">MEN COLOR BLOCKED KNIT HYBRID COLLAR SHORT SLEEVE</p>
+							<p class="kor-name">
+								남성 칼라 블록 니트 하이브리드 카라 숏 슬리브
+								<span class="goods-num">PKMCM221621</span>
+							</p>
+
+							
+							<div class="bot">
+								<div class="price">
+									<!--p class="normal">399,000</p-->
+									
+										<p class="normal">399,000</p>
+									
+								</div>
+
+								<div class="stars">
+									<div class="stars--off">
+										<div class="stars--on" style="width: 100%;"></div> <!-- width 값 조절 -->
+									</div>
+									
+									<button type="button" class="line__btn review__btn" data-no="9874">1개 리뷰</button>
+									
+								</div>
+							</div>
+						</div>
+						<!-- //상품 정보 -->
+
+						<!-- 마일리지 -->
+						<div class="goods-mileage">
+
+							<p><strong>마일리지</strong>3,990P 적립</p>
+							
+							<!--<button type="button" class="line__btn benefit__btn">카드혜택</button>-->
+
+<script>
+$("._type_gift").hide();
+</script>
+
+							<!-- 2026-04-09 무이자 혜택 위치 변경 -->
+							<button type="button" class="line__btn card-benefit__btn">최대 10개월 무이자</button>
+							<!-- //2026-04-09 무이자 혜택 위치 변경 -->
+						</div>
+						<!-- //마일리지 -->
+
+						<!-- 배송 -->
+						<div class="goods-delivery goods-delivery_v260506" >
+							
+
+							<dl>
+								<!-- 2022-11-21 일반/새벽 배송 문구 수정 -->
+								<dt class="_ico_truck01"><strong>일반배송</strong></dt>
+								<dd>
+
+									<!--
+									
+											오후 3시 전
+										 
+										주문시 
+										<span>07월 09일</span> 89% 도착 예정<br />
+										* 택배사 상황에 따라 변경될 수 있습니다.
+
+									
+									-->
+
+									<span>오후 2시 이전 주문시 택배 발송</span><br>배송기간 : 2일 ~ 3일 내 도착
+								
+									
+									<!-- ? 버튼 -->
+									<div class="q-box">
+										<button type="button" class="q__btn">?</button>
+
+										<div class="tooltip__layer _tooltip02">
+											<p class="tit">일반배송 안내</p>
+
+											<div>
+												<dl>
+													<dt>배송정보</dt>
+													<dd>
+														오후 2시 이전 주문시 택배 발송(2일~3일내 도착)
+													</dd>
+												</dl>
+
+												<dl>
+													<dt>배송기간</dt>
+													<dd>
+														출고 완료일 기준 1~2영업일
+													</dd>
+												</dl>
+
+												<dl>
+													<dt>배송비</dt>
+													<dd>
+														무료<br />
+														(단, 제주도 및 도서 산간 지역은 추가요금이 부과될 수 있습니다.)
+													</dd>
+												</dl>
+											</div>
+
+											<button type="button" class="tooltip-close__btn">close</button>
+										</div>
+									</div>
+									<!-- //? 버튼 -->
+								</dd>
+							</dl>
+
+							<dl>
+								<!-- 2022-11-21 일반/새벽 배송 문구 수정 -->
+								<dt class="_ico_truck03"><strong>매장배송</strong></dt>
+								<dd>
+									
+									<span>주문시 익일 발송</span><br>									
+									온라인 재고 품절 시 매장에서 발송되는 서비스<br>
+									배송기간 : 3일 ~ 5일 내 도착
+									
+									<!-- ? 버튼 -->
+									<div class="q-box">
+										<button type="button" class="q__btn">?</button>
+
+										<div class="tooltip__layer _tooltip03">
+											<p class="tit">매장배송 안내</p>
+
+											<div>
+												<dl>
+													<dt>배송정보</dt>
+													<dd>
+														주문시 익일 발송
+													</dd>
+												</dl>
+
+												<dl>
+													<dt>배송기간</dt>
+													<dd>
+														(3일~5일내 도착)<br>
+														*온라인 재고 품절시 매장에서 발송되는 서비스
+													</dd>
+												</dl>
+
+												<dl>
+													<dt>배송비</dt>
+													<dd>
+														무료<br>
+														(단, 제주도 및 도서 산간 지역은 추가요금이 부과될 수 있습니다.)
+													</dd>
+												</dl>
+											</div>
+
+											<button type="button" class="tooltip-close__btn">close</button>
+										</div>
+									</div>
+									<!-- //? 버튼 -->
+								</dd>
+							</dl>
+						</div>
+						<!-- //배송 -->
+
+						<!-- 상품 정보 -->
+						
+
+						<!-- 상품 옵션 선택 -->
+						<div class="goods-option-box">
+
+							<!-- 컬러 -->
+							<div class="goods-option _color">
+								<div class="tit">
+									<p>컬러</p>
+									<p class="sub">BLACK</p>
+
+									<!-- 2026-01-14 매장 재고 확인 - 위치 변경 -->
+									<div>										
+
+
+										<button type="button" class="line__btn inventory__btn" data-no="9874">매장 재고 확인</button>
+	
+									</div>
+									<!-- //2026-01-14 매장 재고 확인 - 위치 변경 -->
+
+								</div>
+
+								<div>
+									<ul>
+
+										<li class="on"> <!-- 활성화시 클래스 on -->
+											<a href="#">
+												<img src="https://pxg.speedycdn.net/data/ProductImages/colorchip/PKMCM221621.jpg?q=90" alt="" alt="BLACK" title="BLACK"/>
+											</a>
+										</li>
+
+
+										<li>
+											<a href="/product/view.asp?pno=9875">
+												<img src="https://pxg.speedycdn.net/data/ProductImages/colorchip/PKMCM221633.jpg?q=90" alt="BLUE" title="BLUE" />
+											</a>
+										</li>
+
+									</ul>
+
+
+							<button type="button" class="soon__btn" data-no="9874">입고 알림 신청</button>
+
+
+								</div>
+							</div>
+							<!-- //컬러 -->
+
+							<!-- 사이즈 -->
+							<div class="goods-option _size " >
+								<div class="tit">
+									<p>
+										<span class="txt1">사이즈</span>
+
+										<!-- 2026-01-14 핏 추가 -->
+										<span class="txt3"></span>
+										<!-- //2026-01-14 핏 추가 -->
+
+										<span class="txt2"><span id="o2ostock"></span></span>
+									</p>
+
+									<div>
+										
+										<button type="button" class="line__btn size__btn" data-val="9874">사이즈 안내</button>
+										
+									</div>
+								</div>
+
+								<div>
+									<ul class="size" id="vSize">
+
+										<li>
+											<input type="radio" id="optionSize095"  class="cb__style1 "  name="ProductSize" value="095" data-size="095" data-limit="1"  onclick="onSizeStore('9874','095')" />
+											<label for="optionSize095">
+												<span class="txt">095</span>
+											</label>
+										</li>
+
+										<li>
+											<input type="radio" id="optionSize100"  class="cb__style1 "  name="ProductSize" value="100" data-size="100" data-limit="1"  onclick="onSizeStore('9874','100')" />
+											<label for="optionSize100">
+												<span class="txt">100</span>
+											</label>
+										</li>
+
+										<li>
+											<input type="radio" id="optionSize105"  class="cb__style1 "  name="ProductSize" value="105" data-size="105" data-limit="2"  onclick="onSizeStore('9874','105')" />
+											<label for="optionSize105">
+												<span class="txt">105</span>
+											</label>
+										</li>
+
+										<li>
+											<input type="radio" id="optionSize110" soldout class="cb__style1 soldout" disabled name="ProductSize" value="110" data-size="110" data-limit="-2"  onclick="onSizeStore('9874','110')" />
+											<label for="optionSize110">
+												<span class="txt">110</span>
+											</label>
+										</li>
+
+									</ul>
+								</div>
+								<div class="bot">
+
+							<button type="button" class="soon__btn" data-no="9874">입고 알림 신청</button>
+
+							<button type="button" class="line__btn inventory__btn" data-no="9874">매장 재고 확인</button>
+									
+
+								</div>
+							</div>
+							<!-- //사이즈 -->
+		
+						</div>
+						<!-- //상품 옵션 선택 -->
+
+						<!-- 수량, 가격 -->
+						<div class="total-price">
+							<div class="qty" id="vpop">
+								<button type="button" name="qtyMinus" id="qtyMinus" class="minus__btn">minus</button>
+								<input type="number" name="ProductQuantity" id="ProductQuantity" value="1" maxlength="2" onkeypress='validate(event)' onkeyup="hangle_onkeyup(jQuery(this))" />
+								<button type="button" name="qtyPlus" id="qtyPlus" class="plus__btn">plus</button>
+							</div>
+
+							<div class="total">
+								<p>
+									<span class="won">￦</span>
+									<span class="num psprice">399,000</span>
+								</p>
+							</div>
+						</div>
+						<!-- //수량, 가격 -->
+
+						<!-- 버튼 -->
+						<div class="goods-btn-box">
+							<div>
+
+								<button type="button" class="gift__btn h-login__btn" >
+									<span>선물하기</span>
+								</button>
+
+								<button type="button" class="cart__btn" onclick="javascript:AddToShoppingbag('');">
+									<span>장바구니</span>
+								</button>
+
+								<button type="button" class="buy__btn" onclick="checkout_login(0);">
+									<span>구매하기</span>
+								</button>
+								<e class="h-login__btn2" style="display:none;"></e>
+
+								<!--
+								<button type="button" class="today-delivery__btn">
+									<span>당일 주문하고 당일 받는, <b>오늘도착 서비스</b></span>
+								</button>
+								-->
+
+
+
+							</div>
+
+							<div class="info-btn-box">
+
+								<button type="button" class="line__btn return__btn">교환 및 반품안내</button>
+								<button type="button" class="line__btn goods-info__btn">상품정보제공고시</button>
+
+							</div>
+						</div>
+						<!-- //버튼 -->
+					</div>
+					<!-- //상품 정보, 상품 옵션 선택 -->
+				</div>
+				<!-- //상품 이미지, 상품 정보, 상품 옵션 선택 -->
+
+				<!-- 상품 슬라이드 -->
+				<div class="goods-slider-box">
+					<div class="goods__slider">
+
+						<div class="slide">
+							<div>
+								<img src="https://pxg.speedycdn.net/data/ProductImages/a/4/PKMCM221621.jpg?q=90" alt="" />
+							</div>
+						</div>
+
+						<div class="slide">
+							<div>
+								<img src="https://pxg.speedycdn.net/data/ProductImages/b/4/PKMCM221621.jpg?q=90" alt="" />
+							</div>
+						</div>
+
+					</div>
+					
+					<!--
+					<div class="arr-box">
+						<button type="button" class="prev__btn">prev</button>
+						<button type="button" class="next__btn">next</button>
+					</div>
+					-->
+
+					<div class="txt-box">
+						<p>
+							니트 하이브리드 컬러블럭 반팔 폴로 티셔츠<br>등을 제외한 전체 부분을 니트 편직하여 편안한 착용감과 고급스러움 강조<br>몸에 딱 맞는 슬림핏 스타일로 깔끔한 라인의 샤프한 실루엣 제공<br>컬러블럭 포인트로 다양한 연출이 가능하여 활용도가 높은 아이템
+						</p>
+					</div>
+		
+				</div>
+				<!-- //상품 슬라이드 -->
+
+
+
+				<div class="sticky-box">	
+
+
+
+				
+
+					<!-- 2022-11-11 스타일 추가 -->
+					<div class="goods-style-box">
+						<div class="head">
+							<div class="tit-box">
+								<p class="txt">RECOMMENDED STYLE</p>
+								<p class="tit">STYLED WITH <span class="num">1</span></p>
+							</div>
+						</div>
+
+						<div class="con">
+							<!-- 슬라이드 -->
+							<div class="style-slider-box">
+								<div class="style__slider swiper">
+									<div class="swiper-wrapper">
+
+										<!-- 01 -->
+										<div class="swiper-slide">
+											<div class="photo-box">
+												<img src="https://pxg.speedycdn.net/data/codi/PKMCM221621_M_03.jpg?q=90" alt="" />
+											</div>
+
+											<div class="thumb-box">
+												<ul class="style-goods__list">
+
+													<li>
+														<div class="photo">
+															<a href="/product/view.asp?pno=10349">
+																<img src="https://pxg.speedycdn.net/data/productimages/a/3/PKMPM511205.jpg?q=90" alt="">
+															</a>
+														</div>
+
+														<div class="info">
+															<a href="/product/view.asp?pno=10349">
+																<p class="txt1"></p>
+																<p class="txt2">MEN BAND POINT STANDARD FIT PANTS</p>									
+
+																<div class="price">													
+																	<p class="normal">419,000</p>													
+																</div>
+															</a>
+
+															<div class="status">
+																<button type="button" class="wish__btn  wish" data-wish="10349">wish</button> <!-- 활성화시 클래스 on -->
+															</div>
+														</div>
+
+														<!-- 2022-10-18 장바구니 담기 버튼 추가 (팝업 : /pc/product/pop_cart_prev.asp) -->
+														<button type="button" class="btn__style2 ct__btn" onclick="style_Cart_action(10349)">장바구니담기</button>
+
+													</li>
+
+
+												</ul>
+											</div>
+
+										</div>
+										<!-- //01 -->
+
+
+									</div>
+								</div>
+
+								<div class="arrow-box">
+									<div class="swiper-button-prev"></div>
+									<div class="swiper-button-next"></div>
+								</div>
+
+								<div class="swiper-pagination"></div>
+							</div>
+							<!-- //슬라이드 -->
+						</div>
+					</div>
+					<!-- //2022-11-11 스타일 추가 -->
+
+
+					<!-- 하단 고정 버튼 -->
+					<nav class="bottom-bar">
+						<div class="inner">
+							<div class="info">
+								<div class="name-price">
+									<p class="name">MEN COLOR BLOCKED KNIT HYBRID COLLAR SHORT SLEEVE</p>
+
+									<div class="price">
+										<p class="normal psprice">399,000</p>
+									</div>
+								</div>
+
+								<div class="option-choice">
+									<div class="">
+										<div class="option _color _custom_select">
+											<select name="subcolor" onchange="colorMove();">
+												<option value="" disabled selected hidden>Color</option>
+
+												<option value="9874" selected>BLACK</option>
+
+												<option value="9875" >BLUE</option>
+
+											</select>
+<script>
+function colorMove(){
+	alert($("select[name=subcolor]").val());
+//	location.href="view.asp?pno=" + $("select[name=subcolor]").val();
+}
+</script>
+										</div>
+
+										<div class="option _size _custom_select">
+											<select name="btSize" id="btSize" >
+												<option value="" disabled selected hidden>Size</option>
+
+
+												<option value="095">095</option>
+
+
+												<option value="100">100</option>
+
+
+												<option value="105">105</option>
+
+											</select>
+										</div>
+									</div>
+
+									<div class="qty" id="vpop2">
+										<button type="button" name="qtyMinus2" id="qtyMinus2" class="minus__btn">minus</button>
+										<input type="number" name="ProductQuantity2" id="ProductQuantity2" value="1" maxlength="2" onkeypress='validate(event)' onkeyup="hangle_onkeyup(jQuery(this))" />
+										<button type="button" name="qtyPlus2" id="qtyPlus2" class="plus__btn">plus</button>
+									</div>
+								</div>
+
+							</div>
+
+							<div class="btn-box">
+
+								<div>
+								
+									<button type="button" class="gift__btn h-login__btn" >gift</button>
+								
+									<button type="button" class="bar-cart__btn" onclick="javascript:AddToShoppingbag('');">cart</button>
+								</div>
+
+								<button type="button" class="buy__btn" onclick="checkout(0);">구매하기</button>
+
+							</div>
+						</div>
+					</nav>
+					<!-- //하단 고정 버튼 -->
+				</div>
+			</section>
+				</form>
+				<form name="form6" id="form6"  target="dataFrame"><input type="hidden" name="checkwish"><input type="hidden" name="ProductQuantity"><input type="hidden" name="mode" value="style"></form>
+		</div>
+		<!-- // end of :: contents -->
+
+<script>
+let timeid;
+function styleView(){
+	if ($('#rsStyle').css("display") === "none" ){
+		clearInterval(timeid);
+	}else{
+		$('#rsStyle').hide();
+	}
+}
+$(function(){
+	timeid = setInterval("styleView()",1000);
+})
+</script>
+
+
+<!-- 2025-07-25 PlayD TERA Log Product Script -->
+<script>
+_LA("VIEW", ['PKMPM511205', 'MEN BAND POINT STANDARD FIT PANTS', 419000, 1, '106']);
+</script>
+		
+		<!-- start of :: footer -->
+<footer id="footer">
+	<div class="inner">
+		<!-- logo, button -->
+		<div class="left">
+			<a href="/" class="logo">PXG</a>
+			
+			<!--div class="btn-box">
+				<a href="/customer/giftcard.asp">
+					<span>PXG 디지털 기프트 카드 구매</span>
+				</a>
+			</div-->
+		</div>
+		<!-- //logo, button -->
+
+		<!-- sitemap, lookbook -->
+		<div class="right">
+			<div class="sitemap">
+				<!-- ABOUT PXG -->
+				<div>
+					<p>ABOUT PXG</p>
+
+					<ul>
+						<li>
+							<a href="/about/brand/brand.asp">BRAND</a>
+						</li>
+						<li>
+							<a href="/about/legacy/index.asp">LEGACY</a>
+						</li>
+						<li>
+							<a href="/pros/pros.asp">PROS</a>
+						</li>
+						<li>
+							<a href="https://www.instagram.com/pxgkorea/" target="_blank">PXG INSTAGRAM</a>
+						</li>
+						<li>
+							<a href="https://www.youtube.com/channel/UCXu_0G8xuSF6amHrquhlDew" target="_blank">PXG YOUTUBE</a>
+						</li>
+						<li>
+							<a href="https://www.facebook.com/pxgkorea/" target="_blank">PXG FACEBOOK</a>
+						</li>
+					</ul>
+				</div>
+				<!-- //ABOUT PXG -->
+
+				<!-- SUPPORT -->
+				<div>
+					<p>SUPPORT</p>
+
+					<ul>
+						<li>
+							<a href="/mypage/coupon.asp">쿠폰등록</a>
+						</li>
+						<li>
+							<a href="/customer/fake.asp">위조품 신고</a>
+						</li>
+						<li>
+							<a href="/customer/serial_detail.asp">클럽 정품 등록</a>
+						</li>
+						<li>
+							<a href="/customer/level.asp">멤버십 안내</a>
+						</li>
+						<!--<li>
+							<a href="/customer/level.asp">공식 온라인몰 혜택</a>
+						</li>-->
+						<li>
+							<a href="/customer/giftcard.asp">디지털 상품권 안내</a>
+						</li>						
+					</ul>
+				</div>
+				<!-- //SUPPORT -->
+
+				<!-- CS CENTER -->
+				<div>
+					<p>CS CENTER</p>
+
+					<ul>
+
+						<li class="guest">
+							<a href="javascript:;">비회원 주문조회</a>
+						</li>
+	
+						<li>
+							<a href="/customer/faq.asp">FAQ</a>
+						</li>
+						<li>
+							<a href="/mypage/qna.asp">Q&amp;A</a>
+						</li>
+						<li>
+							<a href="/customer/as.asp">A/S 안내</a>
+						</li>
+						<li>
+							<a href="/customer/notice.asp">공지사항</a>
+						</li>
+						<li>
+							<a href="/customer/agree.asp">이용약관</a>
+						</li>
+						<li>
+							<a href="/customer/privacy.asp" class="bld">개인정보처리방침</a>
+						</li>
+					</ul>
+				</div>
+				<!-- //CS CENTER -->
+			</div>
+
+			<!-- lookbook -->
+			<div class="lookbook-view">
+				<p>VIEW</p>
+				
+				<ul>
+					<li>
+						<a href="http://pxg-photos.com/" target="_blank">2026 SS PXG 어패럴 룩북</a>
+					</li>
+				</ul>						
+			</div>
+			<!-- //lookbook -->
+		</div>
+		<!-- //sitemap, lookbook -->
+
+		<!-- 회사정보, copyright -->
+		<div class="bottom">
+			<div class="company-info">
+				<span>사업자 등록번호&nbsp;&nbsp;:</span>&nbsp;&nbsp;215-87-99580&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<span>상호명&nbsp;&nbsp;:</span>&nbsp;&nbsp;(주)로저나인&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<span>주소&nbsp;&nbsp;:</span>&nbsp;&nbsp;서울특별시 강남구 논현로 156 주식회사 로저나인&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<span class="_color_style1">대표&nbsp;&nbsp;:</span>&nbsp;&nbsp;<span class="_color_style1">신재호</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="http://www.ftc.go.kr/bizCommPop.do?wrkr_no=2158799580&apv_perm_no=2018322016230200775" onclick="window.open(this.href, 'info', 'scrollbars=no,resizable=no,width=890,height=910');return false;" class="licence__btn">사업자 정보 확인</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="https://mark.inicis.com/mark/escrow_popup.php?mid=rogernine1" onclick="window.open(this.href, 'mark', 'scrollbars=no,resizable=no,width=565,height=683');return false;" class="licence__btn">에스크로 확인</a><br />
+				<span>통신판매업 신고번호&nbsp;&nbsp;:</span>&nbsp;&nbsp;제 2018-서울강남-00775호&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<span>개인정보책임자&nbsp;&nbsp;:</span>&nbsp;&nbsp;박상태&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<span>온라인쇼핑몰&nbsp;&nbsp;:</span>&nbsp;&nbsp;1644-3909&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<span>골프웨어 및 용품 AS&nbsp;&nbsp;:</span>&nbsp;&nbsp;1599-0811&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<span>골프클럽 AS&nbsp;&nbsp;:</span>&nbsp;&nbsp;1644-5008&nbsp;&nbsp;&nbsp;
+				<a href="mailto:webmaster@pxg.co.kr">webmaster@pxg.co.kr</a>
+			</div>
+			
+			<div class="familysite-box">
+
+				<div class="familysite">
+					<button type="button">FAMILY SITE</button>
+
+					<!-- 2024-07-17 site__list 수정 / _v2 추가-->
+					<ul class="site__list _v2">
+						<li>
+							<a href="https://www.golfnuts.co.kr" target="_blank">GOLF NUTS</a>
+						</li>
+						<li>
+							<a href="https://www.bushnellgolfkorea.co.kr/main/main.asp" target="_blank">BUSHNELL GOLF KOREA</a>
+						</li>
+					</ul>
+				</div>
+
+				<p class="copyright">&copy; 2026 ROGER NINE INC. All Rights
+Reserved.						
+				</p>
+
+			</div>
+		</div>
+		<!-- //회사정보, copyright -->
+	</div>
+</footer>
+<!-- // end of :: footer -->
+<iframe id="dataFrame" name="dataFrame" style="display:none;"></iframe>
+<iframe id="pFrame" name="pFrame" style="display:none;"></iframe>
+
+
+<!-- 공통 적용 스크립트 , 모든 페이지에 노출되도록 설치. 단 전환페이지 설정값보다 항상 하단에 위치해야함 --> 
+<!-- 스크립트 변경으로 재적용 250430 EG --> 
+<!-- 2020-05-21 -->
+<script type="text/javascript" src="//wcs.naver.net/wcslog.js"> </script> 
+<script type="text/javascript"> 
+if (!wcs_add) var wcs_add={};
+wcs_add["wa"] = "s_2485c51f647d";
+if (!_nasa) var _nasa={};
+wcs.inflow();
+wcs_do(_nasa);
+</script>
+
+<script type="text/javascript"> 
+if (!wcs_add) var wcs_add={};
+wcs_add["wa"] = "s_2485c51f647d";
+if (!_nasa) var _nasa={};
+if(window.wcs){
+wcs.inflow();
+wcs_do();
+}
+</script>
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZRP1Q116BY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZRP1Q116BY');
+</script>
+
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MNCTZDZ"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- 공통 호출 하단 스크립트 : 모든페이지 하단 설치 -->
+<!-- 2025-07-25 PlayD TERA Log Script v1.2 -->
+<script>
+var _nSA=(function(_g,_s,_p,_d,_i,_h){ 
+ if(_i.wgc!=_g){_i.wgc=_g;_i.wrd=(new Date().getTime());
+ var _sc=_d.createElement('script');_sc.src=_p+'//sas.techhub.co.kr/'+_s+'gc='+_g+'&rd='+_i.wrd;
+ var _sm=_d.getElementsByTagName('script')[0];_sm.parentNode.insertBefore(_sc, _sm);} return _i;
+})('TR10309006392','sa-w.js?',location.protocol,document,window._nSA||{},location.hostname);
+</script>
+<!-- LogAnalytics Script Install -->
+	</div>
+    <!-- // end of :: wrap -->    
+
+
+<!-- 2021-09-28 groobee s -->
+
+<script>
+//groobee( "VG", { goods : [
+//	{
+//		
+//		name: "MEN BAND POINT STANDARD FIT PANTS" + ' ' + "남성 칼라 블록 니트 하이브리드 카라 숏 슬리브",
+//		
+//		code: "PKMPM511205",
+//		cat: "106",
+//		cateNm: "T-SHIRTS",	
+//		amt: 419000,
+//		prc: 419000,
+//		salePrc: 419000,	
+//		img: "https://www.pxg.co.kr/data/ProductImages/a/3/PKMPM511205.jpg",
+//		status: "",
+//		catL: "800",
+//		cateLNm: "APPAREL",
+//		catM: "100",
+//		cateMNm: "MEN",
+//		catS: "106",
+//		cateSNm: "T-SHIRTS",
+//		brand: "A",
+//		brandNm: "APPAREL"
+//	}
+//]
+//});
+</script>
+<!-- 2021-09-28 groobee E -->
+</body>
+</html>

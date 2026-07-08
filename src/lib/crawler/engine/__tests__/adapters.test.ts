@@ -63,6 +63,20 @@ test("generic(descentegolf) JSON-LD 파싱", () => {
   assert.ok(p!.name.length > 0, "name");
 });
 
+test("generic(pxg) og:title + priceSelector 파싱", () => {
+  const html = read("pxg/detail-1.html");
+  const cfg = {
+    id: "pxg",
+    baseUrl: "https://www.pxg.co.kr",
+    brandName: "PXG",
+    selectors: { priceSelector: "#ProductPriceSale" },
+  } as unknown as SiteConfig;
+  const p = parseGenericDetail(html, "https://www.pxg.co.kr/product/view.asp?pno=9874", cfg);
+  assert.ok(p, "product");
+  assert.equal(p!.originalPrice, 399000);
+  assert.ok(p!.name.length > 0, "name");
+});
+
 test("cafe24 sitemap 상품 URL 추출", () => {
   const urls = extractProductUrls(read("anewgolf/sitemap.xml"), "https://anewgolf.com");
   assert.ok(urls.length > 5, `urls=${urls.length}`);

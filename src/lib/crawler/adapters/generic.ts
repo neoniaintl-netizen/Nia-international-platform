@@ -15,7 +15,14 @@ export function parseGenericDetail(html: string, url: string, cfg: SiteConfig): 
   const $ = cheerio.load(html);
   const ld = findLdProduct($);
 
-  const name = String(ld?.name || $('meta[property="og:title"]').attr("content") || $("title").text() || "")
+  const nameSel = cfg.selectors?.nameSelector;
+  const name = String(
+    ld?.name ||
+      $('meta[property="og:title"]').attr("content") ||
+      (nameSel ? $(nameSel).first().text() : "") ||
+      $("title").text() ||
+      "",
+  )
     .replace(/\s*[|\-–].*$/, "")
     .trim();
   if (!name) return null;
@@ -24,6 +31,12 @@ export function parseGenericDetail(html: string, url: string, cfg: SiteConfig): 
   if (!price) {
     const mp = $('meta[property="product:price:amount"]').attr("content");
     price = mp ? Math.round(parseFloat(mp)) : 0;
+  }
+  // config priceSelector: value 속성 또는 텍스트에서 숫자 추출 (자체몰 hidden input 등)
+  if (!price && cfg.selectors?.priceSelector) {
+    const el = $(cfg.selectors.priceSelector).first();
+    const raw = el.attr("value") || el.text();
+    price = raw ? parseInt(raw.replace(/[^0-9]/g, ""), 10) || 0 : 0;
   }
   if (price <= 0) return null;
 

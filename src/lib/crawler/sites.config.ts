@@ -82,6 +82,20 @@ const RAW_SITES: SiteConfig[] = [
     listEndpoint: "https://dk-on.com/DESCENTEGOLF",
     selectors: { productUrlPattern: "/DESCENTEGOLF/product/[A-Za-z0-9]+" },
   },
+  {
+    id: "pxg",
+    name: "PXG",
+    baseUrl: "https://www.pxg.co.kr",
+    brandName: "PXG",
+    platform: "custom",
+    strategy: "static_html",
+    // JSON-LD 없음 → og:title(이름) + #ProductPriceSale(가격) 커스텀 셀렉터
+    listEndpoint: "https://www.pxg.co.kr/main/apparel.asp",
+    selectors: {
+      productUrlPattern: "/product/view\\.asp\\?pno=\\d+",
+      priceSelector: "#ProductPriceSale",
+    },
+  },
 ];
 
 export const SITES: SiteConfig[] = RAW_SITES.map(validateSiteConfig);
