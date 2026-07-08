@@ -52,12 +52,8 @@
 - [~] T4: footjoy — 상품페이지 410 차단 → 이연(수동등록 대상)
 - [x] T5: 관리자 DRAFT 일괄 처리 ✅ (/admin/drafts, 필터+bulk ACTIVE/삭제, DRAFT 안전가드, build 그린)
 - [~] T6: 엔진 스왑 — **의도적 이연**. 신규 엔진은 CLI 구동, 관리자 반영은 DRAFT 상품+/admin/drafts로 충족. 레거시 /admin/crawl 단일URL 트리거는 인터페이스 상이(collect vs parseDetail)라 라이브 리스크 피해 별도 태스크로.
-- [x] T7: 성공률 리포트 (브랜드 커버리지 열, 조건3) ← 다음
-- [ ] T8: Phase 3 완료 보고 → (승인 후) Phase 3+1 contentHash 마이그
-- 다음 액션: T7(리포트) → T8(보고/게이트)
-- [ ] T6: 엔진을 /admin/crawl·src/actions/crawl.ts에 스왑 배선 + build 그린
-- [x] T7: 성공률 리포트 (브랜드 커버리지 열 포함, 조건3) → docs/site_analysis.md 갱신 or 신규
-- [ ] T8: Phase 3 완료 보고 → (승인 후) Phase 3+1 contentHash 마이그
+- [x] T7: 성공률 리포트 ✅ (docs/crawler-coverage-report.md, 브랜드 커버리지 + 버킷스토어 3브랜드)
+- [x] T8: Phase 3 완료 — 사용자 보고 완료. **다음: Phase 3+1 contentHash 마이그(사용자 지시 대기)**
 
 ## 실행/검증 명령
 ```bash
@@ -75,5 +71,8 @@
 - fixture: `docs/crawler-fixtures/<id>/` (대용량 recon은 gitignore, 파일럿 3개만 커밋)
 - 저장: 로컬 DB(localhost:5432/musinsa_mvp)에 DRAFT. 프로덕션 반영은 운영자가 prod DATABASE_URL로 CLI 실행 시.
 
-## 다음 액션
-→ T1 (utaa, pelt Cafe24 config 추가) 부터.
+## 다음 액션 (Phase 3 완료됨)
+→ **Phase 3+1: contentHash 마이그레이션** (조건2, 사용자 지시 대기).
+  절차: ① `npx prisma migrate deploy`로 미적용 3개(payment) 적용 → ② schema.prisma에 Product.sourceProductId/contentHash 추가 → ③ 마이그 생성·적용 → ④ storage.persist가 두 컬럼 저장하도록 importer 연동 → ⑤ update 모드 content_hash 비교.
+  ※ ①이 payments 테이블 건드리므로(additive nullable, 안전) 실행 전 사용자 확인 권장.
+그 후 Phase 4 (이미지 파이프라인·이력테이블·알림·크론).
