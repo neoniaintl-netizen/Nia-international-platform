@@ -58,10 +58,18 @@
 ## Phase 4 진행 (순서 고정, #3만 게이트)
 - [x] P4-1: contentHash/sourceProductId 마이그 + 변경감지 ✅ (migrate deploy 4개 적용, 재크롤 skip 검증)
 - [x] P4-2: 이미지 파이프라인 ✅ (로컬FS+R2 pluggable, southcape 핫링크 230→0 검증). R2 env: R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_BUCKET/R2_PUBLIC_URL (+@aws-sdk/client-s3)
-- [ ] **P4-3: PriceHistory 테이블 — 승인 게이트 (스키마 diff 제시, 승인 대기)** ← 지금
-- [ ] P4-4: 알림 (0건/전일대비 -50% → CrawlJob 경고플래그+로그, 슬랙훅 함수+env)
-- [ ] P4-5: CLI→크론 (GitHub Actions 03:00 full/12:00 update, 비활성·파일만, prod DATABASE_URL=Secrets 문서화)
-- 최종: 전체 완료 후 리포트
+- [x] P4-3: PriceHistory 테이블 ✅ (승인 스키마, 가격변동 이력 검증 710345→698000)
+- [x] P4-4: 알림 ✅ (evaluateCrawlAlert + notifySlack, -60% 급감 경고 검증, CrawlJob.warning)
+- [x] P4-5: CLI→크론 ✅ (.github/workflows/crawl.yml, schedule 주석=비활성, workflow_dispatch만)
+
+## 프로덕션 전환 (진행 중)
+- [x] 최종 점검: tsc 0, 테스트 25/25, 빌드 성공, 라우트 회귀 없음
+- [ ] **푸시 게이트: prod DB 백업 확인 후 main 푸시** ← 지금 (24 커밋 미푸시)
+- 프로덕션 자동 적용 마이그(신규 3개): add_crawler_source_fields, add_price_history, add_crawljob_warning (전부 additive)
+- [ ] 파일럿 3개 프로덕션 크롤 → /admin/products?status=DRAFT 확인
+- [ ] DRAFT 일괄처리 검수 시연(브랜드 필터→bulk ACTIVE→프론트)
+- [ ] 크론 활성화(마지막)
+- [ ] docs/OPERATIONS.md 운영 매뉴얼
 
 ## 실행/검증 명령
 ```bash
