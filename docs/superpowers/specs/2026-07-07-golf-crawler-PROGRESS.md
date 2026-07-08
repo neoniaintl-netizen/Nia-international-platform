@@ -104,11 +104,12 @@
   - 상세 필드: JSON-LD **없음**, og:image ✅, 가격=`[class*=price]`의 ₩값(예 258,000), **이름 셀렉터 미확정**(h1은 "타이틀리스트"=브랜드) → 다음에 확정 필요
 - ✅ **PlaywrightAdapter 인프라 완성** (`adapters/playwright.ts`: 렌더→extractGenericUrls→상세렌더→parseGenericDetail 재사용. getAdapter platform "playwright" 배선). Platform 타입에 playwright 추가. workflow에 `npx playwright install chromium` 스텝 추가.
 - ✅ **titleist 완료(11번째 브랜드)** — nameSelector `.item-name`, priceSelector `[class*=price]`, listEndpoint `/product/all/{men,women}`, productUrlPattern `/product/[A-Z][A-Z0-9]{5,}`. dry-run 검증(KOREA POLO SHIRT 258,000 등), fixture 테스트, **배포 완료**.
-- ⬜ **남은 (되는 것부터, 상난이도면 스킵+기록)**:
-  - 지포어 → 보스골프 → 버킷스토어(/brands/8·4·5 → 세인트앤드류스·마스터바니·파리게이츠). 각 착수 전 정찰로 난이도 판정, **"상" 이상이면 스킵+사유 기록 후 다음**.
-  - 어댑터당: dry-run 검증 → 커밋+progress → **즉시 main 푸시(하나씩)**.
-  - **5~8(더카트·랑방블랑·왁·나이키) 착수 금지.** 1~4 종료 리포트에 5~8 진행/포기 권고 + 20브랜드 커버리지 표 갱신.
-- 재개어: "Playwright 이어서" → 이 섹션 보고 계속. (다음: 지포어 정찰)
+- ✅ **지포어 완료(12번째)** — nameRegex(og:title | 뒤)+priceRegex(JS). 배포.
+- ⏭️ **보스골프 스킵** — iamtom.co.kr 13KB 셸, 상품 외부 golfnuts.co.kr(cafe24)로 연결·소스 불명확(상+).
+- ⏭️ **버킷스토어 스킵** — 상품 카드 href/onclick/data 없음(React onClick), /bucketapi에 상품 API 없음(RSC only), URL 추출 불가(상+). → 세인트앤드류스·마스터바니·파리게이츠 미확보.
+- ✅ **1~4 트랙 종료**: 확보 2(titleist·gfore) + 스킵 2(bossgolf·bucketstore). 커버리지 9→12.
+- 최종 리포트: [docs/crawler-coverage-report.md](../../crawler-coverage-report.md) — 20브랜드 표 + 5~8(더카트·랑방블랑·왁·나이키) 진행/포기 권고(대체로 포기/수동 권고).
+- **5~8 착수 금지 유지** (사용자 승인 시에만).
 
 ## 다음 액션 (Phase 3 완료됨)
 → **Phase 3+1: contentHash 마이그레이션** (조건2, 사용자 지시 대기).
