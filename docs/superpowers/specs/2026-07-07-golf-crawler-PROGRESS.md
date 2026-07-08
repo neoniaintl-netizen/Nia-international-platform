@@ -55,6 +55,14 @@
 - [x] T7: 성공률 리포트 ✅ (docs/crawler-coverage-report.md, 브랜드 커버리지 + 버킷스토어 3브랜드)
 - [x] T8: Phase 3 완료 — 사용자 보고 완료. **다음: Phase 3+1 contentHash 마이그(사용자 지시 대기)**
 
+## Phase 4 진행 (순서 고정, #3만 게이트)
+- [x] P4-1: contentHash/sourceProductId 마이그 + 변경감지 ✅ (migrate deploy 4개 적용, 재크롤 skip 검증)
+- [x] P4-2: 이미지 파이프라인 ✅ (로컬FS+R2 pluggable, southcape 핫링크 230→0 검증). R2 env: R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_BUCKET/R2_PUBLIC_URL (+@aws-sdk/client-s3)
+- [ ] **P4-3: PriceHistory 테이블 — 승인 게이트 (스키마 diff 제시, 승인 대기)** ← 지금
+- [ ] P4-4: 알림 (0건/전일대비 -50% → CrawlJob 경고플래그+로그, 슬랙훅 함수+env)
+- [ ] P4-5: CLI→크론 (GitHub Actions 03:00 full/12:00 update, 비활성·파일만, prod DATABASE_URL=Secrets 문서화)
+- 최종: 전체 완료 후 리포트
+
 ## 실행/검증 명령
 ```bash
 # 테스트: npx tsx src/lib/crawler/engine/__tests__/run.ts
