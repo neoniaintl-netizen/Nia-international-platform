@@ -34,24 +34,24 @@
 | utaa | 유타 | cafe24 | config 재사용 | ✅ T1 (img 1건-og만) |
 | pelt | 펠트 | cafe24 | config 재사용 | ✅ T1 (img 9건) |
 | iceberg | 아이스버그 | cafe24(sitemap無) | 카테고리 listEndpoint | ✅ T2 (cate_no=73, 19건/카테고리) |
-| thecart | 더카트 | 자체(검증필요) | 상세 recon 후 | ⬜ 대기 |
-| malbon | 말본 | 자체(cafe24추정) | 상세 recon 후 | ⬜ 대기 |
-| titleist | 타이틀리스트 | 자체(cafe24추정) | 상세 recon 후 | ⬜ 대기 |
 | amazingcre | 어메이징크리 | custom(JSON-LD) | GenericAdapter | ✅ T3 (sitemap→shop_view) |
 | descentegolf | 데상트골프 | custom(ProductGroup) | GenericAdapter | ✅ T3 (홈→product) |
-| pxg | PXG | 자체(.asp, og만) | 커스텀 가격 필요 | ⬜ 시도중 |
-| malbon | 말본 | 자체(/shop/detail, og만) | 커스텀 가격 필요 | ⬜ 시도중 |
-| titleist | 타이틀리스트 | 자체(URL형식 미확정) | 재확인 필요 | ⬜ 대기 |
-| thecart | 더카트 | 자체(상품 sitemap無) | 후순위 검토 | ⬜ 대기 |
-| footjoy | 풋조이 | shopify(상품 410 차단) | **차단→후순위** | ⏸️ 이연 |
+| pxg | PXG | custom(og+input) | GenericAdapter+priceSelector | ✅ T3 (og:title+#ProductPriceSale) |
+| malbon | 말본 | 자체(/shop/detail) | 가격이 GA JS에만 | ⏸️ 이연(취약) |
+| titleist | 타이틀리스트 | 자체(URL형식 미확정) | 상세 URL 형식 재recon 필요 | ⏸️ 이연 |
+| thecart | 더카트 | 자체(상품 sitemap無) | 상품목록 진입점 불명 | ⏸️ 이연 |
+| footjoy | 풋조이 | shopify(상품 410) | 상품페이지 차단(410) | ⏸️ 이연(차단) |
 | **후순위(playwright/SPA)** | bucketstore·gfore·랑방블랑·왁·nikegolf·bossgolf | — | Phase 3 제외, 리포트에 수동등록 명시 | ⏸️ 이연 |
+
+**동작 어댑터: 9개 사이트** (markandlona·anewgolf·utaa·pelt·iceberg·southcape·amazingcre·descentegolf·pxg) — Shopify/Cafe24×4/Godomall/Generic-JSONLD×3. **이연: malbon·titleist·thecart·footjoy + SPA 6개** (사유 위 표).
 
 ## Phase 3 태스크 체크리스트
 - [x] T1: Cafe24 config 재사용 — utaa, pelt ✅ (dry-run 검증 완료)
 - [x] T2: iceberg — sitemap 없음, 카테고리 listEndpoint로 상품 URL 수집 (Cafe24Adapter 보강 or config)
-- [ ] T3: 자체몰 recon+어댑터 — thecart/malbon/titleist/amazingcre/descentegolf/pxg (사이트당: 상세 fixture 캡처→plat 판별→어댑터/셀렉터→dry-run 검증→커밋)
-- [ ] T4: footjoy — Shopify JSON-LD 폴백 어댑터
-- [ ] T5: 관리자 DRAFT 일괄 처리 기능 (조건1) — 필터+bulk ACTIVE/삭제
+- [x] T3: 자체몰 어댑터 — amazingcre·descentegolf·pxg ✅ (malbon/titleist/thecart/footjoy 이연, 사유 표에)
+- [~] T4: footjoy — 상품페이지 410 차단 → 이연(수동등록 대상)
+- [ ] T5: 관리자 DRAFT 일괄 처리 기능 (조건1) — 필터+bulk ACTIVE/삭제 ← 다음
+- 다음 액션: T5 (관리자 일괄처리) → T6(스왑) → T7(리포트) → T8(보고)
 - [ ] T6: 엔진을 /admin/crawl·src/actions/crawl.ts에 스왑 배선 + build 그린
 - [ ] T7: 성공률 리포트 (브랜드 커버리지 열 포함, 조건3) → docs/site_analysis.md 갱신 or 신규
 - [ ] T8: Phase 3 완료 보고 → (승인 후) Phase 3+1 contentHash 마이그
