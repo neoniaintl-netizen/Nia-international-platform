@@ -33,7 +33,7 @@
 | southcape | 사우스케이프 | godomall | 리스트→상세 | ✅ Phase2 |
 | utaa | 유타 | cafe24 | config 재사용 | ✅ T1 (img 1건-og만) |
 | pelt | 펠트 | cafe24 | config 재사용 | ✅ T1 (img 9건) |
-| iceberg | 아이스버그 | cafe24(sitemap無) | 카테고리 listEndpoint | ⬜ 대기 |
+| iceberg | 아이스버그 | cafe24(sitemap無) | 카테고리 listEndpoint | ✅ T2 (cate_no=73, 19건/카테고리) |
 | thecart | 더카트 | 자체(검증필요) | 상세 recon 후 | ⬜ 대기 |
 | malbon | 말본 | 자체(cafe24추정) | 상세 recon 후 | ⬜ 대기 |
 | titleist | 타이틀리스트 | 자체(cafe24추정) | 상세 recon 후 | ⬜ 대기 |
@@ -45,7 +45,7 @@
 
 ## Phase 3 태스크 체크리스트
 - [x] T1: Cafe24 config 재사용 — utaa, pelt ✅ (dry-run 검증 완료)
-- [ ] T2: iceberg — sitemap 없음, 카테고리 listEndpoint로 상품 URL 수집 (Cafe24Adapter 보강 or config)
+- [x] T2: iceberg — sitemap 없음, 카테고리 listEndpoint로 상품 URL 수집 (Cafe24Adapter 보강 or config)
 - [ ] T3: 자체몰 recon+어댑터 — thecart/malbon/titleist/amazingcre/descentegolf/pxg (사이트당: 상세 fixture 캡처→plat 판별→어댑터/셀렉터→dry-run 검증→커밋)
 - [ ] T4: footjoy — Shopify JSON-LD 폴백 어댑터
 - [ ] T5: 관리자 DRAFT 일괄 처리 기능 (조건1) — 필터+bulk ACTIVE/삭제

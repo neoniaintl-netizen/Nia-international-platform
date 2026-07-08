@@ -76,19 +76,31 @@ export function parseCafe24Detail(html: string, url: string, cfg: SiteConfig): C
   };
 }
 
-/** sitemap.xml에서 /product/ 상세 URL 추출. */
-export function extractProductUrls(sitemapXml: string, baseUrl: string): string[] {
-  const host = new URL(baseUrl).host;
-  const re = new RegExp(`https?://${host.replace(/\./g, "\\.")}/product/[^<\\s]+`, "g");
-  return [...new Set(sitemapXml.match(re) ?? [])];
+// 이미지 크기 디렉토리(/product/small/... 등)는 상품이 아니라 제외.
+const NON_PRODUCT = /\/product\/(small|medium|big|tiny|list)\b/;
+
+/** sitemap.xml(절대 URL) + 카테고리 페이지(상대 링크) 양쪽에서 /product/{slug}/{id}/ 상세 URL 추출. */
+export function extractProductUrls(content: string, baseUrl: string): string[] {
+  const { origin, host } = new URL(baseUrl);
+  const urls = new Set<string>();
+  // 절대 URL (sitemap)
+  const absRe = new RegExp(`https?://${host.replace(/\./g, "\\.")}/product/[^"'<>\\s]+`, "g");
+  for (const u of content.match(absRe) ?? []) urls.add(u.split(/[?#]/)[0]);
+  // 상대 URL (카테고리 페이지): /product/{slug}/{numericId}/
+  const relRe = /\/product\/[A-Za-z0-9가-힣%_-]+\/\d+\//g;
+  for (const rel of content.match(relRe) ?? []) urls.add(origin + rel);
+  return [...urls].filter(
+    (u) => !NON_PRODUCT.test(u) && /\/\d+\/?$/.test(u.replace(/[?#].*$/, "")),
+  );
 }
 
 export class Cafe24Adapter implements Adapter {
   readonly platform = "cafe24";
   async collect(cfg: SiteConfig, opts: { limit: number }): Promise<CrawledProduct[]> {
     const base = cfg.baseUrl.replace(/\/$/, "");
-    const sitemapXml = await fetchHtml(cfg.listEndpoint || `${base}/sitemap.xml`);
-    const urls = extractProductUrls(sitemapXml, cfg.baseUrl).slice(0, opts.limit);
+    // listEndpoint는 sitemap.xml 또는 카테고리 리스트 페이지 둘 다 가능.
+    const listing = await fetchHtml(cfg.listEndpoint || `${base}/sitemap.xml`);
+    const urls = extractProductUrls(listing, cfg.baseUrl).slice(0, opts.limit);
     const out: CrawledProduct[] = [];
     for (const url of urls) {
       try {

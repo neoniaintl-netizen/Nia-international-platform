@@ -50,6 +50,16 @@ const RAW_SITES: SiteConfig[] = [
     strategy: "static_html",
     listEndpoint: "https://peltgolf.com/sitemap.xml",
   },
+  {
+    id: "iceberg",
+    name: "아이스버그",
+    baseUrl: "https://iceberggolf.com",
+    brandName: "아이스버그",
+    platform: "cafe24",
+    strategy: "static_html",
+    // sitemap 없음 → 카테고리 리스트 페이지에서 상품 URL 수집
+    listEndpoint: "https://iceberggolf.com/product/list.html?cate_no=73",
+  },
 ];
 
 export const SITES: SiteConfig[] = RAW_SITES.map(validateSiteConfig);
