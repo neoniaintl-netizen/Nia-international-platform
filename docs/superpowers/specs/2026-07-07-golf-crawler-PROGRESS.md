@@ -52,11 +52,11 @@
 - [~] T4: footjoy — 상품페이지 410 차단 → 이연(수동등록 대상)
 - [x] T5: 관리자 DRAFT 일괄 처리 ✅ (/admin/drafts, 필터+bulk ACTIVE/삭제, DRAFT 안전가드, build 그린)
 - [~] T6: 엔진 스왑 — **의도적 이연**. 신규 엔진은 CLI 구동, 관리자 반영은 DRAFT 상품+/admin/drafts로 충족. 레거시 /admin/crawl 단일URL 트리거는 인터페이스 상이(collect vs parseDetail)라 라이브 리스크 피해 별도 태스크로.
-- [ ] T7: 성공률 리포트 (브랜드 커버리지 열, 조건3) ← 다음
+- [x] T7: 성공률 리포트 (브랜드 커버리지 열, 조건3) ← 다음
 - [ ] T8: Phase 3 완료 보고 → (승인 후) Phase 3+1 contentHash 마이그
 - 다음 액션: T7(리포트) → T8(보고/게이트)
 - [ ] T6: 엔진을 /admin/crawl·src/actions/crawl.ts에 스왑 배선 + build 그린
-- [ ] T7: 성공률 리포트 (브랜드 커버리지 열 포함, 조건3) → docs/site_analysis.md 갱신 or 신규
+- [x] T7: 성공률 리포트 (브랜드 커버리지 열 포함, 조건3) → docs/site_analysis.md 갱신 or 신규
 - [ ] T8: Phase 3 완료 보고 → (승인 후) Phase 3+1 contentHash 마이그
 
 ## 실행/검증 명령
