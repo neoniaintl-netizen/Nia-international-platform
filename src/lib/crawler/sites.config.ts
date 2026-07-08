@@ -110,6 +110,23 @@ const RAW_SITES: SiteConfig[] = [
       priceRegex: "\"currency\"\\s*:\\s*\"KRW\"\\s*,\\s*\"value\"\\s*:\\s*\"?(\\d+)",
     },
   },
+
+  // ── Phase 3 Playwright 트랙 (tier-3, 로컬/Actions 전용) ──
+  {
+    id: "titleist",
+    name: "타이틀리스트",
+    baseUrl: "https://titleistapparel.co.kr",
+    brandName: "타이틀리스트",
+    platform: "playwright",
+    strategy: "playwright",
+    // 전체 상품 리스트(렌더) → /product/{CODE} 상세(렌더)
+    listEndpoint: "https://titleistapparel.co.kr/product/all/men,https://titleistapparel.co.kr/product/all/women",
+    selectors: {
+      productUrlPattern: "/product/[A-Z][A-Z0-9]{5,}",
+      nameSelector: ".item-name",
+      priceSelector: "[class*=price]",
+    },
+  },
 ];
 
 export const SITES: SiteConfig[] = RAW_SITES.map(validateSiteConfig);

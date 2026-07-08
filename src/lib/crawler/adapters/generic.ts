@@ -23,6 +23,7 @@ export function parseGenericDetail(html: string, url: string, cfg: SiteConfig): 
       $("title").text() ||
       "",
   )
+    .replace(/\s+/g, " ") // 내부 개행·연속공백 정규화
     .replace(/\s*[|\-–].*$/, "")
     .trim();
   if (!name) return null;

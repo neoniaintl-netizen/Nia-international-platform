@@ -1,5 +1,5 @@
 // 신규 크롤러 엔진의 사이트 설정 타입. sites.config.ts가 이 타입으로 사이트를 기술.
-export type Platform = "cafe24" | "godomall" | "shopify" | "custom";
+export type Platform = "cafe24" | "godomall" | "shopify" | "custom" | "playwright";
 export type Strategy = "json_api" | "static_html" | "playwright" | "blocked";
 
 export interface SiteConfig {

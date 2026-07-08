@@ -91,6 +91,20 @@ test("generic(malbon) title + priceRegex(GA4) 파싱", () => {
   assert.ok(p!.name.length > 0, "name");
 });
 
+test("playwright(titleist) 렌더HTML 파싱 (name/price selector)", () => {
+  const html = read("titleist/detail-1.html");
+  const cfg = {
+    id: "titleist",
+    baseUrl: "https://titleistapparel.co.kr",
+    brandName: "타이틀리스트",
+    selectors: { nameSelector: ".item-name", priceSelector: "[class*=price]" },
+  } as unknown as SiteConfig;
+  const p = parseGenericDetail(html, "https://titleistapparel.co.kr/product/TNPMS2221", cfg);
+  assert.ok(p, "product");
+  assert.equal(p!.name, "KOREA POLO SHIRT");
+  assert.equal(p!.originalPrice, 258000);
+});
+
 test("cafe24 sitemap 상품 URL 추출", () => {
   const urls = extractProductUrls(read("anewgolf/sitemap.xml"), "https://anewgolf.com");
   assert.ok(urls.length > 5, `urls=${urls.length}`);

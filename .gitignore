@@ -68,3 +68,5 @@ docs/crawler-fixtures/**
 !docs/crawler-fixtures/pxg/detail-1.html
 !docs/crawler-fixtures/malbon/
 !docs/crawler-fixtures/malbon/detail-1.html
+!docs/crawler-fixtures/titleist/
+!docs/crawler-fixtures/titleist/detail-1.html

@@ -56,6 +56,8 @@ jobs:
         with:
           node-version: "22"
       - run: npm ci
+      # Playwright tier-3 사이트(타이틀리스트 등)용 브라우저. 정적 사이트만 돌릴 땐 불필요하나 항상 설치(안전).
+      - run: npx playwright install chromium
       - name: Determine mode
         id: m
         run: |

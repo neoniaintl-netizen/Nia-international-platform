@@ -4,8 +4,9 @@ import { ShopifyAdapter } from "./shopify";
 import { Cafe24Adapter } from "./cafe24";
 import { GodomallAdapter } from "./godomall";
 import { GenericAdapter } from "./generic";
+import { PlaywrightAdapter } from "./playwright";
 
-/** platform → 어댑터 인스턴스. custom = JSON-LD/og 기반 GenericAdapter. */
+/** platform → 어댑터 인스턴스. custom=Generic(정적 JSON-LD/og), playwright=tier-3 JS렌더(로컬/Actions 전용). */
 export function getAdapter(platform: Platform): Adapter {
   switch (platform) {
     case "shopify":
@@ -16,6 +17,8 @@ export function getAdapter(platform: Platform): Adapter {
       return new GodomallAdapter();
     case "custom":
       return new GenericAdapter();
+    case "playwright":
+      return new PlaywrightAdapter();
     default:
       throw new Error(`어댑터 미구현 platform: ${platform}`);
   }
