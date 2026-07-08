@@ -42,7 +42,7 @@ export default async function AdminDraftsPage({
       take: 200,
     }),
     prisma.product.count({ where }),
-    prisma.product.groupBy({ by: ["sourceSite"], where: { status: "DRAFT" } }),
+    prisma.product.groupBy({ by: ["sourceSite"], where: { status: "DRAFT" }, _count: true }),
   ]);
 
   const rows: DraftRow[] = products.map((p) => ({
@@ -53,6 +53,10 @@ export default async function AdminDraftsPage({
     originalPrice: p.originalPrice,
     imageCount: p._count.images,
   }));
+  // 사이트별 DRAFT 카운트 (터미널 쿼리 대신 화면에서 확인)
+  const siteCounts = siteGroups
+    .map((g) => ({ site: g.sourceSite ?? "(미지정)", count: g._count }))
+    .sort((a, b) => b.count - a.count);
   const sites = siteGroups.map((g) => g.sourceSite).filter((s): s is string => !!s).sort();
 
   return (
@@ -64,6 +68,28 @@ export default async function AdminDraftsPage({
       <p className="text-sm text-gray-500">
         크롤링으로 수집된 검수대기 상품을 브랜드/사이트/가격으로 필터해 일괄 승격·삭제합니다. (승격·삭제 모두 DRAFT만 대상)
       </p>
+
+      {/* 사이트별 DRAFT 카운트 — 크롤 결과를 화면에서 바로 확인 */}
+      <div className="rounded-lg border bg-gray-50 p-4">
+        <p className="mb-2 text-xs font-semibold text-gray-500">사이트별 DRAFT 수</p>
+        {siteCounts.length === 0 ? (
+          <p className="text-sm text-gray-400">검수대기 상품이 없습니다.</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {siteCounts.map((s) => (
+              <a
+                key={s.site}
+                href={`/admin/drafts?site=${encodeURIComponent(s.site)}`}
+                className="inline-flex items-center gap-1.5 rounded-full border bg-white px-3 py-1 text-sm hover:border-black transition-colors"
+              >
+                <span className="font-medium">{s.site}</span>
+                <span className="text-gray-500">{s.count}</span>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+
       <DraftBulkClient rows={rows} sites={sites} filters={{ site, brand, minPrice, maxPrice }} />
     </div>
   );
