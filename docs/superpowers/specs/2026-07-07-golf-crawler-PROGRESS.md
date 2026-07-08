@@ -87,6 +87,28 @@
 - fixture: `docs/crawler-fixtures/<id>/` (대용량 recon은 gitignore, 파일럿 3개만 커밋)
 - 저장: 로컬 DB(localhost:5432/musinsa_mvp)에 DRAFT. 프로덕션 반영은 운영자가 prod DATABASE_URL로 CLI 실행 시.
 
+## ⏱️ 2026-07-07 후반 세션 상태 (프로덕션 이관 + Playwright 트랙)
+
+### 완료·배포됨 (main 푸시)
+- 프로덕션 크롤러 배포 완료 (마이그 3개 적용: contentHash/sourceProductId·PriceHistory·crawljob warning) — 라이브 검증.
+- **말본 어댑터 추가**(10번째 브랜드, GenericAdapter priceRegex GA4).
+- **운영구조(GitHub Actions)**: crawl.yml `workflow_dispatch` 입력값(site: pilot/all/개별, mode, limit) + CLI `--site pilot`(파일럿3개). `/admin/drafts`에 사이트별 DRAFT 카운트 표시.
+- **docs/OPERATIONS.md** (Actions 버튼 기준 운영 매뉴얼, 터미널=부록).
+- **카테고리 i18n**: `Category` 네임스페이스(60키×3언어) + 햄버거 전계층 + `/category`·`/category/[slug]` 카테고리명 번역 (KR/EN/CN 검증·배포).
+
+### Playwright 트랙 (승인: 1~4만 = 타이틀리스트·지포어·보스골프·버킷스토어3브랜드)
+- ✅ **Playwright 크로미움 설치·구동 확인** (`npx playwright install chromium`). 로컬/Actions 전용, Railway 금지.
+- ✅ **titleist 정찰 완료**:
+  - listEndpoint(렌더 필요): `/product/all/men`, `/product/all/women`
+  - 상세 URL: `/product/{CODE}` (예: /product/TNPMS2221) — `.product-wrap a[href]`에서 추출
+  - 상세 필드: JSON-LD **없음**, og:image ✅, 가격=`[class*=price]`의 ₩값(예 258,000), **이름 셀렉터 미확정**(h1은 "타이틀리스트"=브랜드) → 다음에 확정 필요
+- ⬜ **남은 작업 (Playwright 이어서)**:
+  1. `engine/playwright.ts` — render 헬퍼 + PlaywrightAdapter(listEndpoint 렌더→productUrlPattern→상세 렌더→JSON-LD/og/DOM셀렉터 파싱). getAdapter에 platform "playwright" 배선. CLI 연동.
+  2. titleist 어댑터/설정 (이름 셀렉터 확정 후) → dry-run 검증 → 커밋.
+  3. 지포어·보스골프·버킷스토어(/brands/8·4·5 → 세인트앤드류스·마스터바니·파리게이츠) 순차, 어댑터당 커밋+progress 갱신.
+  4. **5~8(더카트·랑방블랑·왁·나이키)은 착수 금지.** 1~4 완료 리포트에 실측 난이도 기반 5~8 진행/포기 권고.
+- 재개어: "Playwright 이어서" → 이 섹션 보고 계속.
+
 ## 다음 액션 (Phase 3 완료됨)
 → **Phase 3+1: contentHash 마이그레이션** (조건2, 사용자 지시 대기).
   절차: ① `npx prisma migrate deploy`로 미적용 3개(payment) 적용 → ② schema.prisma에 Product.sourceProductId/contentHash 추가 → ③ 마이그 생성·적용 → ④ storage.persist가 두 컬럼 저장하도록 importer 연동 → ⑤ update 모드 content_hash 비교.
