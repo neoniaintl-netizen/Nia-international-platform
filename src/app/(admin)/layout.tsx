@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { href: "/admin", label: "대시보드", icon: LayoutDashboard },
   { href: "/admin/crawl", label: "크롤링 관리", icon: Bug },
   { href: "/admin/products", label: "상품 관리", icon: Package },
+  { href: "/admin/drafts", label: "DRAFT 일괄처리", icon: Package },
   { href: "/admin/orders", label: "주문 관리", icon: ShoppingBag },
   { href: "/admin/categories", label: "카테고리 관리", icon: FolderTree },
   { href: "/admin/brands", label: "브랜드 관리", icon: Tag },
