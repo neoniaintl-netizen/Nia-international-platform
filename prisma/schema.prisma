@@ -223,10 +223,12 @@ model Product {
   updatedAt     DateTime      @updatedAt
 
   // 크롤링 메타데이터
-  sourceUrl  String? // 원본 상품 URL
-  sourceSite String? // 크롤링 출처 (무신사, 29cm 등)
-  crawledAt  DateTime? // 크롤링 시점
-  crawlJobId String? // 어떤 크롤링 작업으로 수집됐는지
+  sourceUrl       String? // 원본 상품 URL
+  sourceSite      String? // 크롤링 출처 (무신사, 29cm 등)
+  sourceProductId String? // 원본 사이트의 상품 ID (sourceSite + sourceProductId 로 식별)
+  contentHash     String? // 가격+품절+옵션 해시 (재크롤 변경감지: 동일 시 skip)
+  crawledAt       DateTime? // 크롤링 시점
+  crawlJobId      String? // 어떤 크롤링 작업으로 수집됐는지
 
   brand         Brand            @relation(fields: [brandId], references: [id])
   category      Category         @relation(fields: [categoryId], references: [id])
@@ -246,6 +248,7 @@ model Product {
   @@index([status])
   @@index([rankPosition])
   @@index([sourceUrl])
+  @@index([sourceSite, sourceProductId])
   @@index([isGift])
   @@index([isOutlet])
   @@index([dealEndsAt])

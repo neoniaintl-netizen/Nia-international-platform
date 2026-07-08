@@ -1,6 +1,17 @@
 import { prisma } from "@/lib/db";
 import type { CrawledProduct, ImportOptions } from "./types";
 import { inferCategoryFromBrandName } from "./brand-category-map";
+import { contentHash } from "./engine/content-hash";
+
+/** 재크롤 변경감지용 해시 (가격+할인가+옵션). 품절은 현재 크롤 데이터에 없어 false 고정. */
+function itemContentHash(item: CrawledProduct): string {
+  return contentHash({
+    originalPrice: item.originalPrice,
+    salePrice: item.salePrice ?? null,
+    soldOut: false,
+    options: (item.variants ?? []).map((v) => `${v.size ?? ""}/${v.color ?? ""}`),
+  });
+}
 
 /**
  * 크롤링된 상품 데이터를 DB에 저장
@@ -23,8 +34,10 @@ export async function importCrawledProducts(
 
   for (const item of products) {
     try {
-      await importSingleProduct(item, crawlJobId, options);
-      imported++;
+      const status = await importSingleProduct(item, crawlJobId, options);
+      // 변경 없음(해시 동일) → skip, 신규/변경(created/updated) → imported
+      if (status === "unchanged") skipped++;
+      else imported++;
     } catch (err: any) {
       // sourceUrl 중복이면 스킵 처리
       if (err.code === "P2002") {
@@ -42,8 +55,19 @@ async function importSingleProduct(
   item: CrawledProduct,
   crawlJobId: string,
   options?: ImportOptions,
-) {
+): Promise<"created" | "updated" | "unchanged"> {
   const initialStatus = options?.initialStatus ?? "DRAFT";
+
+  // 0) 변경감지 — 기존 상품(sourceUrl)이 있고 contentHash 동일하면 재작업 없이 skip
+  const hash = itemContentHash(item);
+  const existing = await prisma.product.findFirst({
+    where: { sourceUrl: item.sourceUrl },
+    select: { id: true, slug: true, contentHash: true },
+  });
+  if (existing && existing.contentHash === hash) {
+    return "unchanged";
+  }
+
   // 1) 브랜드 – 있으면 재사용, 없으면 생성
   const brand = await prisma.brand.upsert({
     where: { name: item.brandName },
@@ -76,11 +100,7 @@ async function importSingleProduct(
   const baseSlug = slugify(item.name);
   const slug = await ensureUniqueSlug(baseSlug);
 
-  // 4) 상품 생성 (sourceUrl 존재 시 업데이트)
-  const existingProduct = await prisma.product.findFirst({
-    where: { sourceUrl: item.sourceUrl },
-  });
-
+  // 4) 상품 생성/업데이트 (existing 은 위 변경감지에서 조회함)
   // description HTML 에 메타 섹션 prepend
   const description = buildDescriptionWithMeta(item);
 
@@ -94,21 +114,25 @@ async function importSingleProduct(
     status: initialStatus, // 기본 DRAFT (검수 대기)
     sourceUrl: item.sourceUrl,
     sourceSite: item.sourceSite,
+    sourceProductId: item.externalProductId ?? null,
+    contentHash: hash,
     crawledAt: new Date(),
     crawlJobId,
   };
 
   let productId: string;
+  let outcome: "created" | "updated";
 
-  if (existingProduct) {
+  if (existing) {
     const updated = await prisma.product.update({
-      where: { id: existingProduct.id },
+      where: { id: existing.id },
       data: {
         ...productData,
-        slug: existingProduct.slug, // slug 유지
+        slug: existing.slug, // slug 유지
       },
     });
     productId = updated.id;
+    outcome = "updated";
   } else {
     const created = await prisma.product.create({
       data: {
@@ -117,6 +141,7 @@ async function importSingleProduct(
       },
     });
     productId = created.id;
+    outcome = "created";
   }
 
   // 5) 이미지 – 기존 것 삭제 후 재생성 (imageUrls + detailImages 통합, 순서 보존)
@@ -151,8 +176,8 @@ async function importSingleProduct(
     });
   } else {
     // variant 정보가 없으면 기본 ONE SIZE 단일 variant 생성 (장바구니 담기 가능하도록)
-    const existing = await prisma.productVariant.count({ where: { productId } });
-    if (existing === 0) {
+    const existingVariantCount = await prisma.productVariant.count({ where: { productId } });
+    if (existingVariantCount === 0) {
       await prisma.productVariant.create({
         data: {
           productId,
@@ -181,6 +206,8 @@ async function importSingleProduct(
       skipDuplicates: true,
     });
   }
+
+  return outcome;
 }
 
 /** 메타 정보(소재/제조국/세탁/핏) 섹션을 description HTML 상단에 prepend */
