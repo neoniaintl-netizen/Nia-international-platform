@@ -37,10 +37,13 @@
 | thecart | 더카트 | 자체(검증필요) | 상세 recon 후 | ⬜ 대기 |
 | malbon | 말본 | 자체(cafe24추정) | 상세 recon 후 | ⬜ 대기 |
 | titleist | 타이틀리스트 | 자체(cafe24추정) | 상세 recon 후 | ⬜ 대기 |
-| amazingcre | 어메이징크리 | 자체(cafe24추정) | 상세 recon 후 | ⬜ 대기 |
-| descentegolf | 데상트골프 | dk-on 자체 | 상세 recon 후 | ⬜ 대기 |
-| pxg | PXG | 자체(.asp) | 상세 recon 후 | ⬜ 대기 |
-| footjoy | 풋조이 | shopify(json 410) | JSON-LD 폴백 | ⬜ 대기 |
+| amazingcre | 어메이징크리 | custom(JSON-LD) | GenericAdapter | ✅ T3 (sitemap→shop_view) |
+| descentegolf | 데상트골프 | custom(ProductGroup) | GenericAdapter | ✅ T3 (홈→product) |
+| pxg | PXG | 자체(.asp, og만) | 커스텀 가격 필요 | ⬜ 시도중 |
+| malbon | 말본 | 자체(/shop/detail, og만) | 커스텀 가격 필요 | ⬜ 시도중 |
+| titleist | 타이틀리스트 | 자체(URL형식 미확정) | 재확인 필요 | ⬜ 대기 |
+| thecart | 더카트 | 자체(상품 sitemap無) | 후순위 검토 | ⬜ 대기 |
+| footjoy | 풋조이 | shopify(상품 410 차단) | **차단→후순위** | ⏸️ 이연 |
 | **후순위(playwright/SPA)** | bucketstore·gfore·랑방블랑·왁·nikegolf·bossgolf | — | Phase 3 제외, 리포트에 수동등록 명시 | ⏸️ 이연 |
 
 ## Phase 3 태스크 체크리스트

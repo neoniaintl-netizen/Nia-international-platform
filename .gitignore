@@ -60,3 +60,7 @@ docs/crawler-fixtures/**
 !docs/crawler-fixtures/anewgolf/detail-1.html
 !docs/crawler-fixtures/southcape/
 !docs/crawler-fixtures/southcape/detail-1.html
+!docs/crawler-fixtures/amazingcre/
+!docs/crawler-fixtures/amazingcre/detail-1.html
+!docs/crawler-fixtures/descentegolf/
+!docs/crawler-fixtures/descentegolf/detail-1.html

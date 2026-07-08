@@ -6,6 +6,7 @@ import { test } from "../harness";
 import { parseShopifyProduct } from "../../adapters/shopify";
 import { parseCafe24Detail, extractProductUrls } from "../../adapters/cafe24";
 import { parseGodomallDetail, extractGoodsUrls } from "../../adapters/godomall";
+import { parseGenericDetail } from "../../adapters/generic";
 import type { SiteConfig } from "../types";
 
 const FIX = path.resolve(process.cwd(), "docs/crawler-fixtures");
@@ -42,6 +43,24 @@ test("godomall(southcape) 상세 파싱", () => {
   assert.ok(p!.name.length > 0, "name");
   assert.ok(p!.imageUrls.length >= 1, "images");
   assert.equal(p!.externalProductId, "1000008193");
+});
+
+test("generic(amazingcre) JSON-LD 파싱", () => {
+  const html = read("amazingcre/detail-1.html");
+  const cfg = { id: "amazingcre", baseUrl: "https://shop.amazingcre.com", brandName: "어메이징크리" } as SiteConfig;
+  const p = parseGenericDetail(html, "https://shop.amazingcre.com/shop_view/3704", cfg);
+  assert.ok(p, "product");
+  assert.equal(p!.originalPrice, 395000);
+  assert.ok(p!.imageUrls.length >= 1, "images");
+});
+
+test("generic(descentegolf) JSON-LD 파싱", () => {
+  const html = read("descentegolf/detail-1.html");
+  const cfg = { id: "descentegolf", baseUrl: "https://dk-on.com", brandName: "데상트골프" } as SiteConfig;
+  const p = parseGenericDetail(html, "https://dk-on.com/DESCENTEGOLF/product/DR22MFBG42", cfg);
+  assert.ok(p, "product");
+  assert.equal(p!.originalPrice, 94050);
+  assert.ok(p!.name.length > 0, "name");
 });
 
 test("cafe24 sitemap 상품 URL 추출", () => {

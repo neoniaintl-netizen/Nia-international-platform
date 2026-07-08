@@ -4,38 +4,10 @@ import * as cheerio from "cheerio";
 import type { CrawledProduct } from "../types";
 import type { SiteConfig } from "../engine/types";
 import { type Adapter, fetchHtml, randomDelay } from "../engine/base-crawler";
+import { findLdProduct, ldPrice } from "../engine/jsonld";
 
 function abs(src: string): string {
   return src.startsWith("//") ? `https:${src}` : src;
-}
-
-interface LdProduct {
-  name?: string;
-  offers?: { price?: string | number } | { price?: string | number }[];
-}
-
-/** HTML에서 JSON-LD Product 노드 추출 (@graph 지원). */
-function findLdProduct($: cheerio.CheerioAPI): LdProduct | null {
-  let found: LdProduct | null = null;
-  $('script[type="application/ld+json"]').each((_, el) => {
-    try {
-      const d = JSON.parse($(el).text() || "{}") as Record<string, unknown>;
-      const graph = d["@graph"];
-      const prod =
-        d["@type"] === "Product"
-          ? d
-          : Array.isArray(graph)
-            ? graph.find((x) => (x as Record<string, unknown>)["@type"] === "Product")
-            : null;
-      if (prod) {
-        found = prod as LdProduct;
-        return false;
-      }
-    } catch {
-      /* skip malformed ld+json */
-    }
-  });
-  return found;
 }
 
 /** Cafe24 상세 HTML → CrawledProduct. (순수 함수 — fixture 테스트 대상) */
@@ -49,9 +21,7 @@ export function parseCafe24Detail(html: string, url: string, cfg: SiteConfig): C
     .trim();
   if (!name) return null;
 
-  const offers = ld?.offers;
-  const offer = Array.isArray(offers) ? offers[0] : offers;
-  let price = offer?.price ? Math.round(parseFloat(String(offer.price))) : 0;
+  let price = ldPrice(ld);
   if (!price) {
     const pv = html.match(/product_price\s*=\s*['"]?([0-9,]+)/)?.[1];
     price = pv ? parseInt(pv.replace(/,/g, ""), 10) : 0;
