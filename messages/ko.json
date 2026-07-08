@@ -116,5 +116,26 @@
     "svc2Desc": "중국 전역 배송 지원. EMS, 항공특송, 해상운송 등 다양한 배송 옵션.",
     "svc3Title": "브랜드 입점 안내",
     "svc3Desc": "중국 플랫폼 입점을 원하는 한국 브랜드를 위한 입점 가이드."
+  },
+  "Category": {
+    "golf": "골프", "tops": "상의", "outerwear": "아우터", "sports": "스포츠", "pants": "바지",
+    "outdoor": "아웃도어", "men": "남성의류", "dresses": "원피스/스커트", "women": "여성의류",
+    "shoes": "신발", "bags": "가방", "beauty": "뷰티", "accessories-jewelry": "시계/주얼리",
+    "gifts": "기프트", "hats-accessories": "모자/액세서리", "etc": "기타",
+    "outdoor-jacket": "아웃도어 자켓", "sports-top": "스포츠 상의", "gifts-fashion": "패션 기프트",
+    "golf-top": "골프 상의", "sneakers": "스니커즈", "beauty-skincare": "스킨케어",
+    "women-top": "여성 상의", "men-top": "남성 상의", "denim": "데님 팬츠",
+    "short-sleeve-tee": "반팔 티셔츠", "golf-bottom": "골프 하의", "long-sleeve-tee": "긴팔 티셔츠",
+    "cotton-pants": "코튼 팬츠", "running": "러닝화", "sports-bottom": "스포츠 하의",
+    "outdoor-top": "아웃도어 상의", "men-bottom": "남성 하의", "women-bottom": "여성 하의",
+    "beauty-makeup": "메이크업", "gifts-beauty": "뷰티 기프트", "men-outer": "남성 아우터",
+    "shorts": "쇼츠/반바지", "women-skirt": "여성 스커트", "sweatshirt": "맨투맨/스웨트셔츠",
+    "gifts-accessory": "액세서리 기프트", "outdoor-bottom": "아웃도어 하의", "sports-shoes": "스포츠 슈즈",
+    "golf-skirt": "골프 스커트", "sandals": "샌들/슬리퍼", "beauty-fragrance": "프레그런스",
+    "hoodie": "후드", "sports-accessory": "스포츠 액세서리", "outdoor-shoes": "아웃도어 슈즈",
+    "men-shoes": "남성 슈즈", "women-dress": "여성 원피스", "golf-outer": "골프 아우터",
+    "jogger": "트레이닝/조거", "women-shoes": "여성 슈즈", "outdoor-bag": "아웃도어 가방",
+    "men-accessory": "남성 액세서리", "golf-shoes": "골프 슈즈", "shirt": "셔츠/블라우스",
+    "women-accessory": "여성 액세서리", "golf-accessory": "골프 액세서리"
   }
 }

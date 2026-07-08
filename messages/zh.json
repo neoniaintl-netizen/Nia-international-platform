@@ -116,5 +116,26 @@
     "svc2Desc": "支持中国全境配送。提供EMS、航空特快、海运等多种配送方式。",
     "svc3Title": "品牌入驻指南",
     "svc3Desc": "为希望入驻中国平台的韩国品牌提供入驻指南。"
+  },
+  "Category": {
+    "golf": "高尔夫", "tops": "上装", "outerwear": "外套", "sports": "运动", "pants": "裤装",
+    "outdoor": "户外", "men": "男装", "dresses": "连衣裙/半身裙", "women": "女装",
+    "shoes": "鞋类", "bags": "箱包", "beauty": "美妆", "accessories-jewelry": "手表/珠宝",
+    "gifts": "礼品", "hats-accessories": "帽子/配饰", "etc": "其他",
+    "outdoor-jacket": "户外夹克", "sports-top": "运动上装", "gifts-fashion": "时尚礼品",
+    "golf-top": "高尔夫上装", "sneakers": "运动鞋", "beauty-skincare": "护肤",
+    "women-top": "女士上装", "men-top": "男士上装", "denim": "牛仔裤",
+    "short-sleeve-tee": "短袖T恤", "golf-bottom": "高尔夫下装", "long-sleeve-tee": "长袖T恤",
+    "cotton-pants": "棉质裤", "running": "跑鞋", "sports-bottom": "运动下装",
+    "outdoor-top": "户外上装", "men-bottom": "男士下装", "women-bottom": "女士下装",
+    "beauty-makeup": "彩妆", "gifts-beauty": "美妆礼品", "men-outer": "男士外套",
+    "shorts": "短裤", "women-skirt": "女士半身裙", "sweatshirt": "卫衣",
+    "gifts-accessory": "配饰礼品", "outdoor-bottom": "户外下装", "sports-shoes": "运动鞋",
+    "golf-skirt": "高尔夫半身裙", "sandals": "凉鞋/拖鞋", "beauty-fragrance": "香水",
+    "hoodie": "连帽衫", "sports-accessory": "运动配饰", "outdoor-shoes": "户外鞋",
+    "men-shoes": "男士鞋", "women-dress": "女士连衣裙", "golf-outer": "高尔夫外套",
+    "jogger": "运动裤/束脚裤", "women-shoes": "女士鞋", "outdoor-bag": "户外包",
+    "men-accessory": "男士配饰", "golf-shoes": "高尔夫鞋", "shirt": "衬衫/女衬衫",
+    "women-accessory": "女士配饰", "golf-accessory": "高尔夫配饰"
   }
 }

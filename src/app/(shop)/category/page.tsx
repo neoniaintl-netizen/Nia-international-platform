@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTopCategories } from "@/lib/queries";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
 import {
   Shirt,
@@ -26,6 +27,8 @@ const ICONS: Record<string, any> = {
 
 export default async function CategoryIndexPage() {
   const categories = await getTopCategories();
+  const tc = await getTranslations("Category");
+  const catL = (s: string, n: string) => (tc.has(s) ? tc(s) : n);
 
   // 카테고리별 상품 수 조회
   const counts = await prisma.product.groupBy({
@@ -71,7 +74,7 @@ export default async function CategoryIndexPage() {
                 <Icon className="w-6 h-6 text-gray-600" strokeWidth={1.5} />
               </div>
               <span className="text-xs text-gray-600 group-hover:text-black transition-colors text-center">
-                {cat.name}
+                {catL(cat.slug, cat.name)}
               </span>
             </Link>
           );
@@ -104,7 +107,7 @@ export default async function CategoryIndexPage() {
                   </div>
                   <div>
                     <h2 className="font-bold group-hover:underline">
-                      {cat.name}
+                      {catL(cat.slug, cat.name)}
                     </h2>
                     <p className="text-xs text-gray-400">{total}개 상품</p>
                   </div>
@@ -121,7 +124,7 @@ export default async function CategoryIndexPage() {
                       href={`/category/${child.slug}`}
                       className="text-xs text-gray-500 hover:text-black bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-colors"
                     >
-                      {child.name}
+                      {catL(child.slug, child.name)}
                     </Link>
                   ))}
                 </div>

@@ -116,5 +116,26 @@
     "svc2Desc": "Delivery across China with options including EMS, air express, and sea freight.",
     "svc3Title": "Brand Onboarding",
     "svc3Desc": "An onboarding guide for Korean brands looking to enter Chinese platforms."
+  },
+  "Category": {
+    "golf": "Golf", "tops": "Tops", "outerwear": "Outerwear", "sports": "Sports", "pants": "Pants",
+    "outdoor": "Outdoor", "men": "Men", "dresses": "Dresses & Skirts", "women": "Women",
+    "shoes": "Shoes", "bags": "Bags", "beauty": "Beauty", "accessories-jewelry": "Watches & Jewelry",
+    "gifts": "Gifts", "hats-accessories": "Hats & Accessories", "etc": "Others",
+    "outdoor-jacket": "Outdoor Jackets", "sports-top": "Sports Tops", "gifts-fashion": "Fashion Gifts",
+    "golf-top": "Golf Tops", "sneakers": "Sneakers", "beauty-skincare": "Skincare",
+    "women-top": "Women's Tops", "men-top": "Men's Tops", "denim": "Denim",
+    "short-sleeve-tee": "Short-Sleeve Tees", "golf-bottom": "Golf Bottoms", "long-sleeve-tee": "Long-Sleeve Tees",
+    "cotton-pants": "Cotton Pants", "running": "Running Shoes", "sports-bottom": "Sports Bottoms",
+    "outdoor-top": "Outdoor Tops", "men-bottom": "Men's Bottoms", "women-bottom": "Women's Bottoms",
+    "beauty-makeup": "Makeup", "gifts-beauty": "Beauty Gifts", "men-outer": "Men's Outerwear",
+    "shorts": "Shorts", "women-skirt": "Women's Skirts", "sweatshirt": "Sweatshirts",
+    "gifts-accessory": "Accessory Gifts", "outdoor-bottom": "Outdoor Bottoms", "sports-shoes": "Sports Shoes",
+    "golf-skirt": "Golf Skirts", "sandals": "Sandals & Slides", "beauty-fragrance": "Fragrance",
+    "hoodie": "Hoodies", "sports-accessory": "Sports Accessories", "outdoor-shoes": "Outdoor Shoes",
+    "men-shoes": "Men's Shoes", "women-dress": "Women's Dresses", "golf-outer": "Golf Outerwear",
+    "jogger": "Joggers", "women-shoes": "Women's Shoes", "outdoor-bag": "Outdoor Bags",
+    "men-accessory": "Men's Accessories", "golf-shoes": "Golf Shoes", "shirt": "Shirts & Blouses",
+    "women-accessory": "Women's Accessories", "golf-accessory": "Golf Accessories"
   }
 }

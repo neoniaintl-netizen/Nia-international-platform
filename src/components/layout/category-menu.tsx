@@ -16,9 +16,6 @@ interface CategoryMenuProps {
 
 type BrandFilter = "all" | "apparel" | "shoes" | "beauty";
 
-// 상단 GNB와 동일한 채널 슬러그 — 이 카테고리들만 Channel 네임스페이스 번역 재사용
-const CHANNEL_SLUGS = new Set(["golf", "sports", "outdoor", "beauty", "women"]);
-
 const BRAND_FILTERS: { key: BrandFilter; labelKey: string }[] = [
   { key: "all", labelKey: "filterAll" },
   { key: "apparel", labelKey: "filterApparel" },
@@ -33,10 +30,9 @@ export function CategoryMenu({
   categories = [],
 }: CategoryMenuProps) {
   const t = useTranslations("CategoryMenu");
-  const tCh = useTranslations("Channel");
-  // 상위 채널 카테고리는 기존 Channel 번역 재사용(상단 GNB와 통일). 그 외/하위는 DB명 유지.
-  const catLabel = (slug: string, name: string) =>
-    CHANNEL_SLUGS.has(slug) ? tCh(slug) : name;
+  const tCat = useTranslations("Category");
+  // 카테고리명 다국어: Category 네임스페이스에 slug 키가 있으면 번역, 없으면 DB명(신규 카테고리 안전).
+  const catLabel = (slug: string, name: string) => (tCat.has(slug) ? tCat(slug) : name);
   const [activeTab, setActiveTab] = useState<"category" | "brand" | "service">("category");
   const [activeCategory, setActiveCategory] = useState(0);
   const [brandFilter, setBrandFilter] = useState<BrandFilter>("all");
@@ -170,11 +166,11 @@ export function CategoryMenu({
                           >
                             <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
                               <span className="text-xs text-gray-500 font-medium">
-                                {sub.name.replace(/^(골프|아웃도어|스포츠)\s*/, "").slice(0, 3)}
+                                {catLabel(sub.slug, sub.name).replace(/^(골프|아웃도어|스포츠)\s*/, "").slice(0, 3)}
                               </span>
                             </div>
                             <span className="text-xs text-gray-700 group-hover:text-black text-center transition-colors">
-                              {sub.name}
+                              {catLabel(sub.slug, sub.name)}
                               <span className="ml-1 text-[10px] text-gray-400">
                                 {sub.productCount}
                               </span>

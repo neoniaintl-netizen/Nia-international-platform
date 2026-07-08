@@ -6,6 +6,7 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { getTranslations } from "next-intl/server";
 import { getAllProducts } from "@/lib/queries";
 import { toProductCard } from "@/lib/mappers";
 import { SortTabs } from "@/components/product/sort-tabs";
@@ -83,6 +84,10 @@ export default async function CategoryPage({
     offset,
   });
 
+  // 카테고리명 다국어 (slug 키 있으면 번역, 없으면 DB명)
+  const tc = await getTranslations("Category");
+  const catL = (s: string, n: string) => (tc.has(s) ? tc(s) : n);
+
   return (
     <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
       {/* Breadcrumb */}
@@ -92,15 +97,15 @@ export default async function CategoryPage({
         {category.parent && (
           <>
             <Link href={`/category/${category.parent.slug}`} className="hover:text-black">
-              {category.parent.name}
+              {catL(category.parent.slug, category.parent.name)}
             </Link>
             <ChevronRight className="w-3 h-3" />
           </>
         )}
-        <span className="text-black font-medium">{category.name}</span>
+        <span className="text-black font-medium">{catL(category.slug, category.name)}</span>
       </div>
 
-      <h1 className="text-2xl font-bold mb-6">{category.name}</h1>
+      <h1 className="text-2xl font-bold mb-6">{catL(category.slug, category.name)}</h1>
 
       {/* Sub-categories */}
       {category.children.length > 0 && (
@@ -114,7 +119,7 @@ export default async function CategoryPage({
                 variant="outline"
                 className="cursor-pointer whitespace-nowrap px-3 py-1.5 text-xs rounded-full"
               >
-                {child.name}
+                {catL(child.slug, child.name)}
               </Badge>
             </Link>
           ))}
