@@ -63,7 +63,7 @@ export function Header({
                   height={28}
                   priority
                   unoptimized
-                  className="h-6 w-auto object-contain"
+                  className="h-4 lg:h-6 w-auto object-contain"
                 />
               </Link>
 
