@@ -16,6 +16,9 @@ interface CategoryMenuProps {
 
 type BrandFilter = "all" | "apparel" | "shoes" | "beauty";
 
+// 상단 GNB와 동일한 채널 슬러그 — 이 카테고리들만 Channel 네임스페이스 번역 재사용
+const CHANNEL_SLUGS = new Set(["golf", "sports", "outdoor", "beauty", "women"]);
+
 const BRAND_FILTERS: { key: BrandFilter; labelKey: string }[] = [
   { key: "all", labelKey: "filterAll" },
   { key: "apparel", labelKey: "filterApparel" },
@@ -30,6 +33,10 @@ export function CategoryMenu({
   categories = [],
 }: CategoryMenuProps) {
   const t = useTranslations("CategoryMenu");
+  const tCh = useTranslations("Channel");
+  // 상위 채널 카테고리는 기존 Channel 번역 재사용(상단 GNB와 통일). 그 외/하위는 DB명 유지.
+  const catLabel = (slug: string, name: string) =>
+    CHANNEL_SLUGS.has(slug) ? tCh(slug) : name;
   const [activeTab, setActiveTab] = useState<"category" | "brand" | "service">("category");
   const [activeCategory, setActiveCategory] = useState(0);
   const [brandFilter, setBrandFilter] = useState<BrandFilter>("all");
@@ -98,7 +105,7 @@ export function CategoryMenu({
                         : "text-gray-500 hover:bg-gray-100"
                     )}
                   >
-                    {cat.name}
+                    {catLabel(cat.slug, cat.name)}
                     {cat.productCount > 0 && (
                       <span className="ml-1.5 text-[10px] text-gray-400">
                         {cat.productCount}
@@ -119,7 +126,7 @@ export function CategoryMenu({
                       className="flex items-center gap-2 mb-6 group"
                     >
                       <span className="text-lg font-bold group-hover:underline">
-                        {currentCategory.name}
+                        {catLabel(currentCategory.slug, currentCategory.name)}
                       </span>
                       {currentCategory.productCount > 0 && (
                         <span className="text-xs text-gray-400">
