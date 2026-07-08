@@ -16,11 +16,32 @@ on:
   workflow_dispatch:
     inputs:
       site:
-        description: "대상 (all 또는 siteId)"
-        default: "all"
+        description: "대상 사이트"
+        type: choice
+        default: "pilot"
+        options:
+          - pilot        # 파일럿 3개(마크앤로나·어뉴·사우스케이프)
+          - all          # 운영중 전체
+          - markandlona
+          - anewgolf
+          - southcape
+          - utaa
+          - pelt
+          - iceberg
+          - amazingcre
+          - descentegolf
+          - pxg
+          - malbon
       mode:
-        description: "full 또는 update"
-        default: "update"
+        description: "full(전체 재수집) 또는 update(변경분만)"
+        type: choice
+        default: "full"
+        options:
+          - full
+          - update
+      limit:
+        description: "사이트당 최대 수집 수"
+        default: "50"
   # 활성화 시 주석 해제 (기본은 비활성 — 스케줄 미동작)
   # schedule:
   #   - cron: "0 18 * * *"  # 03:00 KST — full
@@ -49,7 +70,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: npx tsx scripts/crawl.ts --site "${{ github.event.inputs.site || 'all' }}" --mode "${{ steps.m.outputs.mode }}"
+        run: npx tsx scripts/crawl.ts --site "${{ github.event.inputs.site || 'all' }}" --mode "${{ steps.m.outputs.mode }}" --limit "${{ github.event.inputs.limit || '50' }}"
       # 이미지 로컬라이즈(선택) — R2 시크릿(R2_*) 설정 시 자체 스토리지로 이전
       # - name: Localize images
       #   env:

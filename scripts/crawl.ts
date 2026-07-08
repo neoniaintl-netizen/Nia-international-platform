@@ -5,6 +5,9 @@ import { runWithConcurrency } from "../src/lib/crawler/engine/scheduler";
 import { evaluateCrawlAlert, notifySlack } from "../src/lib/crawler/engine/alerts";
 import { SITES, getSite } from "../src/lib/crawler/sites.config";
 import { getAdapter } from "../src/lib/crawler/adapters";
+
+/** 파일럿 3개 사이트 (Actions에서 "파일럿만" 실행용) */
+const PILOT_IDS = ["markandlona", "anewgolf", "southcape"];
 import type { SiteConfig } from "../src/lib/crawler/engine/types";
 import type { CrawledProduct } from "../src/lib/crawler/types";
 
@@ -115,9 +118,15 @@ async function main(): Promise<void> {
   loadEnv();
   const opts = parseArgs(process.argv.slice(2));
   const sites: SiteConfig[] =
-    opts.site === "all" ? SITES : getSite(opts.site) ? [getSite(opts.site)!] : [];
+    opts.site === "all"
+      ? SITES
+      : opts.site === "pilot"
+        ? SITES.filter((s) => PILOT_IDS.includes(s.id))
+        : getSite(opts.site)
+          ? [getSite(opts.site)!]
+          : [];
   if (!sites.length) {
-    console.error(`알 수 없는 site: ${opts.site} (가능: all, ${SITES.map((s) => s.id).join(", ")})`);
+    console.error(`알 수 없는 site: ${opts.site} (가능: all, pilot, ${SITES.map((s) => s.id).join(", ")})`);
     process.exit(1);
   }
   console.log(`크롤 시작: [${sites.map((s) => s.id).join(", ")}] mode=${opts.mode} limit=${opts.limit} concurrency=${opts.concurrency} dryRun=${opts.dryRun}`);
