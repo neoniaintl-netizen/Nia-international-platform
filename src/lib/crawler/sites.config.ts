@@ -127,6 +127,21 @@ const RAW_SITES: SiteConfig[] = [
       priceSelector: "[class*=price]",
     },
   },
+  {
+    id: "gfore",
+    name: "지포어",
+    baseUrl: "https://www.gfore.kr",
+    brandName: "지포어",
+    platform: "playwright",
+    strategy: "playwright",
+    // 홈/상세 모두 렌더. 상세 /Product/{CODE}. og:title="브랜드 | 상품명"(| 뒤가 이름), 가격은 JS.
+    listEndpoint: "https://www.gfore.kr/",
+    selectors: {
+      productUrlPattern: "/Product/[A-Z0-9]{8,}",
+      nameRegex: "og:title\"\\s*content=\"[^\"|]*\\|\\s*([^\"]+?)\"",
+      priceRegex: "\"price\"\\s*:\\s*\"?(\\d{4,7})",
+    },
+  },
 ];
 
 export const SITES: SiteConfig[] = RAW_SITES.map(validateSiteConfig);

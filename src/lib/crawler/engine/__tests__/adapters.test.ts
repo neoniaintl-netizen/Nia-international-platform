@@ -105,6 +105,23 @@ test("playwright(titleist) 렌더HTML 파싱 (name/price selector)", () => {
   assert.equal(p!.originalPrice, 258000);
 });
 
+test("playwright(gfore) nameRegex(| 뒤)+priceRegex 파싱", () => {
+  const html = read("gfore/detail-1.html");
+  const cfg = {
+    id: "gfore",
+    baseUrl: "https://www.gfore.kr",
+    brandName: "지포어",
+    selectors: {
+      nameRegex: 'og:title"\\s*content="[^"|]*\\|\\s*([^"]+?)"',
+      priceRegex: '"price"\\s*:\\s*"?(\\d{4,7})',
+    },
+  } as unknown as SiteConfig;
+  const p = parseGenericDetail(html, "https://www.gfore.kr/Product/GNTCA26254BKX", cfg);
+  assert.ok(p, "product");
+  assert.equal(p!.name, "LACE SET-UP POLO(WOMEN)");
+  assert.ok(p!.originalPrice > 0, "price");
+});
+
 test("cafe24 sitemap 상품 URL 추출", () => {
   const urls = extractProductUrls(read("anewgolf/sitemap.xml"), "https://anewgolf.com");
   assert.ok(urls.length > 5, `urls=${urls.length}`);

@@ -70,3 +70,5 @@ docs/crawler-fixtures/**
 !docs/crawler-fixtures/malbon/detail-1.html
 !docs/crawler-fixtures/titleist/
 !docs/crawler-fixtures/titleist/detail-1.html
+!docs/crawler-fixtures/gfore/
+!docs/crawler-fixtures/gfore/detail-1.html

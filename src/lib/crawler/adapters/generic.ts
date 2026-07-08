@@ -15,17 +15,22 @@ export function parseGenericDetail(html: string, url: string, cfg: SiteConfig): 
   const $ = cheerio.load(html);
   const ld = findLdProduct($);
 
+  // 이름 우선순위: nameRegex(원문 정규식) → JSON-LD → nameSelector (모두 명시적 → 그대로).
+  // 없으면 og:title/title 폴백에만 " | 사이트명"/" – 사이트명" 접미사 제거(하이픈은 제외 — 상품명에 흔함).
+  const nameFromRegex = cfg.selectors?.nameRegex
+    ? html.match(new RegExp(cfg.selectors.nameRegex))?.[1]
+    : undefined;
   const nameSel = cfg.selectors?.nameSelector;
-  const name = String(
-    ld?.name ||
-      $('meta[property="og:title"]').attr("content") ||
-      (nameSel ? $(nameSel).first().text() : "") ||
-      $("title").text() ||
-      "",
-  )
-    .replace(/\s+/g, " ") // 내부 개행·연속공백 정규화
-    .replace(/\s*[|\-–].*$/, "")
+  const nameSelVal = nameSel ? $(nameSel).first().text() : "";
+  let name = (nameFromRegex || (ld?.name ? String(ld.name) : "") || nameSelVal || "")
+    .replace(/\s+/g, " ")
     .trim();
+  if (!name) {
+    name = ($('meta[property="og:title"]').attr("content") || $("title").text() || "")
+      .replace(/\s+/g, " ")
+      .replace(/\s*[|–]\s.*$/, "")
+      .trim();
+  }
   if (!name) return null;
 
   let price = ldPrice(ld);
