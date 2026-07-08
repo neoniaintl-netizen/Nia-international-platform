@@ -1,53 +1,69 @@
-# 크롤러 커버리지 · 성공률 리포트 (Phase 3)
+# 크롤러 커버리지 리포트 (브랜드 기준)
 
-> 작성: 2026-07-07 · 측정: `--site all --limit 20 --dry-run` 실제 라이브 수집
-> 수집수 = 최대 20개 후보 URL 중 파싱 성공 건수 (하드 에러 0)
+> 최종: 2026-07-07 · 기준: **브랜드 20개** · 리포트는 사이트가 아닌 **브랜드 단위**로 관리.
+> 상태 정의: **운영중**(어댑터 동작·수집 검증) / **추가중**(작업 진행) / **Playwright대기**(정적 불가, tier-3 필요) / **불가**(접근 차단)
 
-## 동작 어댑터 (9개 사이트)
+## 1. 브랜드 커버리지 표 (20)
 
-| 사이트 | **브랜드 커버리지** | 플랫폼 | 전략/어댑터 | 수집@20 | 성공률 | 발견 방식 |
-|---|---|---|---|---|---|---|
-| markandlona | 마크앤로나 | Shopify | json_api | 20/20 | 100% | products.json |
-| anewgolf | 어뉴골프 | Cafe24 | static_html | 20/20 | 100% | sitemap→상세 |
-| utaa | 유타 | Cafe24 | static_html(config) | 20/20 | 100% | sitemap→상세 |
-| pelt | 펠트 | Cafe24 | static_html(config) | 20/20 | 100% | sitemap→상세 |
-| iceberg | 아이스버그 | Cafe24 | static_html(카테고리) | 12/20 | 카테고리 1개 한계 | 카테고리→상세 |
-| southcape | 사우스케이프 | Godomall | static_html | 20/20 | 100% | 리스트→상세 |
-| amazingcre | 어메이징크리 | Custom | Generic(JSON-LD) | 20/20 | 100% | sitemap→shop_view |
-| descentegolf | 데상트골프 | Custom | Generic(ProductGroup) | 10/20 | 홈 1페이지 한계 | 홈→상세 |
-| pxg | PXG | Custom | Generic(og+priceSelector) | 19/20 | 95% | apparel→view.asp |
+| # | 브랜드 | 소스/플랫폼 | 상태 | 방식 / 사유 |
+|---|---|---|---|---|
+| 1 | 마크앤로나 | markandlona (Shopify) | ✅ 운영중 | json_api (/products.json) |
+| 2 | 어뉴골프 | anewgolf (Cafe24) | ✅ 운영중 | sitemap→상세 |
+| 3 | 유타 | utaa (Cafe24) | ✅ 운영중 | config 재사용 |
+| 4 | 펠트 | pelt (Cafe24) | ✅ 운영중 | config 재사용 |
+| 5 | 아이스버그 | iceberg (Cafe24) | ✅ 운영중 | 카테고리 페이지 |
+| 6 | 사우스케이프 | southcape (Godomall) | ✅ 운영중 | 리스트→상세 |
+| 7 | 어메이징크리 | amazingcre (자체) | ✅ 운영중 | Generic JSON-LD |
+| 8 | 데상트골프 | descentegolf (자체) | ✅ 운영중 | Generic ProductGroup |
+| 9 | PXG | pxg (자체) | ✅ 운영중 | Generic og+priceSelector |
+| 10 | **말본** | malbon (자체) | ✅ **운영중(신규)** | Generic priceRegex(GA4 KRW value) |
+| 11 | 타이틀리스트 | titleist (자체·JS렌더) | ⏸️ Playwright대기 | 상세가 JS 동적로딩(정적 링크 없음) |
+| 12 | 지포어 | gfore (자체 SPA) | ⏸️ Playwright대기 | 홈에 Product 데이터 없음 |
+| 13 | 랑방블랑 | thehandsome (SPA) | ⏸️ Playwright대기 | 더한섬 브랜드 SPA |
+| 14 | 왁(WAAC) | kolonmall (코오롱몰) | ⏸️ Playwright대기 | 대형몰 SPA/내부 API |
+| 15 | 나이키골프 | nike.com | ⏸️ Playwright대기 | 강한 봇보호·리다이렉트 |
+| 16 | 보스골프 | iamtom (자체) | ⏸️ Playwright대기 | 홈 12KB 셸(SPA) |
+| 17 | 세인트앤드류스 | 버킷스토어 /brands/8 | ⏸️ Playwright대기 | 버킷스토어 SPA |
+| 18 | 마스터바니에디션 | 버킷스토어 /brands/4 | ⏸️ Playwright대기 | 버킷스토어 SPA |
+| 19 | 파리게이츠 | 버킷스토어 /brands/5 | ⏸️ Playwright대기 | 버킷스토어 SPA |
+| 20 | 풋조이 | footjoy (자체) | ❌ 불가 | 상품 페이지 HTTP 410(차단/폐기) |
 
-- **파싱 하드 에러 0.** iceberg/descentegolf의 수집수가 낮은 건 파싱 실패가 아니라 **단일 리스트 진입점의 상품 수 한계** (다중 카테고리/페이지네이션 추가 시 증가) — Phase 4 개선 대상.
-- Cafe24는 anewgolf 1개 어댑터로 4개 사이트 커버(설정만 추가). Generic(JSON-LD)은 3개 자체몰 커버.
+**요약: 운영중 10 · Playwright대기 9 · 불가 1.**
+※ 플랫폼 **더카트**(multi-brand)는 정적 상품 링크 없음 → Playwright 트랙(아래).
 
-## 이연 사이트 (미커버) + 사유
+## 2. Phase 1 후보였던 4개 누락 사유 (시도/미착수 구분)
 
-| 사이트 | 브랜드 | 사유 | 처리 |
-|---|---|---|---|
-| malbon | 말본 | 가격이 GA 애널리틱스 JS에만 존재(정적 요소 없음) | 커스텀 정규식 필요 → 후속 |
-| titleist | 타이틀리스트 | 상품 상세 URL 형식 미확정(추정 404) | 재recon 필요 → 후속 |
-| thecart | 더카트 | 상품 sitemap 없음·상품목록 진입점 불명 | 후속 recon |
-| footjoy | 풋조이 | 상품 페이지 HTTP 410(차단/폐기) | **접근 불가** → 수동등록 |
-| waac(코오롱몰) | 왁 | 대형몰 SPA·내부 API | tier-3 Playwright/수동 |
-| gfore | 지포어 | SPA(홈에 Product 데이터 없음) | tier-3 Playwright/수동 |
-| langvanblanc(더한섬) | 랑방블랑 | 브랜드 SPA | tier-3 Playwright/수동 |
-| nikegolf | 나이키골프 | 강한 봇보호·골프 URL 리다이렉트 | 수동 |
-| bossgolf | 보스골프 | 홈 12KB 셸(SPA 의심) | 재recon/수동 |
-| **bucketstore** | **세인트앤드류스·마스터바니에디션·파리게이츠** | Next.js SPA·내부 API 미발견(런타임 로드) | **tier-3 Playwright** → 이 플랫폼 이연으로 3개 브랜드 미수집 |
+| 브랜드 | 시도 여부 | 결과 |
+|---|---|---|
+| **말본** | 시도함 | 초기엔 "가격이 GA JS에만 있어 취약"으로 이연 → **재검증 결과 GA4 이벤트 `"currency":"KRW","value"` 가 안정 패턴**이라 어댑터 추가 성공(운영중). |
+| **타이틀리스트** | 시도함 | sitemap의 `/product/…` 는 **상세가 아닌 카테고리 페이지**. 카테고리 페이지도 상품을 **JS로 동적 로딩**(정적 링크 없음, Next/Nuxt 아님·API 미발견) → 정적 파싱 불가, Playwright 필요. |
+| **더카트** | 시도함 | sitemap에 상품 URL 없음(/gtag,/upload만), 홈에도 정적 상품 링크 없음 → SPA/커스텀, 정적 파싱 불가. Playwright 트랙. |
+| **풋조이** | 시도함 | 상품 상세 URL이 **HTTP 410(Gone)** — 정적/동적 무관 접근 불가. 수동 등록 대상. |
 
-## ⚠️ 버킷스토어 이연으로 빠지는 브랜드 (조건 3)
+→ **4개 모두 착수(정찰)했고, 미착수는 없음.** 정적 파싱 가능했던 건 말본뿐이라 즉시 추가함.
 
-버킷스토어(bucketstore.com)는 **세인트앤드류스 · 마스터바니에디션 · 파리게이츠** 3개 브랜드를 입점 판매하는 플랫폼입니다.
-이 사이트가 tier-3(Playwright)로 이연되면서 **위 3개 브랜드는 현재 자동 수집에서 빠집니다.** Playwright 경로(Phase 4) 또는 수동 등록 필요.
+## 3. Playwright 후순위 트랙 착수 계획 (승인 대기 — 착수는 승인 후)
 
-## 브랜드 커버리지 요약
+**공통 전제:** Playwright는 **로컬/오프서버 CLI에서만** 실행(Railway 프로덕션 롤백 이력). 신규 `PlaywrightAdapter`(tier-3) = 페이지 렌더 후 기존 JSON-LD/og/셀렉터 추출 재사용.
 
-- **목표 22개 브랜드 중 자동 수집 가능: 9개** (마크앤로나·어뉴골프·유타·펠트·아이스버그·사우스케이프·어메이징크리·데상트골프·PXG)
-- **후속 가능(자체몰, 커스텀 작업 필요): 3개** (말본·타이틀리스트·더카트)
-- **접근 불가/차단: 1개** (풋조이 410)
-- **tier-3 Playwright/수동 대상: 9개** (왁·지포어·랑방블랑·나이키골프·보스골프 + 버킷스토어 입점 3개 브랜드[세인트앤드류스·마스터바니·파리게이츠])
+**0. 공통 인프라** (~0.5일): PlaywrightAdapter 베이스 + 렌더 헬퍼(대기·스크롤·차단회피 기본), CLI에 tier-3 배선.
 
-## 다음 개선 (Phase 4 후보)
-- 다중 카테고리/페이지네이션(iceberg·descentegolf·southcape 수집수 증대)
-- Playwright tier-3 어댑터(버킷스토어·gfore·왁 등 SPA 커버)
-- 이미지 다운로드 파이프라인, 변경 이력 테이블, 수집 급감 알림, 크론
+**난이도 순서 / 예상 소요:**
+| 순 | 브랜드 | 난이도 | 예상 | 비고 |
+|---|---|---|---|---|
+| 1 | 타이틀리스트 | 하 | ~0.5일 | 봇보호 없음, 카테고리 렌더→상세 JSON-LD/og. **구색 최우선** |
+| 2 | 지포어 | 하 | ~0.5일 | JSON-LD 일부 존재, collection 렌더 |
+| 3 | 보스골프 | 하~중 | ~0.5일 | 셸 SPA, 상품 그리드 렌더 |
+| 4 | **버킷스토어(3브랜드)** | 중 | ~1일 | /brands/8·4·5 렌더 → **세인트앤드류스·마스터바니에디션·파리게이츠** 한 번에 확보 |
+| 5 | 더카트 | 중 | ~1일 | multi-brand, 브랜드별 매핑 필요 |
+| 6 | 랑방블랑 | 중 | ~1일 | 더한섬 SPA |
+| 7 | 왁(코오롱몰) | 상 | ~1~1.5일 | 대형몰, 내부 API/무한스크롤 |
+| 8 | 나이키골프 | 최상 | ~1~2일(리스크↑) | 강한 봇보호, 스텔스/프록시 필요할 수 있음 — 실패 가능 |
+
+**로드맵:** 인프라(0) → 1~4(타이틀리스트·지포어·보스골프·버킷스토어) 우선 = 약 **2.5~3일**에 **6개 브랜드**(3 자사몰 + 버킷 3) 추가. 5~6(더카트·랑방블랑) = +2일. 7~8(왁·나이키)은 리스크 별도 관리.
+
+**커버리지 전망:** 현재 10 → 트랙 1~4 완료 시 **16**, 5~6까지 **18(+더카트 멀티브랜드)**, 나이키 성공 시 19. **풋조이(410)만 상시 수동 대상.**
+
+## 4. 상시 수동 등록 대상
+- **풋조이** (410 차단) — 자동 불가, 운영자 수동 등록.
+- 나이키골프 — Playwright도 실패 시 수동.
