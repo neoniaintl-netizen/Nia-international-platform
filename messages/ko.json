@@ -94,5 +94,27 @@
     "search": "검색",
     "wishlist": "좋아요",
     "my": "마이"
+  },
+  "CategoryMenu": {
+    "tabCategory": "카테고리",
+    "tabBrand": "브랜드",
+    "tabService": "서비스",
+    "filterAll": "전체",
+    "filterApparel": "의류",
+    "filterShoes": "신발",
+    "filterBeauty": "뷰티",
+    "viewNew": "신상품 보기",
+    "viewAll": "전체 보기",
+    "categoryEmpty": "준비 중인 카테고리입니다.",
+    "categoryLoadError": "카테고리 정보를 불러올 수 없습니다.",
+    "brandEmpty": "준비 중인 브랜드입니다.",
+    "itemCount": "{count}개",
+    "productCount": "{count}개 상품",
+    "svc1Title": "구매대행 서비스",
+    "svc1Desc": "한국 브랜드를 중국 시장에 수출하는 구매대행 서비스를 제공합니다.",
+    "svc2Title": "해외배송 안내",
+    "svc2Desc": "중국 전역 배송 지원. EMS, 항공특송, 해상운송 등 다양한 배송 옵션.",
+    "svc3Title": "브랜드 입점 안내",
+    "svc3Desc": "중국 플랫폼 입점을 원하는 한국 브랜드를 위한 입점 가이드."
   }
 }

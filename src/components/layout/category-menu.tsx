@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { X, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MenuBrand, MenuCategory } from "@/lib/queries";
@@ -15,11 +16,11 @@ interface CategoryMenuProps {
 
 type BrandFilter = "all" | "apparel" | "shoes" | "beauty";
 
-const BRAND_FILTERS: { key: BrandFilter; label: string }[] = [
-  { key: "all", label: "전체" },
-  { key: "apparel", label: "의류" },
-  { key: "shoes", label: "신발" },
-  { key: "beauty", label: "뷰티" },
+const BRAND_FILTERS: { key: BrandFilter; labelKey: string }[] = [
+  { key: "all", labelKey: "filterAll" },
+  { key: "apparel", labelKey: "filterApparel" },
+  { key: "shoes", labelKey: "filterShoes" },
+  { key: "beauty", labelKey: "filterBeauty" },
 ];
 
 export function CategoryMenu({
@@ -28,6 +29,7 @@ export function CategoryMenu({
   brands = [],
   categories = [],
 }: CategoryMenuProps) {
+  const t = useTranslations("CategoryMenu");
   const [activeTab, setActiveTab] = useState<"category" | "brand" | "service">("category");
   const [activeCategory, setActiveCategory] = useState(0);
   const [brandFilter, setBrandFilter] = useState<BrandFilter>("all");
@@ -55,9 +57,9 @@ export function CategoryMenu({
           <div className="flex items-center gap-6">
             {(
               [
-                { key: "category", label: "카테고리" },
-                { key: "brand", label: "브랜드" },
-                { key: "service", label: "서비스" },
+                { key: "category", labelKey: "tabCategory" },
+                { key: "brand", labelKey: "tabBrand" },
+                { key: "service", labelKey: "tabService" },
               ] as const
             ).map((tab) => (
               <button
@@ -70,7 +72,7 @@ export function CategoryMenu({
                     : "text-gray-400 hover:text-gray-600"
                 )}
               >
-                {tab.label}
+                {t(tab.labelKey)}
               </button>
             ))}
           </div>
@@ -121,7 +123,7 @@ export function CategoryMenu({
                       </span>
                       {currentCategory.productCount > 0 && (
                         <span className="text-xs text-gray-400">
-                          {currentCategory.productCount}개
+                          {t("itemCount", { count: currentCategory.productCount })}
                         </span>
                       )}
                       <ChevronRight className="w-5 h-5 text-gray-400" />
@@ -134,21 +136,21 @@ export function CategoryMenu({
                         onClick={onClose}
                         className="flex items-center justify-center h-10 border rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
                       >
-                        신상품 보기
+                        {t("viewNew")}
                       </Link>
                       <Link
                         href={`/category/${currentCategory.slug}`}
                         onClick={onClose}
                         className="flex items-center justify-center h-10 border rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
                       >
-                        전체 보기
+                        {t("viewAll")}
                       </Link>
                     </div>
 
                     {/* 하위 카테고리 그리드 */}
                     {currentCategory.sub.length === 0 ? (
                       <p className="text-sm text-gray-400 text-center py-12">
-                        준비 중인 카테고리입니다.
+                        {t("categoryEmpty")}
                       </p>
                     ) : (
                       <div className="grid grid-cols-3 gap-x-4 gap-y-5">
@@ -177,7 +179,7 @@ export function CategoryMenu({
                   </>
                 ) : (
                   <p className="text-sm text-gray-400">
-                    카테고리 정보를 불러올 수 없습니다.
+                    {t("categoryLoadError")}
                   </p>
                 )}
               </div>
@@ -198,7 +200,7 @@ export function CategoryMenu({
                         : "text-gray-400 font-medium hover:text-gray-600"
                     )}
                   >
-                    {tab.label}
+                    {t(tab.labelKey)}
                   </button>
                 ))}
               </div>
@@ -206,7 +208,7 @@ export function CategoryMenu({
               <div className="flex-1 overflow-y-auto px-6 py-5">
                 {filteredBrands.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-12">
-                    준비 중인 브랜드입니다.
+                    {t("brandEmpty")}
                   </p>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2">
@@ -226,7 +228,7 @@ export function CategoryMenu({
                           </span>
                         )}
                         <span className="text-[10px] text-gray-400 mt-0.5">
-                          {b.productCount}개 상품
+                          {t("productCount", { count: b.productCount })}
                         </span>
                       </Link>
                     ))}
@@ -240,16 +242,16 @@ export function CategoryMenu({
             <div className="px-4 py-6 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="border rounded-lg p-4 hover:border-black transition-colors cursor-pointer">
-                  <h4 className="text-sm font-bold text-gray-900 mb-1">구매대행 서비스</h4>
-                  <p className="text-xs text-gray-500 leading-relaxed">한국 브랜드를 중국 시장에 수출하는 구매대행 서비스를 제공합니다.</p>
+                  <h4 className="text-sm font-bold text-gray-900 mb-1">{t("svc1Title")}</h4>
+                  <p className="text-xs text-gray-500 leading-relaxed">{t("svc1Desc")}</p>
                 </div>
                 <div className="border rounded-lg p-4 hover:border-black transition-colors cursor-pointer">
-                  <h4 className="text-sm font-bold text-gray-900 mb-1">해외배송 안내</h4>
-                  <p className="text-xs text-gray-500 leading-relaxed">중국 전역 배송 지원. EMS, 항공특송, 해상운송 등 다양한 배송 옵션.</p>
+                  <h4 className="text-sm font-bold text-gray-900 mb-1">{t("svc2Title")}</h4>
+                  <p className="text-xs text-gray-500 leading-relaxed">{t("svc2Desc")}</p>
                 </div>
                 <div className="border rounded-lg p-4 hover:border-black transition-colors cursor-pointer">
-                  <h4 className="text-sm font-bold text-gray-900 mb-1">브랜드 입점 안내</h4>
-                  <p className="text-xs text-gray-500 leading-relaxed">중국 플랫폼 입점을 원하는 한국 브랜드를 위한 입점 가이드.</p>
+                  <h4 className="text-sm font-bold text-gray-900 mb-1">{t("svc3Title")}</h4>
+                  <p className="text-xs text-gray-500 leading-relaxed">{t("svc3Desc")}</p>
                 </div>
               </div>
             </div>

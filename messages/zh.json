@@ -94,5 +94,27 @@
     "search": "搜索",
     "wishlist": "收藏",
     "my": "我的"
+  },
+  "CategoryMenu": {
+    "tabCategory": "分类",
+    "tabBrand": "品牌",
+    "tabService": "服务",
+    "filterAll": "全部",
+    "filterApparel": "服装",
+    "filterShoes": "鞋类",
+    "filterBeauty": "美妆",
+    "viewNew": "查看新品",
+    "viewAll": "查看全部",
+    "categoryEmpty": "分类准备中。",
+    "categoryLoadError": "无法加载分类信息。",
+    "brandEmpty": "品牌准备中。",
+    "itemCount": "{count}件",
+    "productCount": "{count}件商品",
+    "svc1Title": "代购服务",
+    "svc1Desc": "为将韩国品牌出口至中国市场提供代购服务。",
+    "svc2Title": "海外配送指南",
+    "svc2Desc": "支持中国全境配送。提供EMS、航空特快、海运等多种配送方式。",
+    "svc3Title": "品牌入驻指南",
+    "svc3Desc": "为希望入驻中国平台的韩国品牌提供入驻指南。"
   }
 }

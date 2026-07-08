@@ -94,5 +94,27 @@
     "search": "Search",
     "wishlist": "Wishlist",
     "my": "My"
+  },
+  "CategoryMenu": {
+    "tabCategory": "Category",
+    "tabBrand": "Brand",
+    "tabService": "Service",
+    "filterAll": "All",
+    "filterApparel": "Apparel",
+    "filterShoes": "Shoes",
+    "filterBeauty": "Beauty",
+    "viewNew": "Shop New",
+    "viewAll": "View All",
+    "categoryEmpty": "Category coming soon.",
+    "categoryLoadError": "Unable to load category info.",
+    "brandEmpty": "Brands coming soon.",
+    "itemCount": "{count} items",
+    "productCount": "{count} products",
+    "svc1Title": "Purchasing Agent",
+    "svc1Desc": "A purchasing-agent service that brings Korean brands to the Chinese market.",
+    "svc2Title": "International Shipping",
+    "svc2Desc": "Delivery across China with options including EMS, air express, and sea freight.",
+    "svc3Title": "Brand Onboarding",
+    "svc3Desc": "An onboarding guide for Korean brands looking to enter Chinese platforms."
   }
 }
