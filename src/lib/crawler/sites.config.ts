@@ -30,6 +30,26 @@ const RAW_SITES: SiteConfig[] = [
     strategy: "static_html",
     listEndpoint: "https://southcape.shop/goods/goods_list.php?cateCd=002",
   },
+
+  // ── Phase 3: Cafe24 공통 어댑터 재사용 (설정만 추가) ──
+  {
+    id: "utaa",
+    name: "유타",
+    baseUrl: "https://utaagolf.com",
+    brandName: "유타",
+    platform: "cafe24",
+    strategy: "static_html",
+    listEndpoint: "https://utaagolf.com/sitemap.xml",
+  },
+  {
+    id: "pelt",
+    name: "펠트",
+    baseUrl: "https://peltgolf.com",
+    brandName: "펠트",
+    platform: "cafe24",
+    strategy: "static_html",
+    listEndpoint: "https://peltgolf.com/sitemap.xml",
+  },
 ];
 
 export const SITES: SiteConfig[] = RAW_SITES.map(validateSiteConfig);
