@@ -96,6 +96,20 @@ const RAW_SITES: SiteConfig[] = [
       priceSelector: "#ProductPriceSale",
     },
   },
+  {
+    id: "malbon",
+    name: "말본",
+    baseUrl: "https://malbongolfkorea.com",
+    brandName: "말본",
+    platform: "custom",
+    strategy: "static_html",
+    // JSON-LD 없음 → 이름=<title>, 가격=GA4 이벤트(KRW value), 이미지=og:image
+    listEndpoint: "https://malbongolfkorea.com/",
+    selectors: {
+      productUrlPattern: "/shop/detail\\.php\\?pno=[A-Fa-f0-9]+",
+      priceRegex: "\"currency\"\\s*:\\s*\"KRW\"\\s*,\\s*\"value\"\\s*:\\s*\"?(\\d+)",
+    },
+  },
 ];
 
 export const SITES: SiteConfig[] = RAW_SITES.map(validateSiteConfig);

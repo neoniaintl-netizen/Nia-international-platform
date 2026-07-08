@@ -38,6 +38,11 @@ export function parseGenericDetail(html: string, url: string, cfg: SiteConfig): 
     const raw = el.attr("value") || el.text();
     price = raw ? parseInt(raw.replace(/[^0-9]/g, ""), 10) || 0 : 0;
   }
+  // config priceRegex: 원문 HTML 정규식(1번 캡처그룹=가격). GA4 이벤트 등 JS 내 가격용.
+  if (!price && cfg.selectors?.priceRegex) {
+    const m = html.match(new RegExp(cfg.selectors.priceRegex));
+    price = m?.[1] ? parseInt(m[1].replace(/[^0-9]/g, ""), 10) || 0 : 0;
+  }
   if (price <= 0) return null;
 
   const images: string[] = [...ldImages(ld)];

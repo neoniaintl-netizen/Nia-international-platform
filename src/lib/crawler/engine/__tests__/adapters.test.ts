@@ -77,6 +77,20 @@ test("generic(pxg) og:title + priceSelector 파싱", () => {
   assert.ok(p!.name.length > 0, "name");
 });
 
+test("generic(malbon) title + priceRegex(GA4) 파싱", () => {
+  const html = read("malbon/detail-1.html");
+  const cfg = {
+    id: "malbon",
+    baseUrl: "https://malbongolfkorea.com",
+    brandName: "말본",
+    selectors: { priceRegex: '"currency"\\s*:\\s*"KRW"\\s*,\\s*"value"\\s*:\\s*"?(\\d+)' },
+  } as unknown as SiteConfig;
+  const p = parseGenericDetail(html, "https://malbongolfkorea.com/shop/detail.php?pno=ABC", cfg);
+  assert.ok(p, "product");
+  assert.equal(p!.originalPrice, 279000);
+  assert.ok(p!.name.length > 0, "name");
+});
+
 test("cafe24 sitemap 상품 URL 추출", () => {
   const urls = extractProductUrls(read("anewgolf/sitemap.xml"), "https://anewgolf.com");
   assert.ok(urls.length > 5, `urls=${urls.length}`);
