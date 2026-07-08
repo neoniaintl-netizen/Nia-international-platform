@@ -1,0 +1,62 @@
+# 골프웨어 크롤러 스케줄 실행 (GitHub Actions)
+#
+# ⚠️ 현재 스케줄은 비활성(주석) 상태 — 수동 실행(workflow_dispatch)만 가능.
+#    활성화하려면:
+#      1) 아래 `schedule:` 블록 주석 해제
+#      2) 리포 Settings → Secrets and variables → Actions 에 시크릿 등록:
+#         - PROD_DATABASE_URL : 프로덕션 Postgres 연결 문자열
+#         - SLACK_WEBHOOK_URL : (선택) 급감/0건 알림용 슬랙 웹훅
+#    스케줄(KST 기준): 매일 03:00 full, 12:00 update  (cron 은 UTC)
+#      - 03:00 KST = 18:00 UTC → '0 18 * * *'
+#      - 12:00 KST = 03:00 UTC → '0 3 * * *'
+
+name: crawl
+
+on:
+  workflow_dispatch:
+    inputs:
+      site:
+        description: "대상 (all 또는 siteId)"
+        default: "all"
+      mode:
+        description: "full 또는 update"
+        default: "update"
+  # 활성화 시 주석 해제 (기본은 비활성 — 스케줄 미동작)
+  # schedule:
+  #   - cron: "0 18 * * *"  # 03:00 KST — full
+  #   - cron: "0 3 * * *"   # 12:00 KST — update
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci
+      - name: Determine mode
+        id: m
+        run: |
+          if [ "${{ github.event.schedule }}" = "0 18 * * *" ]; then
+            echo "mode=full" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 3 * * *" ]; then
+            echo "mode=update" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=${{ github.event.inputs.mode || 'update' }}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Run crawler
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: npx tsx scripts/crawl.ts --site "${{ github.event.inputs.site || 'all' }}" --mode "${{ steps.m.outputs.mode }}"
+      # 이미지 로컬라이즈(선택) — R2 시크릿(R2_*) 설정 시 자체 스토리지로 이전
+      # - name: Localize images
+      #   env:
+      #     DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+      #     R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      #     R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      #     R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      #     R2_BUCKET: ${{ secrets.R2_BUCKET }}
+      #     R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+      #   run: npx tsx scripts/localize-images.ts --site all
