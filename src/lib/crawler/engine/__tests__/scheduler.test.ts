@@ -1,6 +1,20 @@
 import assert from "node:assert";
 import { test } from "../harness";
 import { runWithConcurrency } from "../scheduler";
+import { evaluateCrawlAlert } from "../alerts";
+
+test("알림: 수집 0건 → 경고", () => {
+  assert.equal(evaluateCrawlAlert(0, 100), "수집 0건");
+});
+test("알림: 전일 대비 -50% 초과 급감 → 경고", () => {
+  assert.ok(evaluateCrawlAlert(40, 100)?.includes("급감"));
+});
+test("알림: 정상(감소 미미) → null", () => {
+  assert.equal(evaluateCrawlAlert(90, 100), null);
+});
+test("알림: 이전 데이터 없음(첫 실행) → null", () => {
+  assert.equal(evaluateCrawlAlert(50, null), null);
+});
 
 test("동시성 상한 준수", async () => {
   let active = 0;

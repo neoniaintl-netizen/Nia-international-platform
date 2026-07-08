@@ -319,6 +319,7 @@ model CrawlJob {
   successItems Int         @default(0)
   failedItems  Int         @default(0)
   errorLog     String?     @db.Text
+  warning      String? // 알림: 수집 0건/전일대비 급감 등 경고 플래그
   startedAt    DateTime?
   completedAt  DateTime?
   createdAt    DateTime    @default(now())

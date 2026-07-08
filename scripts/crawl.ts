@@ -2,6 +2,7 @@
 // 앱 밖 배치. --dry-run은 DB 없이 파싱 결과만 출력. 그 외엔 DRAFT로 저장(기존 importer 재사용).
 import { readFileSync } from "node:fs";
 import { runWithConcurrency } from "../src/lib/crawler/engine/scheduler";
+import { evaluateCrawlAlert, notifySlack } from "../src/lib/crawler/engine/alerts";
 import { SITES, getSite } from "../src/lib/crawler/sites.config";
 import { getAdapter } from "../src/lib/crawler/adapters";
 import type { SiteConfig } from "../src/lib/crawler/engine/types";
@@ -48,6 +49,7 @@ type Deps = {
     crawlJob: {
       create: (a: unknown) => Promise<{ id: string }>;
       update: (a: unknown) => Promise<unknown>;
+      findFirst: (a: unknown) => Promise<{ totalItems: number } | null>;
     };
     $disconnect: () => Promise<void>;
   };
@@ -78,7 +80,14 @@ async function crawlSite(cfg: SiteConfig, opts: Opts, deps: Deps | null): Promis
     const job = await deps.prisma.crawlJob.create({
       data: { sourceSite: cfg.id, targetUrl: cfg.baseUrl, status: "RUNNING", startedAt: new Date() },
     });
+    // 이전 실행(같은 사이트, 완료) 수집수 — 급감 판정용
+    const prev = await deps.prisma.crawlJob.findFirst({
+      where: { sourceSite: cfg.id, status: "COMPLETED" },
+      orderBy: { createdAt: "desc" },
+      select: { totalItems: true },
+    });
     const r = await deps.persist(products, job.id);
+    const warning = evaluateCrawlAlert(products.length, prev?.totalItems ?? null);
     await deps.prisma.crawlJob.update({
       where: { id: job.id },
       data: {
@@ -86,10 +95,15 @@ async function crawlSite(cfg: SiteConfig, opts: Opts, deps: Deps | null): Promis
         totalItems: products.length,
         successItems: r.imported,
         failedItems: r.errors.length,
+        warning,
         completedAt: new Date(),
       },
     });
     console.log(`[${cfg.id}] 수집 ${products.length} → import ${r.imported} (skip ${r.skipped}, err ${r.errors.length}) job=${job.id}`);
+    if (warning) {
+      console.warn(`  ⚠️  [${cfg.id}] ${warning}`);
+      await notifySlack(`${cfg.id}: ${warning}`);
+    }
     return { site: cfg.id, collected: products.length, imported: r.imported, skipped: r.skipped, errors: r.errors.length };
   } catch (e: unknown) {
     console.error(`[${cfg.id}] 실패: ${e instanceof Error ? e.message : String(e)}`);
