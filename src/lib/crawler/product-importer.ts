@@ -62,10 +62,28 @@ async function importSingleProduct(
   const hash = itemContentHash(item);
   const existing = await prisma.product.findFirst({
     where: { sourceUrl: item.sourceUrl },
-    select: { id: true, slug: true, contentHash: true },
+    select: { id: true, slug: true, contentHash: true, originalPrice: true, salePrice: true },
   });
   if (existing && existing.contentHash === hash) {
     return "unchanged";
+  }
+
+  // 가격 변동 이력 — 기존 상품인데 정가/할인가가 바뀐 경우 PriceHistory 1건 기록
+  if (
+    existing &&
+    (existing.originalPrice !== item.originalPrice ||
+      (existing.salePrice ?? null) !== (item.salePrice ?? null))
+  ) {
+    await prisma.priceHistory.create({
+      data: {
+        productId: existing.id,
+        oldPrice: existing.originalPrice,
+        newPrice: item.originalPrice,
+        oldSalePrice: existing.salePrice ?? null,
+        newSalePrice: item.salePrice ?? null,
+        soldOutChanged: false, // 현재 크롤 데이터에 품절정보 없음(향후 활성)
+      },
+    });
   }
 
   // 1) 브랜드 – 있으면 재사용, 없으면 생성
