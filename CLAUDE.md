@@ -19,6 +19,7 @@ Next.js 16 App Router · Auth.js v5 (credentials-only, 가입 시 전화번호 �
   변경 후 반드시: `npx -y npm@10 install --package-lock-only` → `npx -y npm@10 ci --dry-run`으로 검증 후 커밋.
 - **로컬 빌드**: `next build --webpack` 필수. 한글 폴더 경로(`노바렌`) 때문에 Turbopack이 panic함. package.json build 스크립트에 이미 반영됨.
 - 배포 = `git push origin main`. 별도 배포 명령 없음.
+- **셸 `cd`가 "no such file or directory"로 실패하면 유니코드 정규화 문제.** `노바렌` 폴더명이 디스크에 NFD로 저장돼 있어 직접 타이핑한 NFC 문자열로 `cd`가 안 먹을 수 있음. `find /Users/dooya8787/Downloads -maxdepth 1 -type d`로 실제 경로를 얻거나, Python `os.listdir()` + `subprocess.run(cwd=...)`로 우회할 것. 실제 프로젝트 폴더명은 `novaren`(구 `musinsa-mvp` 아님).
 
 ## 절대 읽지 말 것 (토큰 낭비 방지)
 
@@ -47,7 +48,14 @@ Next.js 16 App Router · Auth.js v5 (credentials-only, 가입 시 전화번호 �
 - UI 변경은 스크린샷으로 검증 후 보고.
 - 디자인은 프리미엄/에디토리얼 퀄리티 지향.
 
+## 크롤러 프로젝트 — 종료됨 (2026-07-09)
+
+사용자 지시로 **크롤러 프로젝트 공식 종료**. 자동 크롤 12 브랜드 운영 중 + 수동 등록 4 브랜드(세인트앤드류스·마스터바니에디션·파리게이츠·풋조이) + 포기 4 브랜드(더카트·랑방블랑·왁·나이키골프, 보스골프는 별도 스킵)로 확정. **버킷스토어 심화·미착수 항목(5~8번)은 사용자가 별도로 재지시하기 전까지 절대 착수 금지.** 상세: `HANDOFF.md` §0, `docs/OPERATIONS.md` §6(수동 등록 절차), `docs/crawler-coverage-report.md`(최종 커버리지 확정).
+
 ## 참고 문서
 
+- `HANDOFF.md` — 세션 간 인수인계 문서. **새 세션 시작 시 가장 먼저 읽을 것.**
 - `PLATFORM_PURPOSE.md` — 브랜드 목록, 크롤링 가능성 분석, 카테고리 구조, 과거 실패 사례(라운드로빈 매핑 금지 등)
 - `DEPLOY.md` — Railway 초기 설정 가이드
+- `docs/OPERATIONS.md` — 운영 매뉴얼 (Actions 버튼 실행 기준, §6 수동 등록 브랜드)
+- `docs/crawler-coverage-report.md` — 브랜드별 크롤러 커버리지 최종 확정 상태
