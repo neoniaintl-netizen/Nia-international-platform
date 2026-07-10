@@ -8,7 +8,6 @@ import { useSession } from "next-auth/react";
 import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { CategoryMenu } from "./category-menu";
-import { CHANNELS } from "@/lib/constants";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "./language-switcher";
 import { usePathname } from "next/navigation";
@@ -31,7 +30,6 @@ export function Header({
   const isLoggedIn = status === "authenticated";
   const pathname = usePathname();
   const searchRef = useRef<HTMLInputElement>(null);
-  const tCh = useTranslations("Channel");
   const tH = useTranslations("Header");
 
   useEffect(() => {
@@ -72,20 +70,25 @@ export function Header({
                 className="hidden lg:flex items-center ml-10 gap-1"
                 aria-label="카테고리"
               >
-                {CHANNELS.map((channel) => {
-                  const isActive = pathname.includes(`/category/${channel.slug}`);
+                {/* 더카트式 미니멀 GNB — NEW · BEST · BRAND (전체 카테고리는 우측 햄버거) */}
+                {[
+                  { label: "NEW", href: "/products?sort=newest", match: "/products" },
+                  { label: "BEST", href: "/ranking", match: "/ranking" },
+                  { label: "BRAND", href: "/brands", match: "/brands" },
+                ].map((item) => {
+                  const isActive = pathname.startsWith(item.match);
                   return (
                     <Link
-                      key={channel.slug}
-                      href={`/category/${channel.slug}`}
+                      key={item.label}
+                      href={item.href}
                       className={cn(
-                        "relative px-3 py-2 text-[13px] font-medium tracking-[0.1em] whitespace-nowrap transition-colors",
+                        "relative px-3 py-2 text-[13px] font-medium tracking-[0.14em] whitespace-nowrap transition-colors",
                         isActive
                           ? "text-[var(--ink)]"
                           : "text-[var(--ink-muted)]/70 hover:text-[var(--ink)]"
                       )}
                     >
-                      {tCh(channel.slug)}
+                      {item.label}
                       {isActive && (
                         <span className="absolute bottom-0 left-3 right-3 h-[1px] bg-[var(--ink)]" />
                       )}

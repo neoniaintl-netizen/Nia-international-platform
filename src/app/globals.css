@@ -87,7 +87,8 @@
   /* 금색/노란색 완전 제거 — 블랙&화이트 모노크롬 + 포인트만 */
   --champagne: #0A0A0A;
   --champagne-soft: #6B6B6B;
-  --sale: #0A0A0A;
+  /* 세일/할인율 전용 포인트 — 무채색 원칙의 유일한 예외(더카트式 특가 강조) */
+  --sale: #DC2626;
   --nkbus-red: #0A0A0A;
 
   --chart-1: oklch(0.87 0 0);

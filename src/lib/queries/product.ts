@@ -67,6 +67,34 @@ export async function getSaleProducts(limit = 4) {
 }
 
 /**
+ * 특가 레일 — 할인율(=(정가-판매가)/정가) 내림차순 상위 N.
+ *
+ * Prisma orderBy 로는 연산식(할인율) 정렬이 불가하므로, 넉넉한 풀(poolSize)을
+ * updatedAt 최신순으로 가져와 메모리에서 할인율 계산·정렬 후 상위 limit 개만 반환한다.
+ * poolSize 밖의 오래된 초고할인 상품은 누락될 수 있으나(트레이드오프) 실무상 충분.
+ * 반환 shape 은 다른 홈 쿼리와 동일 → toProductCard 그대로 사용 가능.
+ */
+export async function getSaleRankedProducts(limit = 20, poolSize = 150) {
+  const pool = await prisma.product.findMany({
+    where: { ...USER_FACING_GUARD, salePrice: { not: null } },
+    orderBy: [{ updatedAt: "desc" }],
+    take: poolSize,
+    include: {
+      brand: { select: { name: true, slug: true } },
+      images: { where: { isMain: true }, take: 1 },
+    },
+  });
+  return pool
+    .filter((p) => p.salePrice != null && p.salePrice < p.originalPrice)
+    .sort((a, b) => {
+      const ra = (a.originalPrice - (a.salePrice as number)) / a.originalPrice;
+      const rb = (b.originalPrice - (b.salePrice as number)) / b.originalPrice;
+      return rb - ra;
+    })
+    .slice(0, limit);
+}
+
+/**
  * What's New 섹션 — 골프 브랜드 우선 + 브랜드별 라운드로빈 인터리브.
  *
  * 정책:
@@ -171,6 +199,68 @@ export async function getNewProducts(limit = 8) {
   }
 
   return result.slice(0, limit);
+}
+
+/**
+ * 홈 §7 "지금 주목할 아이템" — 채널(대분류)별 최신 등록순 ACTIVE 상품.
+ * channelSlug 미지정 시 전체. 판매 데이터가 없으므로 판매랭킹이 아닌 NEW 기준.
+ */
+export async function getChannelNewProducts(
+  channelSlug: string | null,
+  limit = 20
+) {
+  return prisma.product.findMany({
+    where: {
+      ...USER_FACING_GUARD,
+      ...(channelSlug
+        ? {
+            OR: [
+              { category: { slug: channelSlug } },
+              { category: { parent: { slug: channelSlug } } },
+            ],
+          }
+        : {}),
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      brand: { select: { name: true, slug: true } },
+      images: { where: { isMain: true }, take: 1 },
+    },
+  });
+}
+
+/**
+ * 홈 §8 "시즌 아이템" 탭 목록 — golf 하위 카테고리 중 ACTIVE 상품 보유분.
+ * 상품 수 내림차순 상위 maxTabs 개.
+ */
+export async function getGolfSubcategoryTabs(maxTabs = 6) {
+  const subs = await prisma.category.findMany({
+    where: { parent: { slug: "golf" } },
+    select: {
+      slug: true,
+      name: true,
+      _count: { select: { products: { where: { status: "ACTIVE" } } } },
+    },
+  });
+  return subs
+    .filter((c) => c._count.products > 0)
+    .sort((a, b) => b._count.products - a._count.products)
+    .slice(0, maxTabs)
+    .map((c) => ({ slug: c.slug, name: c.name }));
+}
+
+/** 홈 §8 — 특정 카테고리 slug 의 최신 ACTIVE 상품. */
+export async function getCategoryNewProducts(categorySlug: string, limit = 20) {
+  return prisma.product.findMany({
+    where: { ...USER_FACING_GUARD, category: { slug: categorySlug } },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      brand: { select: { name: true, slug: true } },
+      images: { where: { isMain: true }, take: 1 },
+    },
+  });
 }
 
 /**

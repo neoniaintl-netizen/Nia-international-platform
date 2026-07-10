@@ -94,13 +94,13 @@ export function ProductCard({
 
   return (
     <Link href={`/products/${product.slug}`} className="group block">
-      <div className="relative aspect-[4/5] bg-[var(--stone)] overflow-hidden mb-3.5">
+      <div className="relative aspect-[3/4] bg-[var(--stone)] overflow-hidden mb-3.5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={thumbUrl(product.imageUrl, 500)}
           alt={product.name}
           width={500}
-          height={625}
+          height={667}
           className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[700ms] ease-out"
           decoding="async"
           fetchPriority={priority ? "high" : "auto"}

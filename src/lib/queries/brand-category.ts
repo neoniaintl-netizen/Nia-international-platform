@@ -146,3 +146,84 @@ export async function getFeaturedBrands(limit = 6) {
     take: limit,
   });
 }
+
+// ─── 홈 v2: 브랜드 라인업 / 취급 브랜드 그리드 ───
+
+export type BrandLineupItem = {
+  name: string;
+  nameKo: string | null;
+  slug: string;
+  productCount: number;
+  /** 카드 비주얼 — coverImageUrl 우선, 없으면(현재 전부 없음) 최신 ACTIVE 상품 메인 이미지 fallback */
+  imageUrl: string | null;
+};
+
+/**
+ * "주목할 브랜드 라인업" (홈 §5) — ACTIVE 상품 수 상위 브랜드 + 대표 이미지.
+ * Brand.coverImageUrl 이 채워지면 자동으로 그쪽을 우선 사용.
+ */
+export async function getBrandLineup(limit = 6): Promise<BrandLineupItem[]> {
+  const brands = await prisma.brand.findMany({
+    where: { isActive: true, products: { some: { status: "ACTIVE" } } },
+    select: {
+      name: true,
+      nameKo: true,
+      slug: true,
+      coverImageUrl: true,
+      _count: { select: { products: { where: { status: "ACTIVE" } } } },
+      products: {
+        where: { status: "ACTIVE" },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { images: { where: { isMain: true }, take: 1, select: { url: true } } },
+      },
+    },
+  });
+  return brands
+    .sort((a, b) => b._count.products - a._count.products)
+    .slice(0, limit)
+    .map((b) => ({
+      name: b.name,
+      nameKo: b.nameKo,
+      slug: b.slug,
+      productCount: b._count.products,
+      imageUrl: b.coverImageUrl ?? b.products[0]?.images[0]?.url ?? null,
+    }));
+}
+
+export type BrandGridItem = {
+  name: string;
+  nameKo: string | null;
+  slug: string;
+  logoUrl: string | null;
+  productCount: number;
+};
+
+/**
+ * "취급 브랜드 그리드" (홈 §10) — 전체 활성 브랜드.
+ * ACTIVE 상품 보유 브랜드 우선(상품 수 desc), 그 다음 이름순.
+ */
+export async function getBrandsForGrid(): Promise<BrandGridItem[]> {
+  const brands = await prisma.brand.findMany({
+    where: { isActive: true },
+    select: {
+      name: true,
+      nameKo: true,
+      slug: true,
+      logoUrl: true,
+      _count: { select: { products: { where: { status: "ACTIVE" } } } },
+    },
+  });
+  return brands
+    .sort(
+      (a, b) =>
+        b._count.products - a._count.products || a.name.localeCompare(b.name)
+    )
+    .map((b) => ({
+      name: b.name,
+      nameKo: b.nameKo,
+      slug: b.slug,
+      logoUrl: b.logoUrl,
+      productCount: b._count.products,
+    }));
+}

@@ -34,7 +34,7 @@ export function PriceDisplay({
       {hasDiscount && (
         <span
           className={cn(
-            "font-semibold text-[var(--champagne)] tracking-tight",
+            "font-semibold text-[var(--sale)] tracking-tight",
             styles.discount
           )}
         >

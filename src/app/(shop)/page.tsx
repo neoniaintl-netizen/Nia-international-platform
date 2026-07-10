@@ -1,116 +1,127 @@
-import { getTranslations } from "next-intl/server";
 import { HeroBanner } from "@/components/home/hero-banner";
+import { CategoryGrid } from "@/components/home/category-grid";
+import { ProductRail } from "@/components/home/product-rail";
+import { TabbedProductGrid, type ProductTab } from "@/components/home/tabbed-product-grid";
+import { BrandLineupCards } from "@/components/home/brand-lineup-cards";
+import { BrandSpotlightBanner } from "@/components/home/brand-spotlight-banner";
 import { BrandTicker } from "@/components/home/brand-ticker";
-import { FeaturedGrid } from "@/components/home/featured-grid";
-import { CategoryShowcase } from "@/components/home/category-showcase";
-import { SpringCollection } from "@/components/home/spring-collection";
-import { BrandStatement } from "@/components/home/brand-statement";
-import { BrandSpotlight } from "@/components/home/brand-spotlight";
+import { BrandGrid } from "@/components/home/brand-grid";
 import {
-  getRankedProducts,
-  getSaleProducts,
-  getNewProducts,
-  getGolfProducts,
+  getSaleRankedProducts,
+  getChannelNewProducts,
+  getGolfSubcategoryTabs,
+  getCategoryNewProducts,
+  getBrandLineup,
+  getBrandsForGrid,
   getBrandFocusProducts,
-  pickBrandFocusSlug,
 } from "@/lib/queries";
 import { toProductCard } from "@/lib/mappers";
+import { SPOTLIGHT_BRAND_SLUG } from "@/lib/home-config";
+import { CHANNELS } from "@/lib/constants";
 
+/**
+ * 홈 v2 (더카트 실측 기반 리디자인 — docs/home-redesign-design.md §4 참조)
+ *
+ * 1 GNB(레이아웃) · 2 히어로 · 3 카테고리 · 4 특가 · 5 브랜드 라인업
+ * · 6 스포트라이트 · 7 NEW 랭킹 · 8 시즌 아이템 · 9 브랜드 티커
+ * · 10 취급 브랜드 · 11 푸터(레이아웃)
+ * 모든 상품 쿼리는 status=ACTIVE 가드로 DRAFT 노출 차단.
+ */
 export default async function HomePage() {
-  const t = await getTranslations("Home");
-  const [ranked, sale, newProducts, golf, focusSlug] = await Promise.all([
-    getRankedProducts(8),
-    getSaleProducts(8),
-    getNewProducts(16),
-    getGolfProducts(8),
-    pickBrandFocusSlug(), // 골프 카테고리 ACTIVE 상품 가장 많은 brand
-  ]);
+  const [sale, lineup, spotlightProducts, seasonTabs, brandsGrid] =
+    await Promise.all([
+      getSaleRankedProducts(20), // §4 할인율 내림차순
+      getBrandLineup(6), // §5
+      getBrandFocusProducts(SPOTLIGHT_BRAND_SLUG, 15), // §6
+      getGolfSubcategoryTabs(6), // §8 탭 목록
+      getBrandsForGrid(), // §10
+    ]);
 
-  // Brand Focus — 자동 선택된 brand의 최신 4개. brand 없으면 빈 배열 → 섹션 숨김.
-  const brandFocus = focusSlug
-    ? await getBrandFocusProducts(focusSlug, 4)
-    : [];
-  const brandFocusName =
-    brandFocus[0]?.brand?.nameKo ?? brandFocus[0]?.brand?.name ?? "";
+  // §7 지금 주목할 아이템 — 탭=전체+채널, 데이터=최신 등록순(NEW 기준, 판매랭킹 아님)
+  const newTabDefs = [
+    { key: "all", label: "전체", slug: null as string | null },
+    ...CHANNELS.map((c) => ({ key: c.slug, label: c.displayName, slug: c.slug as string | null })),
+  ];
+  const newTabProducts = await Promise.all(
+    newTabDefs.map((t) => getChannelNewProducts(t.slug, 20))
+  );
+  const newTabs: ProductTab[] = newTabDefs.map((t, i) => ({
+    key: t.key,
+    label: t.label,
+    products: newTabProducts[i].map(toProductCard),
+  }));
 
-  // What's New: 신상 + 랭킹 병합 최대 16개 (중복 제거)
-  const whatsNew = [...newProducts];
-  for (const r of ranked) {
-    if (!whatsNew.some((p) => p.id === r.id) && whatsNew.length < 16) {
-      whatsNew.push(r);
-    }
-  }
+  // §8 시즌 아이템 — 탭=골프 하위 카테고리
+  const seasonProducts = await Promise.all(
+    seasonTabs.map((t) => getCategoryNewProducts(t.slug, 10))
+  );
+  const seasonTabsData: ProductTab[] = seasonTabs.map((t, i) => ({
+    key: t.slug,
+    label: t.name.replace(/^골프\s*/, ""),
+    products: seasonProducts[i].map(toProductCard),
+  }));
+
+  const spotlightBrandName =
+    spotlightProducts[0]?.brand?.nameKo ??
+    spotlightProducts[0]?.brand?.name ??
+    "";
 
   return (
     <div>
-      {/* 1) Hero — 코드 데이터(`src/lib/hero-banners.ts`) 기준 노출. 운영자 어드민 배너 등록 흐름 사용 시 props로 전달 */}
+      {/* 2) 히어로 캐러셀 */}
       <HeroBanner />
 
-      {/* 2) 입점 브랜드 티커 — 자동 스크롤 (Hero 바로 아래) */}
+      {/* 3) 카테고리 그리드 */}
+      <CategoryGrid />
+
+      {/* 4) 놓칠 수 없는 특가 */}
+      <ProductRail
+        eyebrow="Special Price"
+        title="놓칠 수 없는 특가"
+        subtitle="지금 할인율이 가장 큰 상품"
+        linkHref="/products?sort=sale"
+        linkLabel="View All"
+        products={sale.map(toProductCard)}
+      />
+
+      {/* 5) 주목할 브랜드 라인업 */}
+      <BrandLineupCards brands={lineup} />
+
+      {/* 6) 브랜드 스포트라이트 — home-config.ts 로 피처 브랜드 교체 */}
+      <BrandSpotlightBanner
+        brandName={spotlightBrandName}
+        brandSlug={SPOTLIGHT_BRAND_SLUG}
+        products={spotlightProducts.map(toProductCard)}
+      />
+
+      {/* 7) 지금 주목할 아이템 — NEW 기준(판매랭킹 아님), 1~20 넘버링 */}
+      <TabbedProductGrid
+        eyebrow="What's Hot"
+        title="지금 주목할 아이템"
+        subtitle="최신 등록순 NEW 랭킹"
+        linkHref="/products?sort=newest"
+        linkLabel="View All"
+        tabs={newTabs}
+        numbered
+        columns={5}
+      />
+
+      {/* 8) 시즌 아이템 — 골프 하위 카테고리 탭 */}
+      <TabbedProductGrid
+        eyebrow="Season Items"
+        title="한눈에 보는 시즌 아이템"
+        subtitle="카테고리별 신상 셀렉션"
+        linkHref="/category/golf"
+        linkLabel="View Golf"
+        tabs={seasonTabsData}
+        columns={5}
+      />
+
+      {/* 9) 브랜드 티커 — 라인 배너 */}
       <BrandTicker />
 
-      {/* 3) What's New — 16개 상품 그리드 */}
-      <FeaturedGrid
-        eyebrow="What's New"
-        title="New Arrivals"
-        subtitle={t("newArrivalsSubtitle")}
-        linkHref="/products?sort=newest"
-        linkLabel="Shop All"
-        products={whatsNew.slice(0, 16).map(toProductCard)}
-      />
-
-      {/* 4) Golf Select — 골프 카테고리 ACTIVE 상품 (DRAFT 자동 제외) */}
-      {golf.length > 0 && (
-        <FeaturedGrid
-          eyebrow="Golf Select"
-          title="Golf Select"
-          subtitle={t("golfSelectSubtitle")}
-          linkHref="/category/golf"
-          linkLabel="View Golf"
-          columns={4}
-          products={golf.map(toProductCard)}
-        />
-      )}
-
-      {/* 5) 2x2 카테고리 쇼케이스 */}
-      <CategoryShowcase />
-
-      {/* 6) Time Sale — 한정 특가 기획전 */}
-      {sale.length > 0 && (
-        <FeaturedGrid
-          eyebrow="Limited Offer"
-          title="Time Sale"
-          subtitle={t("timeSaleSubtitle")}
-          linkHref="/products?sort=sale"
-          linkLabel="View Sale"
-          columns={4}
-          products={sale.map(toProductCard).slice(0, 8)}
-        />
-      )}
-
-      {/* 7) Brand Focus — 골프 카테고리 ACTIVE 상품 가장 많은 brand 클로즈업 */}
-      {brandFocus.length > 0 && focusSlug && (
-        <FeaturedGrid
-          eyebrow="Brand in Focus"
-          title={brandFocusName || "Featured Brand"}
-          subtitle={t("brandFocusSubtitle")}
-          linkHref={`/brands/${focusSlug}`}
-          linkLabel="View Brand"
-          columns={4}
-          products={brandFocus.map(toProductCard)}
-        />
-      )}
-
-      {/* 8) Season Collection — 시즌 코디 추천 자동 슬라이드 (현재 Summer Edit, 문구는 spring-collection.tsx 기본값) */}
-      <SpringCollection
-        products={whatsNew.slice(0, 12).map(toProductCard)}
-      />
-
-      {/* 6) Brand Statement — Membership & Stores */}
-      <BrandStatement />
-
-      {/* 7) Featured Brands — 큐레이션 데이터 컴포넌트 내부 DEFAULT_FEATURED 사용 */}
-      <BrandSpotlight />
+      {/* 10) 취급 브랜드 그리드 */}
+      <BrandGrid brands={brandsGrid} />
     </div>
   );
 }
