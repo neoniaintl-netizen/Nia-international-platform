@@ -20,6 +20,34 @@ import { SPOTLIGHT_BRAND_SLUG } from "@/lib/home-config";
 import { CHANNELS } from "@/lib/constants";
 import { getTranslations } from "next-intl/server";
 
+/** 브랜드 라운드로빈 인터리브 — 최신순 리스트에서 한 브랜드 연속 도배 방지 */
+function interleaveByBrand<T extends { brandId: string }>(
+  products: T[],
+  limit: number
+): T[] {
+  const byBrand = new Map<string, T[]>();
+  for (const p of products) {
+    const arr = byBrand.get(p.brandId) ?? [];
+    arr.push(p);
+    byBrand.set(p.brandId, arr);
+  }
+  const queues = [...byBrand.values()];
+  const out: T[] = [];
+  let added = true;
+  while (out.length < limit && added) {
+    added = false;
+    for (const q of queues) {
+      const item = q.shift();
+      if (item) {
+        out.push(item);
+        added = true;
+        if (out.length >= limit) break;
+      }
+    }
+  }
+  return out;
+}
+
 /**
  * 홈 v2 (더카트 실측 기반 리디자인 — docs/home-redesign-design.md §4 참조)
  *
@@ -41,18 +69,20 @@ export default async function HomePage() {
       getBrandsForGrid(), // §10
     ]);
 
-  // §7 지금 주목할 아이템 — 탭=전체+채널, 데이터=최신 등록순(NEW 기준, 판매랭킹 아님)
+  // §7 지금 주목할 아이템 — 탭=전체+채널, 데이터=최신 등록순(NEW 기준, 판매랭킹 아님).
+  // 최신순은 직전 크롤 브랜드가 몰아서 나오므로, 넉넉한 풀(60)을 브랜드 라운드로빈으로
+  // 인터리브해 상위 20개만 사용 — 한 브랜드 도배 방지.
   const newTabDefs = [
     { key: "all", label: t("v2TabAll"), slug: null as string | null },
     ...CHANNELS.map((c) => ({ key: c.slug, label: tCh(c.slug), slug: c.slug as string | null })),
   ];
   const newTabProducts = await Promise.all(
-    newTabDefs.map((d) => getChannelNewProducts(d.slug, 20))
+    newTabDefs.map((d) => getChannelNewProducts(d.slug, 60))
   );
   const newTabs: ProductTab[] = newTabDefs.map((d, i) => ({
     key: d.key,
     label: d.label,
-    products: newTabProducts[i].map(toProductCard),
+    products: interleaveByBrand(newTabProducts[i], 20).map(toProductCard),
   }));
 
   // §8 시즌 아이템 — 탭=골프 하위 카테고리 (라벨은 Category 네임스페이스 번역)
@@ -108,6 +138,7 @@ export default async function HomePage() {
         tabs={newTabs}
         numbered
         columns={5}
+        mobileLimit={10}
       />
 
       {/* 8) 시즌 아이템 — 골프 하위 카테고리 탭 */}
@@ -119,6 +150,7 @@ export default async function HomePage() {
         linkLabel="View Golf"
         tabs={seasonTabsData}
         columns={5}
+        mobileLimit={6}
       />
 
       {/* 9) 브랜드 티커 — 라인 배너 */}

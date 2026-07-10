@@ -14,7 +14,7 @@ export function GNB() {
 
   return (
     <nav
-      className="bg-white/95 backdrop-blur-sm border-b border-[var(--line)] sticky top-16 z-40"
+      className="bg-white/95 backdrop-blur-sm border-b border-[var(--line)] lg:sticky lg:top-16 z-40"
       aria-label="섹션 탭"
     >
       <div className="max-w-[1360px] mx-auto px-4 lg:px-8">

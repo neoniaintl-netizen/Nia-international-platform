@@ -21,6 +21,8 @@ interface TabbedProductGridProps {
   /** 카드에 1..N 순위 번호(No.01) 배지 표시 (예: NEW 랭킹) */
   numbered?: boolean;
   columns?: 4 | 5;
+  /** 모바일(md 미만)에서 노출할 최대 개수 — 초과분은 md+ 에서만 표시 (세로 과부하 방지) */
+  mobileLimit?: number;
 }
 
 /**
@@ -37,6 +39,7 @@ export function TabbedProductGrid({
   linkLabel,
   numbered = false,
   columns = 5,
+  mobileLimit,
 }: TabbedProductGridProps) {
   const available = tabs.filter((t) => t.products.length > 0);
   const [active, setActive] = useState(available[0]?.key ?? "");
@@ -87,12 +90,18 @@ export function TabbedProductGrid({
         )}
       >
         {current.products.map((p, i) => (
-          <ProductCard
+          <div
             key={p.id}
-            product={p}
-            rank={numbered ? i + 1 : undefined}
-            priority={i < 5}
-          />
+            className={cn(
+              mobileLimit != null && i >= mobileLimit && "hidden md:block"
+            )}
+          >
+            <ProductCard
+              product={p}
+              rank={numbered ? i + 1 : undefined}
+              priority={i < 5}
+            />
+          </div>
         ))}
       </div>
     </section>

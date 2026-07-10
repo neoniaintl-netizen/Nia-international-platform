@@ -24,7 +24,7 @@ export async function BrandLineupCards({ brands }: { brands: BrandLineupItem[] }
         linkHref="/brands"
         linkLabel="All Brands"
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-10 lg:gap-x-6 lg:gap-y-12">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-8 sm:gap-x-4 sm:gap-y-10 lg:gap-x-6 lg:gap-y-12">
         {brands.map((b) => {
           const copy = copyMap[b.slug];
           return (
@@ -48,13 +48,13 @@ export async function BrandLineupCards({ brands }: { brands: BrandLineupItem[] }
                 )}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/[0.04] transition-colors duration-500 pointer-events-none" />
               </div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--ink-muted)] mb-1.5">
-                {b.name}
+              <p className="text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.18em] sm:tracking-[0.2em] text-[var(--ink-muted)] mb-1 sm:mb-1.5 truncate">
+                {b.name.replace(/-/g, " ")}
               </p>
-              <p className="text-[17px] lg:text-lg tracking-tight text-[var(--ink)]">
+              <p className="text-[14px] sm:text-[17px] lg:text-lg tracking-tight text-[var(--ink)] line-clamp-1">
                 {copy?.title ?? (b.nameKo ?? b.name)}
               </p>
-              <p className="text-[12px] text-[var(--ink-muted)] mt-1">
+              <p className="text-[11px] sm:text-[12px] text-[var(--ink-muted)] mt-0.5 sm:mt-1 truncate">
                 {copy?.subtitle ?? b.name} ·{" "}
                 {t("v2LineupCount", { count: b.productCount })}
               </p>
