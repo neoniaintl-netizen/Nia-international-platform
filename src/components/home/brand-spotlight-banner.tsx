@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 import { ProductCard, type ProductCardData } from "@/components/product/product-card";
 import { SPOTLIGHT_BANNER } from "@/lib/home-config";
@@ -7,9 +8,9 @@ import { SPOTLIGHT_BANNER } from "@/lib/home-config";
 /**
  * §6 브랜드 스포트라이트 — 더카트 G/FORE 스포트라이트 대응.
  * 풀폭 대형 배너(이미지 없으면 타이포 배너 fallback) + 해당 브랜드 상품 가로 레일.
- * 피처 브랜드는 home-config.ts 의 SPOTLIGHT_BRAND_SLUG 로 교체.
+ * 피처 브랜드는 home-config.ts 의 SPOTLIGHT_BRAND_SLUG 로 교체. 서브카피 = Home.spotlightSubtitle 번역.
  */
-export function BrandSpotlightBanner({
+export async function BrandSpotlightBanner({
   brandName,
   brandSlug,
   products,
@@ -20,6 +21,8 @@ export function BrandSpotlightBanner({
 }) {
   if (products.length === 0) return null;
   const banner = SPOTLIGHT_BANNER;
+  const t = await getTranslations("Home");
+  const subtitle = t("spotlightSubtitle");
 
   return (
     <section className="py-12 lg:py-20 bg-[var(--stone)] border-y border-[var(--line)]">
@@ -40,7 +43,7 @@ export function BrandSpotlightBanner({
               <h2 className="text-3xl md:text-5xl font-bold tracking-[-0.02em] uppercase">
                 {banner.title}
               </h2>
-              <p className="text-sm text-white/70 mt-2">{banner.subtitle}</p>
+              <p className="text-sm text-white/70 mt-2">{subtitle}</p>
             </div>
           </div>
         ) : (
@@ -60,7 +63,7 @@ export function BrandSpotlightBanner({
                 </span>
               </div>
               <p className="text-[13px] text-[var(--ink-muted)] mt-4">
-                {banner.subtitle}
+                {subtitle}
               </p>
             </div>
           </div>

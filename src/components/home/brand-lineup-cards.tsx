@@ -1,31 +1,32 @@
 import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SectionHeader } from "@/components/home/section-header";
 import { thumbUrl } from "@/lib/image-url";
 import type { BrandLineupItem } from "@/lib/queries";
-import {
-  BRAND_LINEUP_COPY,
-  BRAND_LINEUP_DEFAULT_COPY,
-} from "@/lib/home-config";
+import { BRAND_LINEUP_COPY } from "@/lib/home-config";
 
 /**
  * §5 주목할 브랜드 라인업 — 더카트 "주목할 만한 브랜드 라인업" 대응.
- * 3×2 에디토리얼 카드: 대표 이미지(최신 상품 메인컷 fallback) + 브랜드명 + 카피 + 상품 수.
+ * 3×2 에디토리얼 카드: 대표 이미지(최신 상품 메인컷 fallback) + 브랜드명 + 로케일별 카피 + 상품 수.
  */
-export function BrandLineupCards({ brands }: { brands: BrandLineupItem[] }) {
+export async function BrandLineupCards({ brands }: { brands: BrandLineupItem[] }) {
   if (brands.length === 0) return null;
+  const t = await getTranslations("Home");
+  const locale = await getLocale();
+  const copyMap = BRAND_LINEUP_COPY[locale] ?? BRAND_LINEUP_COPY.ko;
 
   return (
     <section className="max-w-[1360px] mx-auto px-4 lg:px-8 py-12 lg:py-20">
       <SectionHeader
         eyebrow="Brand Lineup"
-        title="주목할 브랜드 라인업"
-        subtitle="지금 입점 상품이 가장 활발한 브랜드"
+        title={t("v2LineupTitle")}
+        subtitle={t("v2LineupSubtitle")}
         linkHref="/brands"
         linkLabel="All Brands"
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-10 lg:gap-x-6 lg:gap-y-12">
         {brands.map((b) => {
-          const copy = BRAND_LINEUP_COPY[b.slug] ?? BRAND_LINEUP_DEFAULT_COPY;
+          const copy = copyMap[b.slug];
           return (
             <Link key={b.slug} href={`/brands/${b.slug}`} className="group block">
               <div className="relative aspect-[4/3] bg-[var(--stone)] border border-[var(--line)] overflow-hidden mb-4">
@@ -51,10 +52,11 @@ export function BrandLineupCards({ brands }: { brands: BrandLineupItem[] }) {
                 {b.name}
               </p>
               <p className="text-[17px] lg:text-lg tracking-tight text-[var(--ink)]">
-                {copy.title}
+                {copy?.title ?? (b.nameKo ?? b.name)}
               </p>
               <p className="text-[12px] text-[var(--ink-muted)] mt-1">
-                {copy.subtitle ?? (b.nameKo ?? b.name)} · {b.productCount}개 상품
+                {copy?.subtitle ?? b.name} ·{" "}
+                {t("v2LineupCount", { count: b.productCount })}
               </p>
             </Link>
           );

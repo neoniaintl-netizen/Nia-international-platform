@@ -12,13 +12,14 @@ import { SectionHeader } from "@/components/home/section-header";
  */
 export async function CategoryGrid() {
   const tCh = await getTranslations("Channel");
+  const t = await getTranslations("Home");
 
   return (
     <section className="max-w-[1360px] mx-auto px-4 lg:px-8 py-12 lg:py-20">
       <SectionHeader
         eyebrow="Categories"
-        title="카테고리"
-        subtitle="관심 카테고리로 바로 이동"
+        title={t("v2CategoriesTitle")}
+        subtitle={t("v2CategoriesSubtitle")}
         linkHref="/category"
         linkLabel="All"
       />

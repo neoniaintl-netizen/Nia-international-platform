@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { SectionHeader } from "@/components/home/section-header";
 import type { BrandGridItem } from "@/lib/queries";
 
@@ -6,19 +7,20 @@ import type { BrandGridItem } from "@/lib/queries";
  * §10 취급 브랜드 그리드 — 더카트 "지금 가장 핫한 브랜드" 대응.
  * 로고 있으면 로고 카드, 없으면 타이포 네임카드. ACTIVE 상품 보유 브랜드 우선.
  */
-export function BrandGrid({ brands }: { brands: BrandGridItem[] }) {
+export async function BrandGrid({ brands }: { brands: BrandGridItem[] }) {
   if (brands.length === 0) return null;
+  const t = await getTranslations("Home");
 
   return (
     <section className="max-w-[1360px] mx-auto px-4 lg:px-8 py-12 lg:py-20">
       <SectionHeader
         eyebrow="Our Brands"
-        title="취급 브랜드"
-        subtitle="NOVAREN 이 소싱하는 브랜드"
+        title={t("v2BrandsTitle")}
+        subtitle={t("v2BrandsSubtitle")}
         linkHref="/brands"
         linkLabel="All Brands"
       />
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
         {brands.map((b) => (
           <Link
             key={b.slug}
