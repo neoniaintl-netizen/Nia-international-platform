@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { prisma } from "@/lib/db";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -68,9 +69,9 @@ export default async function AdminCategoriesPage() {
             </TableHeader>
             <TableBody>
               {categories.map((cat) => (
-                <>
+                <Fragment key={cat.id}>
                   {/* Parent category */}
-                  <TableRow key={cat.id} className="bg-gray-50/50">
+                  <TableRow className="bg-gray-50/50">
                     <TableCell className="text-sm font-bold">{cat.name}</TableCell>
                     <TableCell className="text-xs text-gray-400 font-mono">{cat.slug}</TableCell>
                     <TableCell>
@@ -88,8 +89,8 @@ export default async function AdminCategoriesPage() {
                   </TableRow>
                   {/* Child categories */}
                   {cat.children.map((child) => (
-                    <>
-                      <TableRow key={child.id}>
+                    <Fragment key={child.id}>
+                      <TableRow>
                         <TableCell className="text-sm pl-8">
                           <span className="text-gray-300 mr-1">ㄴ</span> {child.name}
                         </TableCell>
@@ -128,9 +129,9 @@ export default async function AdminCategoriesPage() {
                           </TableCell>
                         </TableRow>
                       ))}
-                    </>
+                    </Fragment>
                   ))}
-                </>
+                </Fragment>
               ))}
             </TableBody>
           </Table>
