@@ -7,6 +7,7 @@ import { toggleWishlist } from "@/actions/wishlist";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { ShareButton } from "@/components/shared/share-button";
 import { SizeGuideModal } from "@/components/product/size-guide-modal";
 
@@ -50,6 +51,7 @@ export function ProductActions({
   const { status } = useSession();
   const router = useRouter();
   const pathname = usePathname(); // 현재 상품 상세 경로(/products/{slug}) — callbackUrl 용
+  const t = useTranslations("Pdp");
 
   function findVariant() {
     return variants.find((v) => {
@@ -66,8 +68,8 @@ export function ProductActions({
       return;
     }
     const variant = findVariant();
-    if (!variant) return toast.error("옵션을 선택해주세요");
-    if (variant.stock <= 0) return toast.error("품절된 상품입니다");
+    if (!variant) return toast.error(t("selectOption"));
+    if (variant.stock <= 0) return toast.error(t("soldOutToast"));
 
     startTransition(async () => {
       try {
@@ -76,14 +78,14 @@ export function ProductActions({
           toast.error(result.error);
           return;
         }
-        toast.success("장바구니에 추가되었습니다", {
+        toast.success(t("addedToCart"), {
           action: {
-            label: "장바구니 보기",
+            label: t("viewCart"),
             onClick: () => router.push("/cart"),
           },
         });
       } catch (e: any) {
-        toast.error(e?.message ?? "장바구니 추가에 실패했습니다");
+        toast.error(e?.message ?? t("addToCartFailed"));
       }
     });
   }
@@ -95,7 +97,7 @@ export function ProductActions({
       return;
     }
     const variant = findVariant();
-    if (!variant) return toast.error("옵션을 선택해주세요");
+    if (!variant) return toast.error(t("selectOption"));
 
     startTransition(async () => {
       try {
@@ -111,7 +113,7 @@ export function ProductActions({
             : "/checkout"
         );
       } catch (e: any) {
-        toast.error(e?.message ?? "처리에 실패했습니다");
+        toast.error(e?.message ?? t("actionFailed"));
       }
     });
   }
@@ -128,11 +130,11 @@ export function ProductActions({
         setWishlisted(result.wishlisted);
         toast(
           result.wishlisted
-            ? "위시리스트에 추가되었습니다"
-            : "위시리스트에서 삭제되었습니다"
+            ? t("wishAdded")
+            : t("wishRemoved")
         );
       } catch (e: any) {
-        toast.error(e?.message ?? "위시리스트 처리에 실패했습니다");
+        toast.error(e?.message ?? t("wishFailed"));
       }
     });
   }
@@ -232,7 +234,7 @@ export function ProductActions({
           }`}
           onClick={handleWishlist}
           disabled={isPending}
-          aria-label="위시리스트"
+          aria-label={t("wishlistAria")}
         >
           <Heart
             className="w-5 h-5 mx-auto"

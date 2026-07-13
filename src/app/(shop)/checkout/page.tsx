@@ -3,6 +3,7 @@ import { getUserCart, getUserPoints, getUserCouponCount } from "@/lib/queries";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 import { FUNPAY_CURRENCY, FUNPAY_KRW_PER_CNY, FUNPAY_WECHAT_ENABLED } from "@/lib/payment/funpay";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag } from "lucide-react";
@@ -16,6 +17,7 @@ export default async function CheckoutPage({
   if (!session?.user?.id) redirect("/login?callbackUrl=/checkout");
 
   const { items: itemsParam } = await searchParams;
+  const t = await getTranslations("Checkout");
 
   const [allCartItems, userPoints, couponCount] = await Promise.all([
     getUserCart(session.user.id),
@@ -34,13 +36,13 @@ export default async function CheckoutPage({
   if (cartItems.length === 0) {
     return (
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
-        <h1 className="text-xl font-bold mb-6">주문/결제</h1>
+        <h1 className="text-xl font-bold mb-6">{t("title")}</h1>
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <ShoppingBag className="w-16 h-16 text-gray-200 mb-4" />
-          <p className="text-lg font-medium text-gray-500 mb-2">주문할 상품이 없습니다</p>
-          <p className="text-sm text-gray-400 mb-6">장바구니에 상품을 담아주세요.</p>
+          <p className="text-lg font-medium text-gray-500 mb-2">{t("emptyTitle")}</p>
+          <p className="text-sm text-gray-400 mb-6">{t("emptyHint")}</p>
           <Link href="/">
-            <Button className="bg-black hover:bg-gray-800 text-white">쇼핑하러 가기</Button>
+            <Button className="bg-black hover:bg-gray-800 text-white">{t("goShopping")}</Button>
           </Link>
         </div>
       </div>
@@ -64,7 +66,7 @@ export default async function CheckoutPage({
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
-      <h1 className="text-xl font-bold mb-6">주문/결제</h1>
+      <h1 className="text-xl font-bold mb-6">{t("title")}</h1>
       <CheckoutForm
         items={items}
         userPoints={userPoints}

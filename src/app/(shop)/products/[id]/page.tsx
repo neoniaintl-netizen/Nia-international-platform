@@ -21,12 +21,14 @@ import {
   getProductInquiries,
 } from "@/lib/queries";
 import { auth } from "@/lib/auth";
+import { getTranslations } from "next-intl/server";
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const product = await getProductBySlug(id);
 
   if (!product) return notFound();
+  const t = await getTranslations("Pdp");
 
   // Check wishlist status + fetch reviews/inquiries
   const session = await auth();
@@ -130,15 +132,15 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           <ul className="space-y-2 text-[12px] text-[var(--ink-muted)]">
             <li className="flex items-baseline gap-3">
               <span className="eyebrow text-[var(--ink)] min-w-[90px]">Shipping</span>
-              <span>무료배송 · 내일 도착 예정</span>
+              <span>{t("shippingLine")}</span>
             </li>
             <li className="flex items-baseline gap-3">
               <span className="eyebrow text-[var(--ink)] min-w-[90px]">Returns</span>
-              <span>30일 이내 무료 반품</span>
+              <span>{t("returnsLine")}</span>
             </li>
             <li className="flex items-baseline gap-3">
               <span className="eyebrow text-[var(--ink)] min-w-[90px]">Authentic</span>
-              <span>NOVAREN 정품 보증 · 해외배송 지원</span>
+              <span>{t("authenticLine")}</span>
             </li>
           </ul>
 
@@ -188,8 +190,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 />
               ) : (
                 <div className="border border-[var(--line)] bg-[var(--paper)] p-10 text-center text-[13px] text-[var(--ink-muted)] leading-relaxed">
-                  <p>상품 상세 이미지가 이곳에 표시됩니다.</p>
-                  <p className="mt-3">소재 · 제조국 · 세탁 정보는 상품 업데이트 후 표시됩니다.</p>
+                  <p>{t("detailPlaceholder1")}</p>
+                  <p className="mt-3">{t("detailPlaceholder2")}</p>
                 </div>
               )}
             </div>

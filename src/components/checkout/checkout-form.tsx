@@ -10,7 +10,8 @@ import Image from "next/image";
 import { createOrder } from "@/actions/order";
 import { applyCouponCode } from "@/actions/coupon";
 import { DaumPostcodeButton } from "@/components/shared/daum-postcode";
-import { calculateShipping, SHIPPING_NOTICE } from "@/lib/shipping";
+import { calculateShipping } from "@/lib/shipping";
+import { useTranslations } from "next-intl";
 
 interface CartItem {
   id: string;
@@ -29,8 +30,8 @@ interface CartItem {
 }
 
 const PAYMENT_METHODS = [
-  { value: "ALIPAY", label: "Alipay 알리페이" },
-  { value: "WECHAT_PAY", label: "WeChat Pay 위챗페이" },
+  { value: "ALIPAY", labelKey: "alipay" as const },
+  { value: "WECHAT_PAY", labelKey: "wechat" as const },
 ];
 const WECHAT_VALUE = "WECHAT_PAY";
 
@@ -51,6 +52,7 @@ export function CheckoutForm({
   wechatEnabled?: boolean;
   selectedItemIds?: string[];
 }) {
+  const t = useTranslations("Checkout");
   // 위챗은 운영 검증 전까지 숨김 (테스트 환경 9401)
   const availableMethods = PAYMENT_METHODS.filter(
     (m) => m.value !== WECHAT_VALUE || wechatEnabled
@@ -132,7 +134,7 @@ export function CheckoutForm({
         setAppliedCoupon(result.couponCode!);
       }
     } catch {
-      setCouponError("쿠폰 적용 중 오류가 발생했습니다.");
+      setCouponError(t("couponError"));
     }
     setCouponApplying(false);
   };
@@ -163,26 +165,26 @@ export function CheckoutForm({
           <section>
             <div className="flex items-center gap-2 mb-4">
               <Truck className="w-5 h-5" />
-              <h2 className="font-bold">배송 정보</h2>
+              <h2 className="font-bold">{t("shippingInfo")}</h2>
             </div>
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="recipient" className="text-sm mb-1.5">수령인</Label>
-                  <Input id="recipient" name="recipient" placeholder="이름을 입력하세요" required />
+                  <Label htmlFor="recipient" className="text-sm mb-1.5">{t("recipient")}</Label>
+                  <Input id="recipient" name="recipient" placeholder={t("recipientPh")} required />
                 </div>
                 <div>
-                  <Label htmlFor="phone" className="text-sm mb-1.5">연락처</Label>
+                  <Label htmlFor="phone" className="text-sm mb-1.5">{t("phone")}</Label>
                   <Input id="phone" name="phone" placeholder="010-0000-0000" required />
                 </div>
               </div>
               <div>
-                <Label htmlFor="zipCode" className="text-sm mb-1.5">우편번호</Label>
+                <Label htmlFor="zipCode" className="text-sm mb-1.5">{t("zipCode")}</Label>
                 <div className="flex gap-2 max-w-xs">
                   <Input
                     id="zipCode"
                     name="zipCode"
-                    placeholder="우편번호"
+                    placeholder={t("zipCode")}
                     value={zipCode}
                     readOnly
                     required
@@ -192,11 +194,11 @@ export function CheckoutForm({
                 </div>
               </div>
               <div>
-                <Label htmlFor="address1" className="text-sm mb-1.5">주소</Label>
+                <Label htmlFor="address1" className="text-sm mb-1.5">{t("address")}</Label>
                 <Input
                   id="address1"
                   name="address1"
-                  placeholder="주소 검색 버튼을 눌러주세요"
+                  placeholder={t("addressPh")}
                   value={address1}
                   readOnly
                   required
@@ -204,12 +206,12 @@ export function CheckoutForm({
                 />
               </div>
               <div>
-                <Label htmlFor="address2" className="text-sm mb-1.5">상세주소</Label>
-                <Input id="address2" name="address2" ref={address2Ref} placeholder="상세주소를 입력하세요 (동/호수)" />
+                <Label htmlFor="address2" className="text-sm mb-1.5">{t("address2")}</Label>
+                <Input id="address2" name="address2" ref={address2Ref} placeholder={t("address2Ph")} />
               </div>
               <div>
-                <Label htmlFor="memo" className="text-sm mb-1.5">배송 메모</Label>
-                <Input id="memo" name="memo" placeholder="부재 시 문 앞에 놓아주세요" />
+                <Label htmlFor="memo" className="text-sm mb-1.5">{t("memo")}</Label>
+                <Input id="memo" name="memo" placeholder={t("memoPh")} />
               </div>
             </div>
           </section>
@@ -220,11 +222,11 @@ export function CheckoutForm({
           <section>
             <div className="flex items-center gap-2 mb-4">
               <Tag className="w-5 h-5" />
-              <h2 className="font-bold">쿠폰/적립금</h2>
+              <h2 className="font-bold">{t("couponPoints")}</h2>
             </div>
             <div className="space-y-4">
               <div>
-                <Label className="text-sm mb-1.5">쿠폰</Label>
+                <Label className="text-sm mb-1.5">{t("coupon")}</Label>
                 {appliedCoupon ? (
                   <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <Tag className="w-4 h-4 text-green-600" />
@@ -239,22 +241,22 @@ export function CheckoutForm({
                   <>
                     <div className="flex gap-2">
                       <Input
-                        placeholder="쿠폰 코드 입력"
+                        placeholder={t("couponPh")}
                         className="flex-1"
                         value={couponCode}
                         onChange={(e) => setCouponCode(e.target.value)}
                       />
                       <Button type="button" variant="outline" onClick={handleApplyCoupon} disabled={couponApplying}>
-                        {couponApplying ? "확인중..." : "적용"}
+                        {couponApplying ? t("checking") : t("apply")}
                       </Button>
                     </div>
                     {couponError && <p className="text-xs text-red-500 mt-1">{couponError}</p>}
                   </>
                 )}
-                <p className="text-xs text-gray-400 mt-1.5">사용 가능한 쿠폰: {couponCount}장</p>
+                <p className="text-xs text-gray-400 mt-1.5">{t("couponAvailable", { count: couponCount })}</p>
               </div>
               <div>
-                <Label className="text-sm mb-1.5">적립금</Label>
+                <Label className="text-sm mb-1.5">{t("points")}</Label>
                 <div className="flex gap-2">
                   <Input
                     placeholder="0"
@@ -269,9 +271,9 @@ export function CheckoutForm({
                       setUsedPoints(Math.min(val, maxUsable));
                     }}
                   />
-                  <Button type="button" variant="outline" onClick={handleUseAllPoints}>전액 사용</Button>
+                  <Button type="button" variant="outline" onClick={handleUseAllPoints}>{t("useAll")}</Button>
                 </div>
-                <p className="text-xs text-gray-400 mt-1.5">보유 적립금: {userPoints.toLocaleString()}원</p>
+                <p className="text-xs text-gray-400 mt-1.5">{t("pointsHeld", { amount: userPoints.toLocaleString() })}</p>
               </div>
             </div>
           </section>
@@ -282,7 +284,7 @@ export function CheckoutForm({
           <section>
             <div className="flex items-center gap-2 mb-4">
               <CreditCard className="w-5 h-5" />
-              <h2 className="font-bold">결제 수단</h2>
+              <h2 className="font-bold">{t("paymentMethod")}</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {availableMethods.map((method) => (
@@ -296,7 +298,7 @@ export function CheckoutForm({
                       : "hover:border-gray-400"
                   }`}
                 >
-                  {method.label}
+                  {t(method.labelKey)}
                 </button>
               ))}
             </div>
@@ -306,7 +308,7 @@ export function CheckoutForm({
         {/* Right: Summary */}
         <div className="lg:col-span-1">
           <div className="sticky top-36 border rounded-xl p-5 space-y-4">
-            <h3 className="font-bold">주문 상품 ({totalQty})</h3>
+            <h3 className="font-bold">{t("orderItems", { count: totalQty })}</h3>
             <div className="space-y-3 max-h-64 overflow-y-auto">
               {items.map((item) => {
                 const imageUrl = item.product.images[0]?.url ?? `https://placehold.co/56x56/b8b8b8/444?text=IMG`;
@@ -326,7 +328,7 @@ export function CheckoutForm({
                       <p className="text-[10px] font-bold">{item.product.brand.name}</p>
                       <p className="text-xs truncate">{item.product.name}</p>
                       <p className="text-[10px] text-gray-400">
-                        {[item.variant?.color, item.variant?.size].filter(Boolean).join(" · ") || "ONE SIZE"} · {item.quantity}개
+                        {[item.variant?.color, item.variant?.size].filter(Boolean).join(" · ") || "ONE SIZE"} · {t("qty", { n: item.quantity })}
                       </p>
                       <p className="text-xs font-bold mt-0.5">{(price * item.quantity).toLocaleString()}원</p>
                     </div>
@@ -337,27 +339,27 @@ export function CheckoutForm({
             <Separator />
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-500">상품 금액</span>
+                <span className="text-gray-500">{t("itemsTotal")}</span>
                 <span>{subtotal.toLocaleString()}원</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">배송비</span>
-                <span>{shipping === 0 ? "무료" : `${shipping.toLocaleString()}원`}</span>
+                <span className="text-gray-500">{t("shippingFee")}</span>
+                <span>{shipping === 0 ? t("free") : `${shipping.toLocaleString()}원`}</span>
               </div>
               {shipping === 0 && (
-                <p className="text-xs text-green-600">{SHIPPING_NOTICE}</p>
+                <p className="text-xs text-green-600">{t("freeShippingNotice")}</p>
               )}
               {discount > 0 && (
                 <>
                   {couponDiscount > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-gray-500">쿠폰 할인</span>
+                      <span className="text-gray-500">{t("couponDiscount")}</span>
                       <span className="text-red-500">-{couponDiscount.toLocaleString()}원</span>
                     </div>
                   )}
                   {usedPoints > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-gray-500">적립금 사용</span>
+                      <span className="text-gray-500">{t("pointsUsed")}</span>
                       <span className="text-red-500">-{usedPoints.toLocaleString()}원</span>
                     </div>
                   )}
@@ -366,18 +368,17 @@ export function CheckoutForm({
             </div>
             <Separator />
             <div className="flex justify-between items-center">
-              <span className="font-bold">총 결제 금액</span>
+              <span className="font-bold">{t("totalPayment")}</span>
               <span className="text-xl font-bold">{total.toLocaleString()}원</span>
             </div>
             {isCny && (
               <>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-500">위안화 결제 금액</span>
+                  <span className="text-gray-500">{t("cnyAmount")}</span>
                   <span className="font-semibold text-gray-700">≈ {fmtCny(cnyAmount)}</span>
                 </div>
                 <p className="text-[11px] text-gray-400 leading-relaxed">
-                  Alipay/WeChat Pay 는 위안화(CNY)로 결제됩니다. 실제 청구액 약 {fmtCny(cnyAmount)}{" "}
-                  (적용환율 1 CNY ≈ {krwPerCny.toLocaleString()}원).
+                  {t("cnyNotice", { cny: fmtCny(cnyAmount), rate: krwPerCny.toLocaleString() })}
                 </p>
               </>
             )}
@@ -388,7 +389,7 @@ export function CheckoutForm({
 
             <div className="space-y-2 mt-2">
               <p className="text-[10px] text-gray-400">
-                위 주문 내용을 확인하였으며, 결제에 동의합니다.
+                {t("agree")}
               </p>
               <Button
                 type="submit"
@@ -398,15 +399,15 @@ export function CheckoutForm({
                 {isPending || redirecting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    {redirecting ? "결제창으로 이동 중..." : "주문 처리 중..."}
+                    {redirecting ? t("redirecting") : t("processing")}
                   </>
                 ) : (
-                  `${total.toLocaleString()}원 결제하기`
+                  t("payBtn", { amount: total.toLocaleString() })
                 )}
               </Button>
               <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>안전 결제 · Alipay{wechatEnabled ? "/WeChat Pay" : ""} (ICB Funpay)</span>
+                <span>{t("securePay")} · Alipay{wechatEnabled ? "/WeChat Pay" : ""} (ICB Funpay)</span>
               </div>
             </div>
           </div>

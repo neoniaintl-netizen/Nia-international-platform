@@ -6,7 +6,8 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { CartItemRow } from "./cart-item-row";
 import { removeSelectedFromCart } from "@/actions/cart";
-import { calculateShipping, SHIPPING_NOTICE } from "@/lib/shipping";
+import { calculateShipping } from "@/lib/shipping";
+import { useTranslations } from "next-intl";
 import { useKrwPerCny, formatCny } from "@/components/providers/currency-provider";
 import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
@@ -33,6 +34,7 @@ export function CartClient({ items }: { items: CartItemData[] }) {
   const [selected, setSelected] = useState<Set<string>>(() => new Set(items.map((i) => i.id)));
   const [isPending, startTransition] = useTransition();
   const krwPerCny = useKrwPerCny();
+  const t = useTranslations("Cart");
 
   const allSelected = selected.size === items.length && items.length > 0;
 
@@ -78,10 +80,10 @@ export function CartClient({ items }: { items: CartItemData[] }) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <ShoppingBag className="w-16 h-16 text-gray-200 mb-4" />
-        <p className="text-lg font-medium text-gray-500 mb-2">장바구니가 비어있습니다</p>
-        <p className="text-sm text-gray-400 mb-6">마음에 드는 상품을 담아보세요!</p>
+        <p className="text-lg font-medium text-gray-500 mb-2">{t("empty")}</p>
+        <p className="text-sm text-gray-400 mb-6">{t("emptyHint")}</p>
         <Link href="/">
-          <Button className="bg-black hover:bg-gray-800 text-white">쇼핑 계속하기</Button>
+          <Button className="bg-black hover:bg-gray-800 text-white">{t("continueShopping")}</Button>
         </Link>
       </div>
     );
@@ -99,7 +101,7 @@ export function CartClient({ items }: { items: CartItemData[] }) {
               onCheckedChange={toggleAll}
             />
             <label htmlFor="select-all" className="text-sm font-medium">
-              전체 선택 ({selected.size}/{items.length})
+              {t("selectAll")} ({selected.size}/{items.length})
             </label>
           </div>
           {selected.size > 0 && (
@@ -108,7 +110,7 @@ export function CartClient({ items }: { items: CartItemData[] }) {
               disabled={isPending}
               className="text-xs text-gray-400 hover:text-red-500 underline"
             >
-              선택 삭제
+              {t("removeSelected")}
             </button>
           )}
         </div>
@@ -128,29 +130,29 @@ export function CartClient({ items }: { items: CartItemData[] }) {
       {/* Order summary */}
       <div className="lg:col-span-1">
         <div className="sticky top-36 border rounded-xl p-5 space-y-4">
-          <h3 className="font-bold">주문 요약</h3>
+          <h3 className="font-bold">{t("orderSummary")}</h3>
           <Separator />
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">상품 금액</span>
+              <span className="text-gray-500">{t("itemsTotal")}</span>
               <span>{subtotal.toLocaleString()}원</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">배송비</span>
-              <span>{shipping === 0 ? "무료" : `${shipping.toLocaleString()}원`}</span>
+              <span className="text-gray-500">{t("shippingFee")}</span>
+              <span>{shipping === 0 ? t("free") : `${shipping.toLocaleString()}원`}</span>
             </div>
             {shipping === 0 && subtotal > 0 && (
-              <p className="text-xs text-green-600">{SHIPPING_NOTICE}</p>
+              <p className="text-xs text-green-600">{t("freeShippingNotice")}</p>
             )}
           </div>
           <Separator />
           <div className="flex justify-between items-center">
-            <span className="font-bold">총 결제 금액</span>
+            <span className="font-bold">{t("totalPayment")}</span>
             <span className="text-xl font-bold">{total.toLocaleString()}원</span>
           </div>
           {krwPerCny != null && total > 0 && (
             <div className="flex justify-between items-center text-sm -mt-1">
-              <span className="text-gray-500">위안화 결제 금액</span>
+              <span className="text-gray-500">{t("cnyAmount")}</span>
               <span className="font-semibold text-gray-700">
                 ≈ {formatCny(total / krwPerCny)}
               </span>
@@ -163,7 +165,7 @@ export function CartClient({ items }: { items: CartItemData[] }) {
               className="w-full h-12 bg-black hover:bg-gray-800 text-white font-bold text-base mt-3"
               disabled={selectedItems.length === 0}
             >
-              주문하기 ({selectedItems.length})
+              {t("checkoutBtn")} ({selectedItems.length})
             </Button>
           </Link>
         </div>

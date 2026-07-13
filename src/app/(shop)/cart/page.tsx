@@ -2,10 +2,12 @@ import { auth } from "@/lib/auth";
 import { getUserCart } from "@/lib/queries";
 import { CartClient } from "@/components/cart/cart-client";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 export default async function CartPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login?callbackUrl=/cart");
+  const t = await getTranslations("Cart");
 
   let cartItems: Awaited<ReturnType<typeof getUserCart>> = [];
   try {
@@ -38,7 +40,7 @@ export default async function CartPage() {
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
-      <h1 className="text-xl font-bold mb-6">장바구니</h1>
+      <h1 className="text-xl font-bold mb-6">{t("title")}</h1>
       <CartClient items={items} />
     </div>
   );
