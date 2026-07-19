@@ -1,12 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { createProduct, updateProduct } from "@/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Plus, Trash2, ImageIcon, Package } from "lucide-react";
+import { Loader2, Plus, Trash2, ImageIcon, Package, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 interface Brand {
@@ -136,6 +136,15 @@ export function ProductForm({ brands, categories, product }: ProductFormProps) {
   useEffect(() => {
     if (state?.success) {
       toast.success(isEdit ? "상품이 수정되었습니다." : "상품이 등록되었습니다.");
+      // 신규 등록 성공 시 폼 전체 리셋 — 비제어 필드는 폼 액션이 비우지만
+      // 제어 상태(가격/이미지/옵션)는 남아서 다음 상품에 섞이는 실수를 유발함
+      if (!isEdit) {
+        setOriginalPrice(0);
+        setSalePrice("");
+        setDiscountRate("");
+        setImages([{ url: "", alt: "", isMain: true }]);
+        setVariants([{ color: "", size: "", sku: "", stock: 100, isActive: true }]);
+      }
     }
     if (state?.error) {
       toast.error(state.error);
@@ -153,6 +162,42 @@ export function ProductForm({ brands, categories, product }: ProductFormProps) {
     setImages(images.filter((_, i) => i !== idx));
   const setMainImage = (idx: number) =>
     setImages(images.map((img, i) => ({ ...img, isMain: i === idx })));
+
+  // ── 이미지 파일 업로드 (/api/upload 재사용) — URL 붙여넣기 대신 파일 선택 ──
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach((f) => formData.append("files", f));
+      formData.append("category", "general");
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      // 업로드된 URL을 이미지 행에 채움 — 빈 행부터 채우고 나머지는 새 행 추가
+      setImages((prev) => {
+        const next = [...prev];
+        const urls: string[] = data.urls;
+        for (const url of urls) {
+          const empty = next.findIndex((img) => !img.url);
+          if (empty >= 0) next[empty] = { ...next[empty], url };
+          else next.push({ url, alt: "", isMain: false });
+        }
+        if (!next.some((img) => img.isMain) && next[0])
+          next[0] = { ...next[0], isMain: true };
+        return next;
+      });
+      toast.success(`이미지 ${data.urls.length}장 업로드 완료`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "업로드에 실패했습니다.");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const addVariant = () =>
     setVariants([
@@ -199,6 +244,18 @@ export function ProductForm({ brands, categories, product }: ProductFormProps) {
                   </option>
                 ))}
               </select>
+              <p className="text-[11px] text-gray-400 mt-1">
+                목록에 없으면{" "}
+                <a
+                  href="/admin/brands"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-black"
+                >
+                  브랜드 생성
+                </a>
+                {" "}후 이 페이지를 새로고침하세요
+              </p>
             </div>
 
             <div>
@@ -414,15 +471,41 @@ export function ProductForm({ brands, categories, product }: ProductFormProps) {
             </div>
           ))}
           <input type="hidden" name="imageCount" value={images.length} />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addImage}
-            className="mt-2"
-          >
-            <Plus className="w-3 h-3 mr-1" /> 이미지 추가
-          </Button>
+          <div className="flex items-center gap-2 mt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addImage}
+            >
+              <Plus className="w-3 h-3 mr-1" /> 이미지 추가
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={uploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {uploading ? (
+                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              ) : (
+                <Upload className="w-3 h-3 mr-1" />
+              )}
+              파일 업로드
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              multiple
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <span className="text-[11px] text-gray-400">
+              파일 선택 시 자동 업로드 · 5MB 이하 JPG/PNG/WebP
+            </span>
+          </div>
         </CardContent>
       </Card>
 
