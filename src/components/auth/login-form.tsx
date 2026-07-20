@@ -63,13 +63,11 @@ export function LoginForm() {
     <div className="w-full max-w-sm mx-auto">
       <h1 className="text-2xl font-black text-center mb-3">로그인</h1>
 
-      {/* 회원전용 폐쇄몰 안내 */}
-      <div className="flex items-center justify-center gap-2 mb-8 px-4 py-2.5 bg-gray-50 rounded-lg">
-        <Lock className="w-3.5 h-3.5 text-gray-500 shrink-0" />
-        <div className="text-center">
-          <p className="text-[12px] font-bold text-[var(--ink)]">{t("membersOnlyTitle")}</p>
-          <p className="text-[11px] text-gray-500">{t("membersOnlyDesc")}</p>
-        </div>
+      {/* 회원전용 안내 — 아이콘·제목·설명 세로 중앙 정렬 */}
+      <div className="flex flex-col items-center text-center mb-8">
+        <Lock className="w-4 h-4 text-gray-400 mb-2" strokeWidth={1.75} />
+        <p className="text-[13px] font-bold text-[var(--ink)]">{t("membersOnlyTitle")}</p>
+        <p className="text-[11px] text-gray-500 mt-0.5">{t("membersOnlyDesc")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
