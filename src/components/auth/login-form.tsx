@@ -6,7 +6,8 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Gift } from "lucide-react";
+import { Gift, Lock } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { safeCallbackUrl } from "@/lib/utils";
 
 /**
@@ -25,6 +26,7 @@ export function LoginForm() {
   const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+  const t = useTranslations("Auth");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -59,7 +61,16 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      <h1 className="text-2xl font-black text-center mb-8">로그인</h1>
+      <h1 className="text-2xl font-black text-center mb-3">로그인</h1>
+
+      {/* 회원전용 폐쇄몰 안내 */}
+      <div className="flex items-center justify-center gap-2 mb-8 px-4 py-2.5 bg-gray-50 rounded-lg">
+        <Lock className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+        <div className="text-center">
+          <p className="text-[12px] font-bold text-[var(--ink)]">{t("membersOnlyTitle")}</p>
+          <p className="text-[11px] text-gray-500">{t("membersOnlyDesc")}</p>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input

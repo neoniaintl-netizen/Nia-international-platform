@@ -290,5 +290,9 @@
     "arrival": "预计 {date} 送达",
     "viewOrders": "查看订单",
     "continueShopping": "继续购物"
+  },
+  "Auth": {
+    "membersOnlyTitle": "会员专属商城",
+    "membersOnlyDesc": "登录后方可浏览及购买商品。"
   }
 }

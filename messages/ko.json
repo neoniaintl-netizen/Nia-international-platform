@@ -290,5 +290,9 @@
     "arrival": "{date} 도착 예정",
     "viewOrders": "주문 내역 보기",
     "continueShopping": "쇼핑 계속하기"
+  },
+  "Auth": {
+    "membersOnlyTitle": "회원 전용 폐쇄몰",
+    "membersOnlyDesc": "로그인 후 상품 열람 및 구매가 가능합니다."
   }
 }

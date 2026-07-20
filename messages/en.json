@@ -289,5 +289,9 @@
     "arrival": "Arrives {date}",
     "viewOrders": "View my orders",
     "continueShopping": "Continue shopping"
+  },
+  "Auth": {
+    "membersOnlyTitle": "Members-only mall",
+    "membersOnlyDesc": "Sign in to browse and purchase products."
   }
 }
