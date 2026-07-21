@@ -14,15 +14,16 @@ import { SortTabs } from "@/components/product/sort-tabs";
 import { BrandFollowButton } from "@/components/brand/brand-follow-button";
 import { isFollowingBrand } from "@/actions/brand-follow";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 
 const PAGE_SIZE = 20;
 
 const TABS = [
-  { key: "", label: "상품" },
-  { key: "about", label: "소개" },
-  { key: "lookbook", label: "룩북" },
-  { key: "campaign", label: "캠페인" },
-  { key: "review", label: "리뷰" },
+  { key: "", labelKey: "tabProducts" },
+  { key: "about", labelKey: "tabAbout" },
+  { key: "lookbook", labelKey: "tabLookbook" },
+  { key: "campaign", labelKey: "tabCampaign" },
+  { key: "review", labelKey: "tabReview" },
 ] as const;
 
 export default async function BrandPage({
@@ -67,6 +68,7 @@ export default async function BrandPage({
   ]);
 
   const { products, total } = productData;
+  const tt = await getTranslations("Shop");
 
   return (
     <div>
@@ -101,13 +103,13 @@ export default async function BrandPage({
                   variant="outline"
                   className="text-white/60 border-white/20 text-xs"
                 >
-                  팔로워 {brand.followerCount.toLocaleString()}
+                  {tt("followers")} {brand.followerCount.toLocaleString()}
                 </Badge>
                 <Badge
                   variant="outline"
                   className="text-white/60 border-white/20 text-xs"
                 >
-                  상품 {total.toLocaleString()}개
+                  {tt("productsN", { n: total.toLocaleString() })}
                 </Badge>
               </div>
             </div>
@@ -132,14 +134,14 @@ export default async function BrandPage({
         <div className="border-t border-white/10">
           <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
             <div className="flex items-center gap-6 overflow-x-auto">
-              {TABS.map((t) => {
-                const isActive = activeTab === t.key;
-                const href = t.key
-                  ? `/brands/${slug}?tab=${t.key}`
+              {TABS.map((tab) => {
+                const isActive = activeTab === tab.key;
+                const href = tab.key
+                  ? `/brands/${slug}?tab=${tab.key}`
                   : `/brands/${slug}`;
                 return (
                   <Link
-                    key={t.key}
+                    key={tab.key}
                     href={href}
                     className={`py-3 text-sm font-bold whitespace-nowrap border-b-2 ${
                       isActive
@@ -147,7 +149,7 @@ export default async function BrandPage({
                         : "border-transparent text-white/50 hover:text-white"
                     }`}
                   >
-                    {t.label}
+                    {tt(tab.labelKey)}
                   </Link>
                 );
               })}
@@ -160,9 +162,9 @@ export default async function BrandPage({
         {/* About */}
         {activeTab === "about" && (
           <div className="max-w-2xl py-8">
-            <h2 className="text-xl font-bold mb-4">브랜드 소개</h2>
+            <h2 className="text-xl font-bold mb-4">{tt("brandIntro")}</h2>
             <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {brand.description ?? "브랜드 소개가 준비 중입니다."}
+              {brand.description ?? tt("brandIntroEmpty")}
             </p>
           </div>
         )}
@@ -172,7 +174,7 @@ export default async function BrandPage({
           <div className="py-4">
             {brand.lookbooks.length === 0 ? (
               <div className="text-center py-20 text-gray-400 text-sm">
-                아직 등록된 룩북이 없습니다.
+                {tt("noLookbook")}
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6">
@@ -210,7 +212,7 @@ export default async function BrandPage({
           <div className="py-4">
             {brand.campaigns.length === 0 ? (
               <div className="text-center py-20 text-gray-400 text-sm">
-                진행 중인 캠페인이 없습니다.
+                {tt("noCampaign")}
               </div>
             ) : (
               <div className="space-y-5">
@@ -236,7 +238,7 @@ export default async function BrandPage({
                       )}
                       {c.linkUrl && (
                         <p className="text-xs font-bold mt-3 opacity-90 flex items-center gap-1">
-                          자세히 보기 <ChevronRight className="w-3 h-3" />
+                          {tt("viewMore")} <ChevronRight className="w-3 h-3" />
                         </p>
                       )}
                     </div>
@@ -250,7 +252,7 @@ export default async function BrandPage({
         {/* Review (placeholder) */}
         {activeTab === "review" && (
           <div className="py-8 text-center text-sm text-gray-400">
-            리뷰는 각 상품 페이지에서 확인하실 수 있습니다.
+            {tt("reviewNotice")}
           </div>
         )}
 
@@ -259,7 +261,7 @@ export default async function BrandPage({
           <>
             <div className="flex items-center justify-between mb-6">
               <p className="text-sm text-gray-500">
-                총 <span className="font-bold text-black">{total}</span>개
+                {tt("totalItems", { n: total })}
               </p>
               <Suspense>
                 <SortTabs />
@@ -282,7 +284,7 @@ export default async function BrandPage({
               </>
             ) : (
               <div className="text-center py-20 text-gray-400 text-sm">
-                등록된 상품이 없습니다.
+                {tt("noProductsBrand")}
               </div>
             )}
           </>

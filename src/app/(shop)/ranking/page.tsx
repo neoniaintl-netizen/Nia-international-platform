@@ -8,11 +8,12 @@ import {
 import { toProductCard } from "@/lib/mappers";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { getTranslations } from "next-intl/server";
 
 const TABS = [
-  { key: "realtime", label: "실시간", icon: Clock, description: "실시간 인기 상품" },
-  { key: "daily", label: "일간", icon: Eye, description: "오늘 가장 많이 본 상품" },
-  { key: "weekly", label: "주간", icon: Heart, description: "이번 주 리뷰 많은 상품" },
+  { key: "realtime", labelKey: "rtRealtime", icon: Clock, descKey: "rtRealtimeDesc" },
+  { key: "daily", labelKey: "rtDaily", icon: Eye, descKey: "rtDailyDesc" },
+  { key: "weekly", labelKey: "rtWeekly", icon: Heart, descKey: "rtWeeklyDesc" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -23,6 +24,7 @@ export default async function RankingPage({
   searchParams: Promise<{ tab?: string }>;
 }) {
   const { tab } = await searchParams;
+  const t = await getTranslations("Shop");
   const activeTab: TabKey = (["realtime", "daily", "weekly"].includes(tab ?? "") ? tab : "realtime") as TabKey;
 
   let products;
@@ -50,23 +52,23 @@ export default async function RankingPage({
     <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
       <div className="flex items-center gap-2 mb-6">
         <TrendingUp className="w-5 h-5" />
-        <h1 className="text-xl font-bold">랭킹</h1>
+        <h1 className="text-xl font-bold">{t("rankingTitle")}</h1>
       </div>
 
       {/* Tab navigation */}
       <div className="grid grid-cols-3 mb-6 bg-gray-100 rounded-lg p-1">
-        {TABS.map((t) => (
+        {TABS.map((tt) => (
           <Link
-            key={t.key}
-            href={`/ranking${t.key === "realtime" ? "" : `?tab=${t.key}`}`}
+            key={tt.key}
+            href={`/ranking${tt.key === "realtime" ? "" : `?tab=${tt.key}`}`}
             className={cn(
               "text-xs font-medium text-center py-2.5 rounded-md transition-colors",
-              activeTab === t.key
+              activeTab === tt.key
                 ? "bg-white text-black shadow-sm"
                 : "text-gray-500 hover:text-black"
             )}
           >
-            {t.label}
+            {t(tt.labelKey)}
           </Link>
         ))}
       </div>
@@ -75,9 +77,9 @@ export default async function RankingPage({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 text-xs text-gray-400">
           <TabIcon className="w-3.5 h-3.5" />
-          <span>{dateLabel} 기준</span>
+          <span>{t("basisSuffix", { date: dateLabel })}</span>
         </div>
-        <p className="text-xs text-gray-400">{tabInfo.description}</p>
+        <p className="text-xs text-gray-400">{t(tabInfo.descKey)}</p>
       </div>
 
       {/* Product grid */}
@@ -89,8 +91,8 @@ export default async function RankingPage({
 
       {products.length === 0 && (
         <div className="text-center py-20 text-gray-400">
-          <p className="text-lg mb-2">랭킹 데이터가 없습니다</p>
-          <p className="text-sm">잠시 후 다시 확인해보세요.</p>
+          <p className="text-lg mb-2">{t("noRanking")}</p>
+          <p className="text-sm">{t("noRankingHint")}</p>
         </div>
       )}
     </div>

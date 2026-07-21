@@ -15,6 +15,7 @@ import { getSnaps } from "@/lib/queries";
 import { ShareButton } from "@/components/shared/share-button";
 import { SnapLikeButton } from "@/components/snap/snap-like-button";
 import { SnapCommentSection } from "@/components/snap/snap-comment-section";
+import { getTranslations } from "next-intl/server";
 
 export default async function SnapDetailPage({
   params,
@@ -22,6 +23,7 @@ export default async function SnapDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const t = await getTranslations("Shop");
 
   const snap = await prisma.snap.findUnique({ where: { id } });
 
@@ -63,11 +65,11 @@ export default async function SnapDetailPage({
       {/* Breadcrumb */}
       <div className="flex items-center gap-1 text-xs text-gray-400 mb-6">
         <Link href="/" className="hover:text-black">
-          홈
+          {t("home")}
         </Link>
         <ChevronRight className="w-3 h-3" />
         <Link href="/snap" className="hover:text-black">
-          스냅
+          {t("snap")}
         </Link>
         <ChevronRight className="w-3 h-3" />
         <span className="text-black font-medium">@{snap.authorName}</span>
@@ -149,7 +151,7 @@ export default async function SnapDetailPage({
             className="flex items-center gap-2 text-sm text-gray-500 hover:text-black transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            목록으로
+            {t("backToList")}
           </Link>
         </div>
 
@@ -158,7 +160,7 @@ export default async function SnapDetailPage({
         {/* More snaps */}
         {moreSnaps.length > 0 && (
           <section>
-            <h2 className="text-lg font-bold mb-5">더 많은 스냅</h2>
+            <h2 className="text-lg font-bold mb-5">{t("moreSnaps")}</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {moreSnaps.map((s) => (
                 <Link

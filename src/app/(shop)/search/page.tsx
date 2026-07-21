@@ -7,11 +7,13 @@ import { getAllProducts } from "@/lib/queries";
 import { toProductCard } from "@/lib/mappers";
 import { SearchFilters } from "@/components/search/search-filters";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 const POPULAR_KEYWORDS = ["반팔 티셔츠", "와이드 데님", "스니커즈", "가디건", "메신저백", "슬랙스", "버킷햇", "후드"];
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string; minPrice?: string; maxPrice?: string; sizes?: string; colors?: string }> }) {
   const { q, minPrice, maxPrice, sizes, colors } = await searchParams;
+  const t = await getTranslations("Shop");
 
   const hasFilters = !!(minPrice || maxPrice || sizes || colors);
   const results = (q || hasFilters) ? await getAllProducts({
@@ -29,7 +31,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <Input
           name="q"
-          placeholder="브랜드, 상품, 스타일 검색"
+          placeholder={t("searchPlaceholder")}
           defaultValue={q}
           className="pl-12 h-12 text-base bg-gray-50 border-gray-200 rounded-xl"
         />
@@ -38,7 +40,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       {!q && !hasFilters ? (
         /* Default: popular keywords */
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-sm font-bold mb-4">인기 검색어</h2>
+          <h2 className="text-sm font-bold mb-4">{t("popularKeywords")}</h2>
           <div className="flex flex-wrap gap-2">
             {POPULAR_KEYWORDS.map((keyword, i) => (
               <Link key={keyword} href={`/search?q=${encodeURIComponent(keyword)}`}>
@@ -67,16 +69,16 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               {q && (
                 <><span className="font-bold text-black">&quot;{q}&quot;</span>{" "}</>
               )}
-              검색 결과{" "}
-              <span className="font-bold text-black">{results?.total ?? 0}</span>개
-              {hasFilters && <span className="text-gray-400 ml-2">(필터 적용됨)</span>}
+              {t("searchResults")}{" "}
+              <span className="font-bold text-black">{results?.total ?? 0}</span>
+              {hasFilters && <span className="text-gray-400 ml-2">{t("filterApplied")}</span>}
             </p>
             <Separator className="mb-6" />
 
             {/* Mobile filter toggle */}
             <div className="lg:hidden mb-6">
               <details className="border rounded-xl">
-                <summary className="px-4 py-3 text-sm font-medium cursor-pointer">필터 설정</summary>
+                <summary className="px-4 py-3 text-sm font-medium cursor-pointer">{t("filterSettings")}</summary>
                 <div className="px-4 pb-4">
                   <SearchFilters />
                 </div>
@@ -91,8 +93,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               </div>
             ) : (
               <div className="text-center py-20 text-gray-400">
-                <p className="text-lg mb-2">검색 결과가 없습니다</p>
-                <p className="text-sm">다른 키워드로 검색해보세요.</p>
+                <p className="text-lg mb-2">{t("noSearchResults")}</p>
+                <p className="text-sm">{t("searchOtherKeyword")}</p>
               </div>
             )}
           </div>

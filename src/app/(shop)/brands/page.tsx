@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { BrandSearch } from "@/components/brand/brand-search";
 import { AlphaFilter } from "@/components/brand/alpha-filter";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 
 export default async function BrandsPage({
   searchParams,
@@ -13,6 +14,7 @@ export default async function BrandsPage({
 }) {
   const { q, letter } = await searchParams;
 
+  const t = await getTranslations("Shop");
   const brands = await getAllBrands();
 
   // Get product count per brand
@@ -49,7 +51,7 @@ export default async function BrandsPage({
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
-      <h1 className="text-2xl font-bold mb-6">브랜드</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("brandsTitle")}</h1>
 
       {/* Search */}
       <Suspense>
@@ -64,9 +66,9 @@ export default async function BrandsPage({
       {/* Result info */}
       {(q || letter) && (
         <div className="mb-4 text-sm text-gray-500">
-          {q && <span>&ldquo;{q}&rdquo; 검색 결과 </span>}
+          {q && <span>{t("searchResultFor", { q })} </span>}
           {letter && !q && <span>{letter} </span>}
-          <span className="font-bold text-black">{filtered.length}</span>개 브랜드
+          {t("brandsCount", { n: filtered.length })}
         </div>
       )}
 
@@ -87,11 +89,11 @@ export default async function BrandsPage({
             <div className="flex items-center gap-2">
               {brand.followerCount > 200000 && (
                 <Badge className="bg-red-50 text-[var(--sale)] text-[10px] border-0">
-                  인기
+                  {t("popular")}
                 </Badge>
               )}
               <span className="text-xs text-gray-400">
-                {(countMap.get(brand.id) ?? 0).toLocaleString()}개
+                {t("itemsN", { n: (countMap.get(brand.id) ?? 0).toLocaleString() })}
               </span>
             </div>
           </Link>
@@ -100,8 +102,8 @@ export default async function BrandsPage({
 
       {filtered.length === 0 && (
         <div className="text-center py-20 text-gray-400">
-          <p className="text-lg mb-2">검색 결과가 없습니다</p>
-          <p className="text-sm">다른 키워드로 검색해보세요.</p>
+          <p className="text-lg mb-2">{t("noSearchResults")}</p>
+          <p className="text-sm">{t("searchOtherKeyword")}</p>
         </div>
       )}
     </div>

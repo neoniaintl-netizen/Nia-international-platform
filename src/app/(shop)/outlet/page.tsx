@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { ProductCard } from "@/components/product/product-card";
 import { toProductCard } from "@/lib/mappers";
 import { Separator } from "@/components/ui/separator";
+import { getTranslations } from "next-intl/server";
 
 export const metadata = {
   title: "아울렛 | NOVAREN",
@@ -42,30 +43,31 @@ export default async function OutletPage() {
   );
 
   const products = [...outletProducts, ...discounted].slice(0, 100);
+  const t = await getTranslations("Shop");
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-1 text-xs text-gray-400 mb-4">
-        <Link href="/" className="hover:text-black">홈</Link>
+        <Link href="/" className="hover:text-black">{t("home")}</Link>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-black font-medium">아울렛</span>
+        <span className="text-black font-medium">{t("outlet")}</span>
       </div>
 
       {/* Hero */}
       <div className="bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-2xl p-6 lg:p-10 mb-8">
         <p className="text-xs font-bold opacity-80 mb-2">NOVAREN OUTLET</p>
         <h1 className="text-2xl lg:text-4xl font-black mb-2">
-          시즌오프 특가전
+          {t("seasonOff")}
         </h1>
         <p className="text-sm opacity-90">
-          한정 수량 · 최대 70% 할인 · 남은 재고 소진 시 종료
+          {t("outletDesc")}
         </p>
       </div>
 
       <div className="flex items-center justify-between mb-6">
         <p className="text-sm text-gray-500">
-          총 <span className="font-bold text-black">{products.length}</span>개
+          {t("totalItems", { n: products.length })}
         </p>
       </div>
 
@@ -73,8 +75,8 @@ export default async function OutletPage() {
 
       {products.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
-          <p className="text-lg mb-2">아울렛 상품 준비중입니다</p>
-          <p className="text-sm">곧 특가 상품을 만나보실 수 있습니다.</p>
+          <p className="text-lg mb-2">{t("outletEmpty")}</p>
+          <p className="text-sm">{t("outletEmptyHint")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-3 gap-y-6">

@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { getAllProducts, getTopCategories } from "@/lib/queries";
 import { toProductCard } from "@/lib/mappers";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 
 const PAGE_SIZE = 20;
 
@@ -22,6 +23,7 @@ export default async function ProductsPage({ searchParams }: Props) {
   const currentPage = Math.max(1, Number(params.page) || 1);
   const offset = (currentPage - 1) * PAGE_SIZE;
 
+  const t = await getTranslations("Shop");
   const [{ products, total }, categories] = await Promise.all([
     getAllProducts({
       categorySlug: params.category,
@@ -34,9 +36,9 @@ export default async function ProductsPage({ searchParams }: Props) {
   ]);
 
   const SORT_OPTIONS = [
-    { label: "인기순", value: "popular" },
-    { label: "최신순", value: "newest" },
-    { label: "가격 낮은 순", value: "price_asc" },
+    { label: t("sortPopular"), value: "popular" },
+    { label: t("sortNewest"), value: "newest" },
+    { label: t("sortPriceAsc"), value: "price_asc" },
   ];
 
   return (
@@ -48,7 +50,7 @@ export default async function ProductsPage({ searchParams }: Props) {
             variant={!params.category ? "default" : "outline"}
             className="cursor-pointer whitespace-nowrap px-3 py-1.5 text-xs rounded-full"
           >
-            전체
+            {t("all")}
           </Badge>
         </a>
         {categories.map((cat) => (
@@ -66,7 +68,7 @@ export default async function ProductsPage({ searchParams }: Props) {
       {/* Sort & Count */}
       <div className="flex items-center justify-between mb-6">
         <p className="text-sm text-gray-500">
-          총 <span className="font-bold text-black">{total}</span>개
+          {t("totalItems", { n: total })}
         </p>
         <div className="flex items-center gap-3">
           {SORT_OPTIONS.map((opt) => (
@@ -100,8 +102,8 @@ export default async function ProductsPage({ searchParams }: Props) {
 
       {products.length === 0 && (
         <div className="text-center py-20 text-gray-400">
-          <p className="text-lg mb-2">상품이 없습니다</p>
-          <p className="text-sm">다른 카테고리를 선택해보세요.</p>
+          <p className="text-lg mb-2">{t("noProducts")}</p>
+          <p className="text-sm">{t("noProductsHint")}</p>
         </div>
       )}
 
