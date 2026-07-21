@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function DeleteAccountForm() {
   const [state, formAction, isPending] = useActionState(deleteAccount, null);
+  const t = useTranslations("Mypage");
   const [open, setOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");
 
@@ -25,15 +27,14 @@ export function DeleteAccountForm() {
     <Card className="border-red-200">
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2 text-red-600">
-          <AlertTriangle className="w-4 h-4" /> 회원 탈퇴
+          <AlertTriangle className="w-4 h-4" /> {t("withdrawTitle")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {!open ? (
           <div className="space-y-3">
             <p className="text-sm text-gray-500">
-              회원 탈퇴 시 모든 개인 정보, 주문 내역, 리뷰, 적립금, 쿠폰이
-              영구적으로 삭제되며 복구할 수 없습니다.
+              {t("withdrawDesc")}
             </p>
             <Button
               type="button"
@@ -41,32 +42,32 @@ export function DeleteAccountForm() {
               onClick={() => setOpen(true)}
               className="text-red-600 border-red-300 hover:bg-red-50"
             >
-              회원 탈퇴하기
+              {t("withdrawBtn")}
             </Button>
           </div>
         ) : (
           <form action={formAction} className="space-y-4">
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-2">
               <p className="text-sm font-medium text-red-700">
-                정말로 탈퇴하시겠습니까?
+                {t("withdrawConfirmQ")}
               </p>
               <ul className="text-xs text-red-600 space-y-1 list-disc list-inside">
-                <li>모든 주문 내역이 삭제됩니다</li>
-                <li>작성한 리뷰와 문의가 삭제됩니다</li>
-                <li>보유 적립금과 쿠폰이 소멸됩니다</li>
-                <li>배송지 정보가 삭제됩니다</li>
-                <li>탈퇴 후 동일 이메일로 재가입이 가능합니다</li>
+                <li>{t("withdrawItem1")}</li>
+                <li>{t("withdrawItem2")}</li>
+                <li>{t("withdrawItem3")}</li>
+                <li>{t("withdrawItem4")}</li>
+                <li>{t("withdrawItem5")}</li>
               </ul>
             </div>
 
             <div>
               <Label htmlFor="confirmText" className="text-sm mb-1.5">
-                확인을 위해 <strong className="text-red-600">&quot;회원탈퇴&quot;</strong>를 입력해주세요
+                {t("withdrawTypePrompt", { kw: `"${t("withdrawKeyword")}"` })}
               </Label>
               <Input
                 id="confirmText"
                 name="confirmText"
-                placeholder="회원탈퇴"
+                placeholder={t("withdrawKeyword")}
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 className="border-red-300 focus-visible:ring-red-400"
@@ -88,19 +89,19 @@ export function DeleteAccountForm() {
                 }}
                 className="flex-1"
               >
-                취소
+                {t("cancel")}
               </Button>
               <Button
                 type="submit"
-                disabled={isPending || confirmText !== "회원탈퇴"}
+                disabled={isPending || confirmText !== t("withdrawKeyword")}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
               >
                 {isPending ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" /> 처리 중...
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" /> {t("processing")}
                   </>
                 ) : (
-                  "회원 탈퇴"
+                  t("withdraw")
                 )}
               </Button>
             </div>

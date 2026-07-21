@@ -12,6 +12,7 @@ import { CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { ImageUpload } from "@/components/shared/image-upload";
+import { useTranslations } from "next-intl";
 
 interface UserData {
   email: string;
@@ -25,24 +26,25 @@ interface UserData {
 
 export function ProfileForm({ user }: { user: UserData }) {
   const [state, formAction, isPending] = useActionState(updateProfile, null);
+  const t = useTranslations("Mypage");
   const [profileImage, setProfileImage] = useState<string[]>(
     user.profileImage ? [user.profileImage] : []
   );
 
   useEffect(() => {
-    if (state?.success) toast.success("프로필이 수정되었습니다");
+    if (state?.success) toast.success(t("profileUpdated"));
   }, [state]);
 
   return (
     <form action={formAction} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">기본 정보</CardTitle>
+          <CardTitle className="text-base">{t("basicInfo")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* 프로필 이미지 */}
           <div>
-            <Label className="text-sm mb-1.5">프로필 사진</Label>
+            <Label className="text-sm mb-1.5">{t("profilePhoto")}</Label>
             <div className="mt-2">
               <ImageUpload
                 category="profiles"
@@ -58,24 +60,24 @@ export function ProfileForm({ user }: { user: UserData }) {
           <Separator />
 
           <div>
-            <Label htmlFor="email" className="text-sm mb-1.5">이메일</Label>
+            <Label htmlFor="email" className="text-sm mb-1.5">{t("email")}</Label>
             <div className="flex items-center gap-2">
               <Input id="email" value={user.email} disabled className="bg-gray-50" />
               <Badge variant="outline" className="shrink-0 text-xs">
-                <CheckCircle className="w-3 h-3 mr-1" /> 인증됨
+                <CheckCircle className="w-3 h-3 mr-1" /> {t("verified")}
               </Badge>
             </div>
           </div>
           <div>
-            <Label htmlFor="name" className="text-sm mb-1.5">이름</Label>
-            <Input id="name" name="name" defaultValue={user.name ?? ""} placeholder="이름" required />
+            <Label htmlFor="name" className="text-sm mb-1.5">{t("fName")}</Label>
+            <Input id="name" name="name" defaultValue={user.name ?? ""} placeholder={t("fNamePh")} required />
           </div>
           <div>
-            <Label htmlFor="nickname" className="text-sm mb-1.5">닉네임</Label>
-            <Input id="nickname" name="nickname" defaultValue={user.nickname ?? ""} placeholder="닉네임 (선택)" />
+            <Label htmlFor="nickname" className="text-sm mb-1.5">{t("nickname")}</Label>
+            <Input id="nickname" name="nickname" defaultValue={user.nickname ?? ""} placeholder={t("nicknamePh")} />
           </div>
           <div>
-            <Label htmlFor="phone" className="text-sm mb-1.5">연락처</Label>
+            <Label htmlFor="phone" className="text-sm mb-1.5">{t("fPhone")}</Label>
             <Input id="phone" name="phone" defaultValue={user.phone ?? ""} placeholder="010-0000-0000" />
           </div>
         </CardContent>
@@ -83,22 +85,22 @@ export function ProfileForm({ user }: { user: UserData }) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">계정 정보</CardTitle>
+          <CardTitle className="text-base">{t("accountInfo")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-500">회원등급</span>
+            <span className="text-gray-500">{t("memberLevel")}</span>
             <Badge>BRONZE</Badge>
           </div>
           <Separator />
           <div className="flex justify-between">
-            <span className="text-gray-500">가입일</span>
+            <span className="text-gray-500">{t("fJoined")}</span>
             <span>{user.createdAt.toLocaleDateString("ko-KR")}</span>
           </div>
           <Separator />
           <div className="flex justify-between">
-            <span className="text-gray-500">계정 유형</span>
-            <span>{user.role === "ADMIN" ? "관리자" : "일반 회원"}</span>
+            <span className="text-gray-500">{t("accountType")}</span>
+            <span>{user.role === "ADMIN" ? t("admin") : t("regularMember")}</span>
           </div>
         </CardContent>
       </Card>
@@ -108,7 +110,7 @@ export function ProfileForm({ user }: { user: UserData }) {
       )}
 
       <Button type="submit" disabled={isPending} className="w-full h-12 bg-black hover:bg-gray-800 text-white font-bold">
-        {isPending ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> 저장 중...</> : "프로필 저장"}
+        {isPending ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> {t("saving")}</> : t("saveProfile")}
       </Button>
     </form>
   );

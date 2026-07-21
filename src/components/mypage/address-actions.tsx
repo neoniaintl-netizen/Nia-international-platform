@@ -3,22 +3,24 @@
 import { useTransition } from "react";
 import { deleteAddress, setDefaultAddress } from "@/actions/profile";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function AddressActions({ addressId, isDefault }: { addressId: string; isDefault: boolean }) {
+  const t = useTranslations("Mypage");
   const [isPending, startTransition] = useTransition();
 
   function handleDelete() {
-    if (!confirm("배송지를 삭제하시겠습니까?")) return;
+    if (!confirm(t("deleteAddrConfirm"))) return;
     startTransition(async () => {
       await deleteAddress(addressId);
-      toast.success("배송지가 삭제되었습니다");
+      toast.success(t("addrDeleted"));
     });
   }
 
   function handleSetDefault() {
     startTransition(async () => {
       await setDefaultAddress(addressId);
-      toast.success("기본 배송지로 설정되었습니다");
+      toast.success(t("defaultSet"));
     });
   }
 
@@ -30,7 +32,7 @@ export function AddressActions({ addressId, isDefault }: { addressId: string; is
           disabled={isPending}
           className="text-xs text-gray-500 border rounded-lg px-2.5 py-1 hover:bg-gray-50 disabled:opacity-50"
         >
-          기본 설정
+          {t("setDefault")}
         </button>
       )}
       <button
@@ -38,7 +40,7 @@ export function AddressActions({ addressId, isDefault }: { addressId: string; is
         disabled={isPending}
         className="text-xs text-red-500 border border-red-200 rounded-lg px-2.5 py-1 hover:bg-red-50 disabled:opacity-50"
       >
-        삭제
+        {t("delete")}
       </button>
     </div>
   );

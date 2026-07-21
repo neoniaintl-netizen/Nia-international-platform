@@ -10,9 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { DaumPostcodeButton } from "@/components/shared/daum-postcode";
+import { useTranslations } from "next-intl";
 
 export function AddAddressForm() {
   const [state, formAction, isPending] = useActionState(addAddress, null);
+  const t = useTranslations("Mypage");
   const formRef = useRef<HTMLFormElement>(null);
   const address2Ref = useRef<HTMLInputElement>(null);
   const [zipCode, setZipCode] = useState("");
@@ -29,7 +31,7 @@ export function AddAddressForm() {
 
   useEffect(() => {
     if (state?.success) {
-      toast.success("배송지가 추가되었습니다");
+      toast.success(t("addressAdded"));
       formRef.current?.reset();
       setZipCode("");
       setAddress1("");
@@ -40,32 +42,32 @@ export function AddAddressForm() {
     <Card>
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
-          <Plus className="w-4 h-4" /> 새 배송지 추가
+          <Plus className="w-4 h-4" /> {t("newAddress")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form ref={formRef} action={formAction} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="addr-label" className="text-sm mb-1.5">배송지명</Label>
-              <Input id="addr-label" name="label" placeholder="집, 회사 등" defaultValue="집" />
+              <Label htmlFor="addr-label" className="text-sm mb-1.5">{t("addrLabel")}</Label>
+              <Input id="addr-label" name="label" placeholder={t("addrLabelPh")} defaultValue={t("addrLabelHome")} />
             </div>
             <div>
-              <Label htmlFor="addr-recipient" className="text-sm mb-1.5">수령인</Label>
-              <Input id="addr-recipient" name="recipient" placeholder="이름" required />
+              <Label htmlFor="addr-recipient" className="text-sm mb-1.5">{t("recipient")}</Label>
+              <Input id="addr-recipient" name="recipient" placeholder={t("recipientPh")} required />
             </div>
           </div>
           <div>
-            <Label htmlFor="addr-phone" className="text-sm mb-1.5">연락처</Label>
+            <Label htmlFor="addr-phone" className="text-sm mb-1.5">{t("addrPhone")}</Label>
             <Input id="addr-phone" name="phone" placeholder="010-0000-0000" required />
           </div>
           <div>
-            <Label htmlFor="addr-zip" className="text-sm mb-1.5">우편번호</Label>
+            <Label htmlFor="addr-zip" className="text-sm mb-1.5">{t("zipCode")}</Label>
             <div className="flex gap-2">
               <Input
                 id="addr-zip"
                 name="zipCode"
-                placeholder="우편번호"
+                placeholder={t("zipCode")}
                 value={zipCode}
                 readOnly
                 required
@@ -75,11 +77,11 @@ export function AddAddressForm() {
             </div>
           </div>
           <div>
-            <Label htmlFor="addr-1" className="text-sm mb-1.5">주소</Label>
+            <Label htmlFor="addr-1" className="text-sm mb-1.5">{t("address")}</Label>
             <Input
               id="addr-1"
               name="address1"
-              placeholder="주소 검색 버튼을 눌러주세요"
+              placeholder={t("addressPh")}
               value={address1}
               readOnly
               required
@@ -87,18 +89,18 @@ export function AddAddressForm() {
             />
           </div>
           <div>
-            <Label htmlFor="addr-2" className="text-sm mb-1.5">상세주소</Label>
-            <Input id="addr-2" name="address2" ref={address2Ref} placeholder="상세주소를 입력하세요 (동/호수)" />
+            <Label htmlFor="addr-2" className="text-sm mb-1.5">{t("addressDetail")}</Label>
+            <Input id="addr-2" name="address2" ref={address2Ref} placeholder={t("addressDetailPh")} />
           </div>
           <div className="flex items-center gap-2">
             <Checkbox id="addr-default" name="isDefault" />
-            <label htmlFor="addr-default" className="text-sm">기본 배송지로 설정</label>
+            <label htmlFor="addr-default" className="text-sm">{t("setDefaultAddr")}</label>
           </div>
 
           {state?.error && <p className="text-sm text-red-500">{state.error}</p>}
 
           <Button type="submit" disabled={isPending} className="w-full bg-black hover:bg-gray-800 text-white">
-            {isPending ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> 추가 중...</> : "배송지 추가"}
+            {isPending ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> {t("adding")}</> : t("addAddress")}
           </Button>
         </form>
       </CardContent>

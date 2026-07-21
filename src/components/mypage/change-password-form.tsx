@@ -8,9 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock, Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
   const [state, formAction, isPending] = useActionState(changePassword, null);
+  const t = useTranslations("Mypage");
   const formRef = useRef<HTMLFormElement>(null);
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
@@ -20,7 +22,7 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
 
   useEffect(() => {
     if (state?.success) {
-      toast.success("비밀번호가 변경되었습니다");
+      toast.success(t("pwChanged"));
       formRef.current?.reset();
       setNewPw("");
       setConfirmPw("");
@@ -33,12 +35,12 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Lock className="w-4 h-4" /> 비밀번호 변경
+            <Lock className="w-4 h-4" /> {t("changePwTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-500">
-            소셜 로그인으로 가입한 계정은 비밀번호를 변경할 수 없습니다.
+            {t("socialNoPw")}
           </p>
         </CardContent>
       </Card>
@@ -52,7 +54,7 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
     <Card>
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
-          <Lock className="w-4 h-4" /> 비밀번호 변경
+          <Lock className="w-4 h-4" /> {t("changePwTitle")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -60,14 +62,14 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
           {/* 현재 비밀번호 */}
           <div>
             <Label htmlFor="currentPassword" className="text-sm mb-1.5">
-              현재 비밀번호
+              {t("currentPw")}
             </Label>
             <div className="relative">
               <Input
                 id="currentPassword"
                 name="currentPassword"
                 type={showCurrent ? "text" : "password"}
-                placeholder="현재 비밀번호 입력"
+                placeholder={t("currentPwPh")}
                 required
                 className="pr-10"
               />
@@ -84,14 +86,14 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
           {/* 새 비밀번호 */}
           <div>
             <Label htmlFor="newPassword" className="text-sm mb-1.5">
-              새 비밀번호
+              {t("newPw")}
             </Label>
             <div className="relative">
               <Input
                 id="newPassword"
                 name="newPassword"
                 type={showNew ? "text" : "password"}
-                placeholder="새 비밀번호 입력 (6자 이상)"
+                placeholder={t("newPwPh")}
                 required
                 minLength={6}
                 value={newPw}
@@ -108,7 +110,7 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
             </div>
             {newPw.length > 0 && (
               <p className={`text-xs mt-1 ${isLengthValid ? "text-green-600" : "text-red-500"}`}>
-                {isLengthValid ? "사용 가능한 비밀번호입니다" : "비밀번호는 6자 이상이어야 합니다"}
+                {isLengthValid ? t("pwValid") : t("pwTooShort")}
               </p>
             )}
           </div>
@@ -116,14 +118,14 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
           {/* 비밀번호 확인 */}
           <div>
             <Label htmlFor="confirmPassword" className="text-sm mb-1.5">
-              새 비밀번호 확인
+              {t("confirmNewPw")}
             </Label>
             <div className="relative">
               <Input
                 id="confirmPassword"
                 name="confirmPassword"
                 type={showConfirm ? "text" : "password"}
-                placeholder="새 비밀번호 다시 입력"
+                placeholder={t("confirmNewPwPh")}
                 required
                 value={confirmPw}
                 onChange={(e) => setConfirmPw(e.target.value)}
@@ -142,10 +144,10 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
                 {isMatch ? (
                   <>
                     <CheckCircle2 className="w-3 h-3 text-green-600" />
-                    <p className="text-xs text-green-600">비밀번호가 일치합니다</p>
+                    <p className="text-xs text-green-600">{t("pwMatch")}</p>
                   </>
                 ) : (
-                  <p className="text-xs text-red-500">비밀번호가 일치하지 않습니다</p>
+                  <p className="text-xs text-red-500">{t("pwMismatch")}</p>
                 )}
               </div>
             )}
@@ -162,10 +164,10 @@ export function ChangePasswordForm({ hasPassword }: { hasPassword: boolean }) {
           >
             {isPending ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" /> 변경 중...
+                <Loader2 className="w-4 h-4 animate-spin mr-2" /> {t("changingPw")}
               </>
             ) : (
-              "비밀번호 변경"
+              t("changePwTitle")
             )}
           </Button>
         </form>
