@@ -16,6 +16,7 @@ import { Eye, ExternalLink } from "lucide-react";
 
 export default async function AdminLookbooksPage() {
   const lookbooks = await prisma.lookbook.findMany({
+    where: { kind: null }, // 추천 코디(OUTFIT)는 /admin/outfits 에서 관리
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     include: {
       brand: { select: { name: true } },

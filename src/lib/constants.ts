@@ -14,6 +14,7 @@ export const NAV_TABS = [
   { key: "ranking", label: "랭킹", href: "/ranking" },
   { key: "sale", label: "세일", href: "/products?sort=sale" },
   { key: "event", label: "기획전", href: "/events" },
+  { key: "outfit", label: "코디", href: "/outfits" },
   { key: "lookbook", label: "룩북", href: "/lookbook" },
   { key: "release", label: "발매", href: "/release" },
   { key: "magazine", label: "매거진", href: "/magazine" },

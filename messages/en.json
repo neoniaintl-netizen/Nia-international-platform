@@ -14,7 +14,8 @@
     "lookbook": "Lookbook",
     "release": "Release",
     "magazine": "Magazine",
-    "outlet": "Outlet"
+    "outlet": "Outlet",
+    "outfit": "Outfits"
   },
   "Header": {
     "searchPlaceholder": "Search",
@@ -646,7 +647,26 @@
     "releaseDate": "Release date",
     "snap": "Snap",
     "backToList": "Back to list",
-    "moreSnaps": "More snaps"
+    "moreSnaps": "More snaps",
+    "outfits": "Outfits",
+    "outfitsDesc": "Editor-curated outfit ideas",
+    "noOutfits": "No outfits yet",
+    "outfitTotal": "Outfit total",
+    "outfitItems": "{n} items",
+    "roleTOP": "Top",
+    "roleBOTTOM": "Bottom",
+    "roleOUTER": "Outer",
+    "roleSHOES": "Shoes",
+    "roleACC": "Accessory",
+    "selectSize": "Select size",
+    "soldOut": "Sold out",
+    "addAllToCart": "Add outfit to cart",
+    "selectAllSizes": "Please select all sizes",
+    "outfitAdded": "Added {n} items to cart",
+    "editorPick": "Editor's pick",
+    "viewProduct": "View product",
+    "oneSize": "FREE",
+    "inThisOutfit": "Outfits with this item"
   },
   "Common": {
     "anonymous": "Anonymous",

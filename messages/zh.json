@@ -14,7 +14,8 @@
     "lookbook": "穿搭",
     "release": "发售",
     "magazine": "杂志",
-    "outlet": "奥莱"
+    "outlet": "奥莱",
+    "outfit": "搭配"
   },
   "Header": {
     "searchPlaceholder": "搜索",
@@ -647,7 +648,26 @@
     "releaseDate": "发售日",
     "snap": "穿搭",
     "backToList": "返回列表",
-    "moreSnaps": "更多穿搭"
+    "moreSnaps": "更多穿搭",
+    "outfits": "推荐搭配",
+    "outfitsDesc": "编辑精选搭配组合",
+    "noOutfits": "暂无搭配",
+    "outfitTotal": "搭配总价",
+    "outfitItems": "{n} 件单品",
+    "roleTOP": "上装",
+    "roleBOTTOM": "下装",
+    "roleOUTER": "外套",
+    "roleSHOES": "鞋履",
+    "roleACC": "配饰",
+    "selectSize": "选择尺码",
+    "soldOut": "售罄",
+    "addAllToCart": "加入整套搭配",
+    "selectAllSizes": "请选择所有尺码",
+    "outfitAdded": "已将{n}件商品加入购物车",
+    "editorPick": "编辑推荐",
+    "viewProduct": "查看商品",
+    "oneSize": "均码",
+    "inThisOutfit": "包含该商品的搭配"
   },
   "Common": {
     "anonymous": "匿名",

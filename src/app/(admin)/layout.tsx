@@ -14,6 +14,7 @@ import {
   FolderTree,
   Sparkles,
   Camera,
+  Shirt,
   Wrench,
 } from "lucide-react";
 
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { href: "/admin/banners", label: "배너 관리", icon: Image },
   { href: "/admin/events", label: "기획전 관리", icon: Sparkles },
   { href: "/admin/lookbooks", label: "룩북 관리", icon: Camera },
+  { href: "/admin/outfits", label: "추천 코디 관리", icon: Shirt },
   { href: "/admin/repairs", label: "수선 관리", icon: Wrench },
   { href: "/admin/coupons", label: "쿠폰 관리", icon: Ticket },
   { href: "/admin/users", label: "회원 관리", icon: Users },

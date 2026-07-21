@@ -811,6 +811,7 @@ model Lookbook {
   sortOrder   Int      @default(0)
   viewCount   Int      @default(0)
   brandId     String?
+  kind        String? // null=일반 룩북, "OUTFIT"=추천 코디(의상 조합)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -842,6 +843,7 @@ model LookbookProduct {
   lookbookId String
   productId  String
   sortOrder  Int    @default(0)
+  role       String? // 코디 슬롯 라벨: "TOP" | "BOTTOM" | "OUTER" | "SHOES" | "ACC"
 
   lookbook Lookbook @relation(fields: [lookbookId], references: [id], onDelete: Cascade)
   product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)

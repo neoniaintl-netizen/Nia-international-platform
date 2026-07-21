@@ -11,7 +11,7 @@ const EXT_BY_TYPE: Record<string, string> = {
   "image/webp": "webp",
   "image/gif": "gif",
 };
-const ALLOWED_CATEGORIES = ["general", "review", "profile", "snap"];
+const ALLOWED_CATEGORIES = ["general", "review", "profile", "snap", "outfit"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function POST(req: NextRequest) {

@@ -14,7 +14,8 @@
     "lookbook": "룩북",
     "release": "발매",
     "magazine": "매거진",
-    "outlet": "아울렛"
+    "outlet": "아울렛",
+    "outfit": "코디"
   },
   "Header": {
     "searchPlaceholder": "검색",
@@ -647,7 +648,26 @@
     "releaseDate": "발매일",
     "snap": "스냅",
     "backToList": "목록으로",
-    "moreSnaps": "더 많은 스냅"
+    "moreSnaps": "더 많은 스냅",
+    "outfits": "추천 코디",
+    "outfitsDesc": "에디터가 제안하는 코디 조합",
+    "noOutfits": "준비 중인 코디가 없습니다",
+    "outfitTotal": "코디 총액",
+    "outfitItems": "{n}개 아이템",
+    "roleTOP": "상의",
+    "roleBOTTOM": "하의",
+    "roleOUTER": "아우터",
+    "roleSHOES": "신발",
+    "roleACC": "악세서리",
+    "selectSize": "사이즈 선택",
+    "soldOut": "품절",
+    "addAllToCart": "코디 전체 담기",
+    "selectAllSizes": "사이즈를 모두 선택해주세요",
+    "outfitAdded": "{n}개 상품을 장바구니에 담았습니다",
+    "editorPick": "에디터 추천",
+    "viewProduct": "상품 보기",
+    "oneSize": "FREE",
+    "inThisOutfit": "이 상품이 포함된 코디"
   },
   "Common": {
     "anonymous": "익명",

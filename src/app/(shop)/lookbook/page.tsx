@@ -28,6 +28,7 @@ export default async function LookbookIndexPage({
   const lookbooks = await prisma.lookbook.findMany({
     where: {
       isPublished: true,
+      kind: null, // 추천 코디(kind=OUTFIT) 제외 — 룩북만
       ...(gender ? { gender } : {}),
     },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
