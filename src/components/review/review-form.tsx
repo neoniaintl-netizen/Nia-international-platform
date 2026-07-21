@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ImageUpload } from "@/components/shared/image-upload";
+import { useTranslations } from "next-intl";
 
 export function ReviewForm({
   productId,
@@ -17,6 +18,7 @@ export function ReviewForm({
   hasReviewed: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(createReview, null);
+  const t = useTranslations("Common");
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -24,7 +26,7 @@ export function ReviewForm({
 
   useEffect(() => {
     if (state?.success) {
-      toast.success("리뷰가 등록되었습니다!");
+      toast.success(t("reviewSubmitted"));
       formRef.current?.reset();
       setRating(0);
       setImageUrls([]);
@@ -38,7 +40,7 @@ export function ReviewForm({
     return (
       <Card className="bg-gray-50">
         <CardContent className="py-4 text-center text-sm text-gray-500">
-          이미 이 상품에 리뷰를 작성하셨습니다.
+          {t("alreadyReviewed")}
         </CardContent>
       </Card>
     );
@@ -54,7 +56,7 @@ export function ReviewForm({
 
           {/* Star rating */}
           <div>
-            <p className="text-sm font-medium mb-2">별점</p>
+            <p className="text-sm font-medium mb-2">{t("rating")}</p>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((s) => (
                 <button
@@ -76,7 +78,7 @@ export function ReviewForm({
               ))}
               {rating > 0 && (
                 <span className="text-sm text-gray-500 ml-2 self-center">
-                  {rating}점
+                  {t("ratingPoint", { n: rating })}
                 </span>
               )}
             </div>
@@ -86,7 +88,7 @@ export function ReviewForm({
           <div>
             <Textarea
               name="content"
-              placeholder="상품에 대한 솔직한 리뷰를 작성해주세요. (최소 10자)"
+              placeholder={t("reviewPlaceholder")}
               rows={4}
               className="resize-none"
             />
@@ -94,7 +96,7 @@ export function ReviewForm({
 
           {/* Images */}
           <div>
-            <p className="text-sm font-medium mb-2">사진 첨부</p>
+            <p className="text-sm font-medium mb-2">{t("attachPhoto")}</p>
             <ImageUpload
               category="reviews"
               maxFiles={5}
@@ -112,10 +114,10 @@ export function ReviewForm({
           >
             {isPending ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" /> 등록 중...
+                <Loader2 className="w-4 h-4 animate-spin mr-2" /> {t("submitting")}
               </>
             ) : (
-              "리뷰 등록"
+              t("submitReview")
             )}
           </Button>
         </form>

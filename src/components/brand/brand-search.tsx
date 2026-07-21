@@ -4,11 +4,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function BrandSearch() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const t = useTranslations("Common");
 
   // 디바운스 검색
   useEffect(() => {
@@ -32,7 +34,7 @@ export function BrandSearch() {
       <Input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="브랜드 검색"
+        placeholder={t("brandSearchPh")}
         className="pl-10 pr-9 bg-gray-50 border-gray-200 rounded-lg"
       />
       {query && (

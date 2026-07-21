@@ -7,6 +7,7 @@ import { deleteReview, toggleHelpful } from "@/actions/review";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 type ReviewItem = {
   id: string;
@@ -30,18 +31,19 @@ export function ReviewList({
   productId: string;
   currentUserId?: string;
 }) {
+  const t = useTranslations("Common");
   if (total === 0) {
     return (
       <div className="text-center py-12 text-gray-400 text-sm">
-        <p>아직 리뷰가 없습니다.</p>
-        <p className="mt-1">첫 리뷰를 작성해보세요!</p>
+        <p>{t("noReviews")}</p>
+        <p className="mt-1">{t("reviewHint")}</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-0">
-      <p className="text-sm text-gray-500 mb-4">총 {total}개의 리뷰</p>
+      <p className="text-sm text-gray-500 mb-4">{t("totalReviews", { n: total })}</p>
       {reviews.map((review) => (
         <ReviewRow
           key={review.id}
@@ -64,7 +66,8 @@ function ReviewRow({
   isOwner: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
-  const displayName = review.user.nickname || review.user.name || "익명";
+  const t = useTranslations("Common");
+  const displayName = review.user.nickname || review.user.name || t("anonymous");
   const maskedName =
     displayName.length > 1
       ? displayName[0] + "*".repeat(displayName.length - 1)
@@ -72,10 +75,10 @@ function ReviewRow({
   const date = new Date(review.createdAt).toLocaleDateString("ko-KR");
 
   function handleDelete() {
-    if (!confirm("리뷰를 삭제하시겠습니까?")) return;
+    if (!confirm(t("deleteReviewConfirm"))) return;
     startTransition(async () => {
       const result = await deleteReview(review.id, productId);
-      if (result.success) toast.success("리뷰가 삭제되었습니다.");
+      if (result.success) toast.success(t("reviewDeleted"));
       else toast.error(result.error);
     });
   }
@@ -106,7 +109,7 @@ function ReviewRow({
           <span className="text-xs text-gray-500">{maskedName}</span>
           {review.isVerified && (
             <Badge variant="outline" className="text-[10px] gap-0.5 text-green-600 border-green-200">
-              <ShieldCheck className="w-3 h-3" /> 구매인증
+              <ShieldCheck className="w-3 h-3" /> {t("verified")}
             </Badge>
           )}
         </div>
@@ -143,7 +146,7 @@ function ReviewRow({
           className="text-xs text-gray-400 hover:text-gray-600 gap-1 h-7 px-2"
         >
           <ThumbsUp className="w-3.5 h-3.5" />
-          도움이 돼요 {review.helpfulCount > 0 && `(${review.helpfulCount})`}
+          {t("helpful")} {review.helpfulCount > 0 && `(${review.helpfulCount})`}
         </Button>
         {isOwner && (
           <Button
@@ -153,7 +156,7 @@ function ReviewRow({
             disabled={isPending}
             className="text-xs text-red-400 hover:text-red-600 gap-1 h-7 px-2"
           >
-            <Trash2 className="w-3.5 h-3.5" /> 삭제
+            <Trash2 className="w-3.5 h-3.5" /> {t("delete")}
           </Button>
         )}
       </div>

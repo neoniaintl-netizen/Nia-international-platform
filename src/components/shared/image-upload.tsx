@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { Camera, X, Loader2, ImagePlus } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 interface ImageUploadProps {
   category: string;
@@ -21,6 +22,7 @@ export function ImageUpload({
   avatar = false,
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const t = useTranslations("Common");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = useCallback(
@@ -56,7 +58,7 @@ export function ImageUpload({
           onChange([...value, ...data.urls]);
         }
       } catch (err: any) {
-        alert(err.message || "업로드에 실패했습니다.");
+        alert(err.message || t("uploadFailed"));
       } finally {
         setUploading(false);
         // input 초기화 (같은 파일 재선택 가능)
@@ -83,7 +85,7 @@ export function ImageUpload({
             {currentUrl ? (
               <Image
                 src={currentUrl}
-                alt="프로필"
+                alt={t("profile")}
                 width={80}
                 height={80}
                 className="w-full h-full object-cover"
@@ -108,8 +110,8 @@ export function ImageUpload({
           </button>
         </div>
         <div className="text-sm text-gray-500">
-          <p>프로필 사진 변경</p>
-          <p className="text-xs text-gray-400">JPG, PNG, WebP (5MB 이하)</p>
+          <p>{t("changeProfilePhoto")}</p>
+          <p className="text-xs text-gray-400">{t("imageFormatNote")}</p>
         </div>
         <input
           ref={inputRef}
@@ -176,7 +178,7 @@ export function ImageUpload({
       />
 
       <p className="text-xs text-gray-400">
-        최대 {maxFiles}장, 5MB 이하 (JPG, PNG, WebP)
+        {t("maxFilesNote", { n: maxFiles })}
       </p>
     </div>
   );

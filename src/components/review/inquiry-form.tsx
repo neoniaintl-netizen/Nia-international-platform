@@ -8,14 +8,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function InquiryForm({ productId }: { productId: string }) {
   const [state, formAction, isPending] = useActionState(createInquiry, null);
   const formRef = useRef<HTMLFormElement>(null);
+  const t = useTranslations("Common");
 
   useEffect(() => {
     if (state?.success) {
-      toast.success("문의가 등록되었습니다!");
+      toast.success(t("inquirySubmitted"));
       formRef.current?.reset();
     }
     if (state?.error) {
@@ -26,10 +28,10 @@ export function InquiryForm({ productId }: { productId: string }) {
   return (
     <form ref={formRef} action={formAction} className="space-y-3 border rounded-xl p-4">
       <input type="hidden" name="productId" value={productId} />
-      <Input name="title" placeholder="문의 제목" required className="text-sm" />
+      <Input name="title" placeholder={t("inquiryTitlePh")} required className="text-sm" />
       <Textarea
         name="content"
-        placeholder="문의 내용을 입력해주세요. (사이즈, 소재, 배송 등)"
+        placeholder={t("inquiryContentPh")}
         rows={3}
         className="resize-none text-sm"
       />
@@ -37,7 +39,7 @@ export function InquiryForm({ productId }: { productId: string }) {
         <div className="flex items-center gap-2">
           <Checkbox id="inquiry-secret" name="isSecret" />
           <label htmlFor="inquiry-secret" className="text-xs text-gray-500">
-            비밀글로 작성
+            {t("secretPostLabel")}
           </label>
         </div>
         <Button
@@ -49,7 +51,7 @@ export function InquiryForm({ productId }: { productId: string }) {
           {isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            "문의하기"
+            t("submitInquiry")
           )}
         </Button>
       </div>

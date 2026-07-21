@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 declare global {
   interface Window {
@@ -70,6 +71,7 @@ function loadScript(): Promise<void> {
 }
 
 export function DaumPostcodeButton({ onComplete, className }: DaumPostcodeProps) {
+  const t = useTranslations("Common");
   const handleClick = useCallback(async () => {
     await loadScript();
 
@@ -100,7 +102,7 @@ export function DaumPostcodeButton({ onComplete, className }: DaumPostcodeProps)
       className={className}
     >
       <Search className="w-3.5 h-3.5 mr-1.5" />
-      주소 검색
+      {t("searchAddress")}
     </Button>
   );
 }

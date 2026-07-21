@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, XCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 /**
  * 결제 확정 대기 화면.
@@ -15,6 +16,7 @@ import { Button } from "@/components/ui/button";
 // 노티가 40~60초대에 도착하는 경우가 있어 3분까지 폴링 (이후엔 수동 "다시 확인" 버튼)
 export function PaymentPending({ maxSeconds = 180 }: { maxSeconds?: number }) {
   const router = useRouter();
+  const t = useTranslations("Common");
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -33,25 +35,25 @@ export function PaymentPending({ maxSeconds = 180 }: { maxSeconds?: number }) {
       {!timedOut ? (
         <>
           <Loader2 className="w-14 h-14 text-gray-400 mx-auto mb-4 animate-spin" />
-          <h1 className="text-xl font-bold mb-2">결제 확인 중입니다</h1>
+          <h1 className="text-xl font-bold mb-2">{t("payChecking")}</h1>
           <p className="text-sm text-gray-500 leading-relaxed">
-            결제 승인 결과를 확인하고 있습니다.
+            {t("payCheckingDesc")}
             <br />
-            창을 닫지 말고 잠시만 기다려주세요. ({elapsed}s)
+            {t("payCheckingWait")} ({elapsed}s)
           </p>
         </>
       ) : (
         <>
           <XCircle className="w-14 h-14 text-amber-500 mx-auto mb-4" />
-          <h1 className="text-xl font-bold mb-2">결제 확인이 지연되고 있습니다</h1>
+          <h1 className="text-xl font-bold mb-2">{t("payDelayed")}</h1>
           <p className="text-sm text-gray-500 leading-relaxed mb-6">
-            결제는 정상 진행되었을 수 있으나 승인 확인이 지연되고 있습니다.
+            {t("payDelayedDesc")}
             <br />
-            잠시 후 마이페이지 &gt; 주문내역에서 결제 상태를 확인해주세요.
+            {t("payDelayedDesc2")}
           </p>
           <div className="flex gap-3 justify-center">
             <Link href="/my/orders">
-              <Button variant="outline" className="h-11">주문 내역 보기</Button>
+              <Button variant="outline" className="h-11">{t("viewOrders")}</Button>
             </Link>
             <Button
               className="h-11 bg-black text-white"
@@ -60,7 +62,7 @@ export function PaymentPending({ maxSeconds = 180 }: { maxSeconds?: number }) {
                 router.refresh();
               }}
             >
-              다시 확인
+              {t("recheck")}
             </Button>
           </div>
         </>

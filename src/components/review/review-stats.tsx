@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
-export function ReviewStats({
+export async function ReviewStats({
   total,
   avg,
   distribution,
@@ -10,6 +11,7 @@ export function ReviewStats({
   distribution: number[]; // [1star, 2star, 3star, 4star, 5star]
 }) {
   if (total === 0) return null;
+  const t = await getTranslations("Common");
 
   return (
     <div className="flex items-center gap-8 p-5 bg-gray-50 rounded-xl mb-6">
@@ -26,7 +28,7 @@ export function ReviewStats({
             />
           ))}
         </div>
-        <p className="text-xs text-gray-400 mt-1">{total}개 리뷰</p>
+        <p className="text-xs text-gray-400 mt-1">{t("reviewsN", { n: total })}</p>
       </div>
 
       {/* Distribution bars */}

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { deleteInquiry } from "@/actions/inquiry";
 import { useTransition, useState } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type InquiryItem = {
   id: string;
@@ -27,19 +28,20 @@ export function InquiryList({
   total: number;
   currentUserId?: string;
 }) {
+  const t = useTranslations("Common");
   if (total === 0) {
     return (
       <div className="text-center py-12 text-gray-400 text-sm">
         <MessageSquare className="w-10 h-10 mx-auto mb-2 text-gray-200" />
-        <p>등록된 문의가 없습니다.</p>
-        <p className="mt-1">궁금한 점이 있으면 문의해주세요!</p>
+        <p>{t("noInquiries")}</p>
+        <p className="mt-1">{t("inquiryHint")}</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-0">
-      <p className="text-sm text-gray-500 mb-4">총 {total}건의 문의</p>
+      <p className="text-sm text-gray-500 mb-4">{t("totalInquiries", { n: total })}</p>
       {inquiries.map((inquiry) => (
         <InquiryRow
           key={inquiry.id}
@@ -63,7 +65,8 @@ function InquiryRow({
 }) {
   const [isPending, startTransition] = useTransition();
   const [expanded, setExpanded] = useState(false);
-  const displayName = inquiry.user.nickname || inquiry.user.name || "익명";
+  const t = useTranslations("Common");
+  const displayName = inquiry.user.nickname || inquiry.user.name || t("anonymous");
   const maskedName =
     displayName.length > 1
       ? displayName[0] + "*".repeat(displayName.length - 1)
@@ -71,10 +74,10 @@ function InquiryRow({
   const date = new Date(inquiry.createdAt).toLocaleDateString("ko-KR");
 
   function handleDelete() {
-    if (!confirm("문의를 삭제하시겠습니까?")) return;
+    if (!confirm(t("deleteInquiryConfirm"))) return;
     startTransition(async () => {
       const result = await deleteInquiry(inquiry.id);
-      if (result.success) toast.success("문의가 삭제되었습니다.");
+      if (result.success) toast.success(t("inquiryDeleted"));
       else toast.error(result.error);
     });
   }
@@ -93,11 +96,11 @@ function InquiryRow({
               inquiry.answer ? "text-green-600 border-green-200" : "text-gray-400"
             }`}
           >
-            {inquiry.answer ? "답변완료" : "답변대기"}
+            {inquiry.answer ? t("answered") : t("waiting")}
           </Badge>
           {inquiry.isSecret && <Lock className="w-3.5 h-3.5 text-gray-400 shrink-0" />}
           <span className="text-sm truncate">
-            {canView ? inquiry.title : "비밀글입니다."}
+            {canView ? inquiry.title : t("secretPost")}
           </span>
         </div>
         <div className="flex items-center gap-3 shrink-0 ml-3">
@@ -121,7 +124,7 @@ function InquiryRow({
                   disabled={isPending}
                   className="text-xs text-red-400 hover:text-red-600 gap-1 h-7 px-2"
                 >
-                  <Trash2 className="w-3.5 h-3.5" /> 삭제
+                  <Trash2 className="w-3.5 h-3.5" /> {t("delete")}
                 </Button>
               </div>
             )}
@@ -131,7 +134,7 @@ function InquiryRow({
           {inquiry.answer && (
             <div className="bg-blue-50 rounded-lg p-4 ml-4">
               <div className="flex items-center gap-1.5 mb-1.5">
-                <Badge className="bg-black text-white text-[10px]">판매자</Badge>
+                <Badge className="bg-black text-white text-[10px]">{t("seller")}</Badge>
                 {inquiry.answeredAt && (
                   <span className="text-[10px] text-gray-400">
                     {new Date(inquiry.answeredAt).toLocaleDateString("ko-KR")}

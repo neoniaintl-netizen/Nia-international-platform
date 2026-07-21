@@ -5,6 +5,7 @@ import { Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toggleBrandFollow } from "@/actions/brand-follow";
+import { useTranslations } from "next-intl";
 
 interface Props {
   brandId: string;
@@ -24,6 +25,7 @@ export function BrandFollowButton({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const { status } = useSession();
+  const t = useTranslations("Common");
 
   // session 상태가 바뀌면 initialFollowing 재반영
   useEffect(() => {
@@ -51,7 +53,7 @@ export function BrandFollowButton({
         type="button"
         onClick={handleClick}
         disabled={isPending}
-        aria-label={following ? "팔로우 취소" : "브랜드 팔로우"}
+        aria-label={following ? t("unfollowBrand") : t("followBrandAria")}
         className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
           following
             ? "bg-red-50 text-red-500"
@@ -83,7 +85,7 @@ export function BrandFollowButton({
         fill={following ? "currentColor" : "none"}
         strokeWidth={2}
       />
-      {following ? "팔로잉" : "팔로우"}
+      {following ? t("following") : t("follow")}
       <span className="text-[11px] opacity-70">
         {count.toLocaleString()}
       </span>
