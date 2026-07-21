@@ -4,12 +4,14 @@ import { redirect } from "next/navigation";
 import { Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { getTranslations } from "next-intl/server";
 
 export default async function CouponsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login?callbackUrl=/my/coupons");
 
   const userCoupons = await getUserCoupons(session.user.id);
+  const t = await getTranslations("Mypage");
 
   const now = new Date();
   const available = userCoupons.filter((uc) => !uc.usedAt && uc.coupon.expiresAt >= now);
@@ -19,16 +21,16 @@ export default async function CouponsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">쿠폰함</h1>
-        <Badge variant="outline" className="text-sm">{available.length}장 사용 가능</Badge>
+        <h1 className="text-xl font-bold">{t("couponsTitle")}</h1>
+        <Badge variant="outline" className="text-sm">{available.length}{t("couponsAvailable")}</Badge>
       </div>
 
       {userCoupons.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <Tag className="w-12 h-12 text-gray-200 mx-auto mb-3" />
-            <p className="text-gray-500">보유한 쿠폰이 없습니다</p>
-            <p className="text-xs text-gray-400 mt-1">이벤트 참여로 쿠폰을 받아보세요!</p>
+            <p className="text-gray-500">{t("noCoupons")}</p>
+            <p className="text-xs text-gray-400 mt-1">{t("noCouponsHint")}</p>
           </CardContent>
         </Card>
       ) : (
@@ -36,10 +38,10 @@ export default async function CouponsPage() {
           {/* Available coupons */}
           {available.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold text-gray-500 mb-3">사용 가능 ({available.length})</h2>
+              <h2 className="text-sm font-bold text-gray-500 mb-3">{t("cpAvailable")} ({available.length})</h2>
               <div className="space-y-3">
                 {available.map((uc) => (
-                  <CouponCard key={uc.id} coupon={uc.coupon} status="available" />
+                  <CouponCard key={uc.id} coupon={uc.coupon} status="available" t={t} />
                 ))}
               </div>
             </section>
@@ -48,10 +50,10 @@ export default async function CouponsPage() {
           {/* Used coupons */}
           {used.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold text-gray-500 mb-3">사용 완료 ({used.length})</h2>
+              <h2 className="text-sm font-bold text-gray-500 mb-3">{t("cpUsed")} ({used.length})</h2>
               <div className="space-y-3 opacity-50">
                 {used.map((uc) => (
-                  <CouponCard key={uc.id} coupon={uc.coupon} status="used" />
+                  <CouponCard key={uc.id} coupon={uc.coupon} status="used" t={t} />
                 ))}
               </div>
             </section>
@@ -60,10 +62,10 @@ export default async function CouponsPage() {
           {/* Expired coupons */}
           {expired.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold text-gray-500 mb-3">기간 만료 ({expired.length})</h2>
+              <h2 className="text-sm font-bold text-gray-500 mb-3">{t("cpExpired")} ({expired.length})</h2>
               <div className="space-y-3 opacity-50">
                 {expired.map((uc) => (
-                  <CouponCard key={uc.id} coupon={uc.coupon} status="expired" />
+                  <CouponCard key={uc.id} coupon={uc.coupon} status="expired" t={t} />
                 ))}
               </div>
             </section>
@@ -77,6 +79,7 @@ export default async function CouponsPage() {
 function CouponCard({
   coupon,
   status,
+  t,
 }: {
   coupon: {
     name: string;
@@ -88,6 +91,7 @@ function CouponCard({
     expiresAt: Date;
   };
   status: "available" | "used" | "expired";
+  t: (k: string) => string;
 }) {
   const discountText =
     coupon.discountType === "PERCENTAGE"
@@ -103,7 +107,7 @@ function CouponCard({
             status === "available" ? "bg-black text-white" : "bg-gray-100 text-gray-400"
           }`}>
             <span className="text-xl font-bold">{discountText}</span>
-            <span className="text-[10px] mt-0.5">할인</span>
+            <span className="text-[10px] mt-0.5">{t("cpDiscount")}</span>
           </div>
           {/* Right: info */}
           <div className="flex-1 p-4">
@@ -114,15 +118,15 @@ function CouponCard({
                   <p className="text-xs text-gray-400 mt-0.5">{coupon.description}</p>
                 )}
               </div>
-              {status === "used" && <Badge variant="outline" className="text-[10px]">사용완료</Badge>}
-              {status === "expired" && <Badge variant="outline" className="text-[10px]">기간만료</Badge>}
+              {status === "used" && <Badge variant="outline" className="text-[10px]">{t("cpUsedBadge")}</Badge>}
+              {status === "expired" && <Badge variant="outline" className="text-[10px]">{t("cpExpiredBadge")}</Badge>}
             </div>
             <div className="flex items-center gap-3 mt-2 text-[10px] text-gray-400">
               {coupon.minOrderAmount && (
-                <span>{coupon.minOrderAmount.toLocaleString()}원 이상 주문 시</span>
+                <span>{coupon.minOrderAmount.toLocaleString()}{t("cpMinOrder")}</span>
               )}
               {coupon.maxDiscount && (
-                <span>최대 {coupon.maxDiscount.toLocaleString()}원 할인</span>
+                <span>{t("cpMaxDiscount")} {coupon.maxDiscount.toLocaleString()}{t("cpMaxDiscountUnit")}</span>
               )}
               <span>~{coupon.expiresAt.toLocaleDateString("ko-KR")}</span>
             </div>

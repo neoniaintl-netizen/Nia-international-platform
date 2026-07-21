@@ -4,6 +4,7 @@ import { LogoutButton } from "@/components/auth/logout-button";
 import { auth } from "@/lib/auth";
 import { getUserOrders, getOrderStatusCounts, getUserPoints, getUserCouponCount, getUserWishlist } from "@/lib/queries";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 export default async function MyPage() {
   const session = await auth();
@@ -17,7 +18,8 @@ export default async function MyPage() {
     getUserWishlist(session.user.id),
   ]);
 
-  const userName = session.user.name ?? "회원";
+  const t = await getTranslations("Mypage");
+  const userName = session.user.name ?? t("member");
   const userInitial = userName.charAt(0).toUpperCase();
   const totalOrders = orders.length;
 
@@ -25,9 +27,9 @@ export default async function MyPage() {
   const writableReviewCount = statusCounts.delivered;
 
   // 회원 등급 (간이)
-  const level = totalOrders >= 20 ? { name: "GOLD", num: 3, benefit: "최대 5% 적립" }
-    : totalOrders >= 5 ? { name: "SILVER", num: 2, benefit: "최대 3% 적립" }
-    : { name: "BRONZE", num: 1, benefit: "최대 1% 적립" };
+  const level = totalOrders >= 20 ? { name: "GOLD", num: 3, benefit: t("benefitGold") }
+    : totalOrders >= 5 ? { name: "SILVER", num: 2, benefit: t("benefitSilver") }
+    : { name: "BRONZE", num: 1, benefit: t("benefitBronze") };
 
   return (
     <div className="max-w-[640px] mx-auto">
@@ -49,7 +51,7 @@ export default async function MyPage() {
             href="/my/profile"
             className="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md hover:bg-gray-50 transition-colors shrink-0"
           >
-            프로필 수정
+            {t("editProfile")}
           </Link>
         </div>
       </div>
@@ -58,7 +60,7 @@ export default async function MyPage() {
       <Link href="/my/points" className="block mx-4 mb-4">
         <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-lg">
           <span className="text-[13px] text-blue-600 font-medium">
-            LV.{level.num} {level.name} · {level.benefit} · 무료배송
+            LV.{level.num} {level.name} · {level.benefit} · {t("freeShipping")}
           </span>
           <ChevronRight className="w-4 h-4 text-gray-400" />
         </div>
@@ -68,15 +70,15 @@ export default async function MyPage() {
       <div className="mx-4 mb-2 border border-gray-200 rounded-lg overflow-hidden">
         <div className="grid grid-cols-3 divide-x divide-gray-200">
           <Link href="/my/points" className="py-4 text-center hover:bg-gray-50 transition-colors">
-            <p className="text-[11px] text-gray-500 mb-1">적립금 &gt;</p>
+            <p className="text-[11px] text-gray-500 mb-1">{t("points")} &gt;</p>
             <p className="text-[15px] font-bold">{points.toLocaleString()}원</p>
           </Link>
           <Link href="/my/coupons" className="py-4 text-center hover:bg-gray-50 transition-colors">
-            <p className="text-[11px] text-gray-500 mb-1">쿠폰 &gt;</p>
+            <p className="text-[11px] text-gray-500 mb-1">{t("coupons")} &gt;</p>
             <p className="text-[15px] font-bold">{couponCount}장</p>
           </Link>
           <Link href="/wishlist" className="py-4 text-center hover:bg-gray-50 transition-colors">
-            <p className="text-[11px] text-gray-500 mb-1">좋아요 &gt;</p>
+            <p className="text-[11px] text-gray-500 mb-1">{t("wishlist")} &gt;</p>
             <p className="text-[15px] font-bold">{wishlist.length}개</p>
           </Link>
         </div>
@@ -85,7 +87,7 @@ export default async function MyPage() {
       {/* ── 작성 가능한 후기 ── */}
       <Link href="/my/orders" className="block mx-4 mb-6">
         <div className="flex items-center justify-between py-3">
-          <span className="text-[13px] font-medium">작성 가능한 후기 {writableReviewCount}개</span>
+          <span className="text-[13px] font-medium">{t("writableReviews")} {writableReviewCount}</span>
           <ChevronRight className="w-4 h-4 text-gray-400" />
         </div>
       </Link>
@@ -93,17 +95,17 @@ export default async function MyPage() {
       {/* ── 주문 현황 ── */}
       <div className="mx-4 mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-[15px] font-bold">주문 현황</h3>
+          <h3 className="text-[15px] font-bold">{t("orderStatus")}</h3>
           <Link href="/my/orders" className="text-xs text-gray-400 flex items-center">
-            전체보기 <ChevronRight className="w-3.5 h-3.5" />
+            {t("viewAll")} <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
         <div className="grid grid-cols-4 gap-2">
           {[
-            { label: "결제완료", count: statusCounts.paid, icon: Package },
-            { label: "배송중", count: statusCounts.shipped, icon: Truck },
-            { label: "배송완료", count: statusCounts.delivered, icon: CheckCircle },
-            { label: "취소/반품", count: statusCounts.cancelled, icon: RotateCcw },
+            { label: t("statusPaid"), count: statusCounts.paid, icon: Package },
+            { label: t("statusShipped"), count: statusCounts.shipped, icon: Truck },
+            { label: t("statusDelivered"), count: statusCounts.delivered, icon: CheckCircle },
+            { label: t("statusCancelReturn"), count: statusCounts.cancelled, icon: RotateCcw },
           ].map(({ label, count, icon: Icon }) => (
             <div key={label} className="flex flex-col items-center py-3 bg-gray-50 rounded-lg">
               <Icon className="w-5 h-5 text-gray-400 mb-1.5" strokeWidth={1.5} />
@@ -117,22 +119,22 @@ export default async function MyPage() {
       {/* ── 프로모 배너 ── */}
       <div className="mx-4 mb-6">
         <div className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl px-5 py-4 text-white">
-          <p className="text-[13px] font-bold">신규 회원 혜택</p>
-          <p className="text-[11px] text-white/70 mt-0.5">첫 구매 시 10% 추가 적립! 지금 바로 쇼핑하세요</p>
+          <p className="text-[13px] font-bold">{t("newMemberBenefit")}</p>
+          <p className="text-[11px] text-white/70 mt-0.5">{t("firstPurchasePromo")}</p>
         </div>
       </div>
 
       {/* ── 메뉴 리스트 ── */}
       <div className="border-t border-gray-100">
-        <MenuItem href="/my/orders" icon={Package} label="주문 내역" desc="온·오프라인 주문 내역 모아보기" />
-        <MenuItem href="/my/orders" icon={RotateCcw} label="취소/반품/교환 내역" />
-        <MenuItem href="/my/addresses" icon={Truck} label="배송지 관리" />
-        <MenuItem href="/wishlist" icon={Heart} label="좋아요" />
-        <MenuItem href="/my/brands" icon={Bookmark} label="팔로우 브랜드" />
-        <MenuItem href="/my/repair" icon={Wrench} label="수선 진행조회" />
-        <MenuItem href="/membership" icon={Gift} label="멤버십 혜택" badge="NEW" />
-        <MenuItem href="/event/payment" icon={Gift} label="이벤트/회원혜택" />
-        <MenuItem href="/my/profile" icon={Settings} label="설정" />
+        <MenuItem href="/my/orders" icon={Package} label={t("menuOrders")} desc={t("menuOrdersDesc")} />
+        <MenuItem href="/my/orders" icon={RotateCcw} label={t("menuReturns")} />
+        <MenuItem href="/my/addresses" icon={Truck} label={t("menuAddresses")} />
+        <MenuItem href="/wishlist" icon={Heart} label={t("menuWishlist")} />
+        <MenuItem href="/my/brands" icon={Bookmark} label={t("menuFollowBrands")} />
+        <MenuItem href="/my/repair" icon={Wrench} label={t("menuRepair")} />
+        <MenuItem href="/membership" icon={Gift} label={t("menuMembership")} badge="NEW" />
+        <MenuItem href="/event/payment" icon={Gift} label={t("menuEvents")} />
+        <MenuItem href="/my/profile" icon={Settings} label={t("menuSettings")} />
       </div>
 
       {/* ── 로그아웃 ── */}

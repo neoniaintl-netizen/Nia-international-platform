@@ -7,16 +7,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { OrderCancelButton } from "@/components/order/order-cancel-button";
 import Image from "next/image";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-const STATUS_MAP: Record<string, { label: string; variant: "default" | "outline" | "secondary" | "destructive" }> = {
-  PENDING: { label: "주문접수", variant: "outline" },
-  PAID: { label: "결제완료", variant: "default" },
-  PREPARING: { label: "상품준비중", variant: "secondary" },
-  SHIPPED: { label: "배송중", variant: "secondary" },
-  DELIVERED: { label: "배송완료", variant: "default" },
-  CANCELLED: { label: "취소됨", variant: "destructive" },
-  RETURN_REQUESTED: { label: "반품요청", variant: "destructive" },
-  RETURNED: { label: "반품완료", variant: "outline" },
+const STATUS_MAP: Record<string, { key: string; variant: "default" | "outline" | "secondary" | "destructive" }> = {
+  PENDING: { key: "statusPending", variant: "outline" },
+  PAID: { key: "statusPaid", variant: "default" },
+  PREPARING: { key: "statusPreparing", variant: "secondary" },
+  SHIPPED: { key: "statusShipped", variant: "secondary" },
+  DELIVERED: { key: "statusDelivered", variant: "default" },
+  CANCELLED: { key: "statusCancelled", variant: "destructive" },
+  RETURN_REQUESTED: { key: "statusReturnReq", variant: "destructive" },
+  RETURNED: { key: "statusReturned", variant: "outline" },
 };
 
 export default async function OrdersPage() {
@@ -24,21 +25,22 @@ export default async function OrdersPage() {
   if (!session?.user?.id) redirect("/login?callbackUrl=/my/orders");
 
   const orders = await getUserOrders(session.user.id);
+  const t = await getTranslations("Mypage");
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold">주문 내역</h1>
+      <h1 className="text-xl font-bold">{t("ordersTitle")}</h1>
 
       {orders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <Package className="w-16 h-16 text-gray-200 mb-4" />
-          <p className="text-lg font-medium text-gray-500 mb-2">주문 내역이 없습니다</p>
-          <p className="text-sm text-gray-400">첫 주문을 해보세요!</p>
+          <p className="text-lg font-medium text-gray-500 mb-2">{t("noOrders")}</p>
+          <p className="text-sm text-gray-400">{t("noOrdersHint")}</p>
         </div>
       ) : (
         <div className="space-y-4">
           {orders.map((order) => {
-            const statusInfo = STATUS_MAP[order.status] ?? { label: order.status, variant: "outline" as const };
+            const statusInfo = STATUS_MAP[order.status] ?? { key: "", variant: "outline" as const };
             const firstItem = order.items[0];
             const remainCount = order.items.length - 1;
             const canCancel = ["PAID", "PENDING", "PREPARING"].includes(order.status);
@@ -54,7 +56,7 @@ export default async function OrdersPage() {
                       </p>
                       <p className="text-xs font-mono">{order.orderNumber}</p>
                     </div>
-                    <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+                    <Badge variant={statusInfo.variant}>{statusInfo.key ? t(statusInfo.key) : order.status}</Badge>
                   </div>
 
                   {/* Items */}
@@ -79,7 +81,7 @@ export default async function OrdersPage() {
                         <p className="text-xs text-gray-400">{item.brandName}</p>
                         <p className="text-sm font-medium truncate">{item.productName}</p>
                         <p className="text-xs text-gray-400">
-                          {[item.color, item.size].filter(Boolean).join(" · ")} · {item.quantity}개
+                          {[item.color, item.size].filter(Boolean).join(" · ")} · {item.quantity}
                         </p>
                         <p className="text-sm font-bold mt-0.5">{item.totalPrice.toLocaleString()}원</p>
                       </div>
@@ -89,7 +91,7 @@ export default async function OrdersPage() {
                   {/* Footer */}
                   <div className="flex items-center justify-between pt-2 border-t">
                     <p className="text-sm font-bold">
-                      총 {order.finalAmount.toLocaleString()}원
+                      {t("orderTotal")} {order.finalAmount.toLocaleString()}원
                     </p>
                     <div className="flex gap-2">
                       {canCancel && (
@@ -97,7 +99,7 @@ export default async function OrdersPage() {
                       )}
                       <Link href={`/my/orders/${order.id}`}>
                         <button className="text-xs text-gray-500 border rounded-lg px-3 py-1.5 hover:bg-gray-50">
-                          상세보기
+                          {t("viewDetail")}
                         </button>
                       </Link>
                     </div>

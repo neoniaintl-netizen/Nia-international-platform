@@ -9,25 +9,26 @@ import { OrderCancelButton } from "@/components/order/order-cancel-button";
 import { ReturnRequestForm } from "@/components/order/return-request-form";
 import Image from "next/image";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-const STATUS_MAP: Record<string, { label: string; variant: "default" | "outline" | "secondary" | "destructive" }> = {
-  PENDING: { label: "주문접수", variant: "outline" },
-  PAID: { label: "결제완료", variant: "default" },
-  PREPARING: { label: "상품준비중", variant: "secondary" },
-  SHIPPED: { label: "배송중", variant: "secondary" },
-  DELIVERED: { label: "배송완료", variant: "default" },
-  CANCELLED: { label: "취소됨", variant: "destructive" },
-  RETURN_REQUESTED: { label: "반품요청", variant: "destructive" },
-  RETURNED: { label: "반품완료", variant: "outline" },
+const STATUS_MAP: Record<string, { key: string; variant: "default" | "outline" | "secondary" | "destructive" }> = {
+  PENDING: { key: "statusPending", variant: "outline" },
+  PAID: { key: "statusPaid", variant: "default" },
+  PREPARING: { key: "statusPreparing", variant: "secondary" },
+  SHIPPED: { key: "statusShipped", variant: "secondary" },
+  DELIVERED: { key: "statusDelivered", variant: "default" },
+  CANCELLED: { key: "statusCancelled", variant: "destructive" },
+  RETURN_REQUESTED: { key: "statusReturnReq", variant: "destructive" },
+  RETURNED: { key: "statusReturned", variant: "outline" },
 };
 
-const PAYMENT_METHOD_MAP: Record<string, string> = {
-  CARD: "신용카드",
-  BANK_TRANSFER: "무통장입금",
-  KAKAO_PAY: "카카오페이",
-  NAVER_PAY: "네이버페이",
-  TOSS_PAY: "토스페이",
-  VIRTUAL_ACCOUNT: "가상계좌",
+const PAYMENT_METHOD_KEY: Record<string, string> = {
+  CARD: "pmCard",
+  BANK_TRANSFER: "pmBank",
+  KAKAO_PAY: "pmKakao",
+  NAVER_PAY: "pmNaver",
+  TOSS_PAY: "pmToss",
+  VIRTUAL_ACCOUNT: "pmVirtual",
 };
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -37,8 +38,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   const order = await getOrderById(id, session.user.id);
   if (!order) notFound();
+  const t = await getTranslations("Mypage");
 
-  const statusInfo = STATUS_MAP[order.status] ?? { label: order.status, variant: "outline" as const };
+  const statusInfo = STATUS_MAP[order.status] ?? { key: "", variant: "outline" as const };
   const canCancel = ["PAID", "PENDING", "PREPARING"].includes(order.status);
   const canReturn = ["SHIPPED", "DELIVERED"].includes(order.status);
 
@@ -50,11 +52,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <ChevronLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-xl font-bold">주문 상세</h1>
+          <h1 className="text-xl font-bold">{t("orderDetailTitle")}</h1>
           <p className="text-xs text-gray-400 font-mono mt-0.5">{order.orderNumber}</p>
         </div>
         <Badge variant={statusInfo.variant} className="text-sm px-3 py-1">
-          {statusInfo.label}
+          {statusInfo.key ? t(statusInfo.key) : order.status}
         </Badge>
       </div>
 
@@ -62,7 +64,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <Package className="w-4 h-4" /> 주문 상품
+            <Package className="w-4 h-4" /> {t("orderItems")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -87,7 +89,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 <p className="text-xs font-bold text-gray-500">{item.brandName}</p>
                 <p className="text-sm font-medium">{item.productName}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {[item.color, item.size].filter(Boolean).join(" / ")} · {item.quantity}개
+                  {[item.color, item.size].filter(Boolean).join(" / ")} · {item.quantity}
                 </p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-sm font-bold">{item.totalPrice.toLocaleString()}원</span>
@@ -106,27 +108,27 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <Truck className="w-4 h-4" /> 배송 정보
+              <Truck className="w-4 h-4" /> {t("deliveryInfo")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">수령인</span>
+              <span className="text-gray-500">{t("recipient")}</span>
               <span>{order.address.recipient}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">연락처</span>
+              <span className="text-gray-500">{t("phone")}</span>
               <span>{order.address.phone}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">배송지</span>
+              <span className="text-gray-500">{t("shipTo")}</span>
               <span className="text-right max-w-[200px]">
                 ({order.address.zipCode}) {order.address.address1} {order.address.address2}
               </span>
             </div>
             {order.note && (
               <div className="flex justify-between">
-                <span className="text-gray-500">배송메모</span>
+                <span className="text-gray-500">{t("deliveryMemo")}</span>
                 <span>{order.note}</span>
               </div>
             )}
@@ -139,27 +141,27 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <MapPin className="w-4 h-4" /> 배송 추적
+              <MapPin className="w-4 h-4" /> {t("shipTracking")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">택배사</span>
+              <span className="text-gray-500">{t("carrier")}</span>
               <span>{order.trackingCarrier ?? "-"}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">운송장번호</span>
+              <span className="text-gray-500">{t("trackingNo")}</span>
               <span className="font-mono">{order.trackingNumber}</span>
             </div>
             {order.shippedAt && (
               <div className="flex justify-between">
-                <span className="text-gray-500">발송일</span>
+                <span className="text-gray-500">{t("shippedDate")}</span>
                 <span>{order.shippedAt.toLocaleDateString("ko-KR")}</span>
               </div>
             )}
             {order.deliveredAt && (
               <div className="flex justify-between">
-                <span className="text-gray-500">배송완료일</span>
+                <span className="text-gray-500">{t("deliveredDate")}</span>
                 <span>{order.deliveredAt.toLocaleDateString("ko-KR")}</span>
               </div>
             )}
@@ -171,36 +173,36 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <CreditCard className="w-4 h-4" /> 결제 정보
+            <CreditCard className="w-4 h-4" /> {t("paymentInfo")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-500">결제수단</span>
-            <span>{PAYMENT_METHOD_MAP[order.paymentMethod ?? ""] ?? order.paymentMethod}</span>
+            <span className="text-gray-500">{t("paymentMethod")}</span>
+            <span>{PAYMENT_METHOD_KEY[order.paymentMethod ?? ""] ? t(PAYMENT_METHOD_KEY[order.paymentMethod ?? ""]) : order.paymentMethod}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">상품 금액</span>
+            <span className="text-gray-500">{t("itemsTotal")}</span>
             <span>{order.totalAmount.toLocaleString()}원</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">배송비</span>
-            <span>{order.shippingFee === 0 ? "무료" : `${order.shippingFee.toLocaleString()}원`}</span>
+            <span className="text-gray-500">{t("shippingFee")}</span>
+            <span>{order.shippingFee === 0 ? t("free") : `${order.shippingFee.toLocaleString()}원`}</span>
           </div>
           {order.discountAmount > 0 && (
             <div className="flex justify-between text-[var(--sale)]">
-              <span>할인</span>
+              <span>{t("discount")}</span>
               <span>-{order.discountAmount.toLocaleString()}원</span>
             </div>
           )}
           <Separator />
           <div className="flex justify-between font-bold text-base">
-            <span>총 결제 금액</span>
+            <span>{t("totalPayment")}</span>
             <span>{order.finalAmount.toLocaleString()}원</span>
           </div>
           {order.paidAt && (
             <div className="flex justify-between text-xs text-gray-400">
-              <span>결제일시</span>
+              <span>{t("paidAt")}</span>
               <span>
                 {order.paidAt.toLocaleDateString("ko-KR")} {order.paidAt.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
               </span>

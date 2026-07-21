@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Heart, ChevronRight } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 export default async function MyBrandsPage() {
   const session = await auth();
@@ -27,13 +28,14 @@ export default async function MyBrandsPage() {
     },
     orderBy: { createdAt: "desc" },
   });
+  const t = await getTranslations("Mypage");
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-xl lg:text-2xl font-black">팔로우 브랜드</h1>
+        <h1 className="text-xl lg:text-2xl font-black">{t("followBrandsTitle")}</h1>
         <p className="text-xs text-gray-500 mt-1">
-          하트를 눌러 좋아하는 브랜드를 모아보세요
+          {t("followBrandsDesc")}
         </p>
       </div>
 
@@ -41,16 +43,16 @@ export default async function MyBrandsPage() {
         <div className="text-center py-20 border rounded-xl">
           <Heart className="w-10 h-10 mx-auto text-gray-300 mb-3" />
           <p className="text-sm text-gray-500 mb-1">
-            아직 팔로우한 브랜드가 없어요
+            {t("noFollowBrands")}
           </p>
           <p className="text-xs text-gray-400 mb-5">
-            브랜드 페이지에서 하트를 눌러 팔로우해보세요
+            {t("noFollowBrandsHint")}
           </p>
           <Link
             href="/brands"
             className="inline-flex items-center gap-1 bg-black text-white px-5 h-10 rounded-full text-xs font-bold"
           >
-            브랜드 둘러보기
+            {t("browseBrands")}
             <ChevronRight className="w-3 h-3" />
           </Link>
         </div>
@@ -84,7 +86,7 @@ export default async function MyBrandsPage() {
                   </p>
                 )}
                 <p className="text-[11px] text-gray-400 mt-1">
-                  팔로워 {f.brand.followerCount.toLocaleString()} · 상품{" "}
+                  {t("followers")} {f.brand.followerCount.toLocaleString()} · {t("productsCount")}{" "}
                   {f.brand._count.products.toLocaleString()}
                 </p>
               </div>

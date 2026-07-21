@@ -5,17 +5,18 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { Package, User, MapPin, Tag, Coins, Heart, ChevronRight, Settings, Wrench, Bookmark } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { getUserPoints, getUserCouponCount, getCartCount } from "@/lib/queries";
+import { getTranslations } from "next-intl/server";
 
 const SIDEBAR_ITEMS = [
-  { label: "주문 내역", href: "/my/orders", icon: Package },
-  { label: "프로필 수정", href: "/my/profile", icon: User },
-  { label: "배송지 관리", href: "/my/addresses", icon: MapPin },
-  { label: "쿠폰", href: "/my/coupons", icon: Tag },
-  { label: "적립금", href: "/my/points", icon: Coins },
-  { label: "좋아요", href: "/wishlist", icon: Heart },
-  { label: "팔로우 브랜드", href: "/my/brands", icon: Bookmark },
-  { label: "수선 진행조회", href: "/my/repair", icon: Wrench },
-  { label: "설정", href: "/my/profile", icon: Settings },
+  { key: "menuOrders", href: "/my/orders", icon: Package },
+  { key: "editProfile", href: "/my/profile", icon: User },
+  { key: "menuAddresses", href: "/my/addresses", icon: MapPin },
+  { key: "coupons", href: "/my/coupons", icon: Tag },
+  { key: "points", href: "/my/points", icon: Coins },
+  { key: "wishlist", href: "/wishlist", icon: Heart },
+  { key: "menuFollowBrands", href: "/my/brands", icon: Bookmark },
+  { key: "menuRepair", href: "/my/repair", icon: Wrench },
+  { key: "menuSettings", href: "/my/profile", icon: Settings },
 ];
 
 export default async function MyPageLayout({
@@ -36,7 +37,8 @@ export default async function MyPageLayout({
     getCartCount(userId),
   ]);
 
-  const userName = session?.user?.name ?? "회원";
+  const t = await getTranslations("Mypage");
+  const userName = session?.user?.name ?? t("member");
 
   return (
     <>
@@ -44,7 +46,7 @@ export default async function MyPageLayout({
       <div className="max-w-[1280px] mx-auto pb-20 lg:pb-6">
         {/* 모바일: 마이 타이틀 */}
         <div className="lg:hidden px-4 py-3">
-          <h1 className="text-[18px] font-bold">마이</h1>
+          <h1 className="text-[18px] font-bold">{t("myTitle")}</h1>
         </div>
 
         <div className="lg:grid lg:grid-cols-4 lg:gap-8 lg:px-6 lg:py-6">
@@ -76,9 +78,9 @@ export default async function MyPageLayout({
                 </div>
               </div>
               <nav className="space-y-0 border-t border-[var(--line)]">
-                {SIDEBAR_ITEMS.map(({ label, href, icon: Icon }) => (
+                {SIDEBAR_ITEMS.map(({ key, href, icon: Icon }) => (
                   <Link
-                    key={href + label}
+                    key={href + key}
                     href={href}
                     className="flex items-center gap-3 px-3 py-3 text-[13px] border-b border-[var(--line)] hover:text-[var(--champagne)] transition-colors"
                   >
@@ -86,7 +88,7 @@ export default async function MyPageLayout({
                       className="w-4 h-4 text-[var(--ink-muted)]"
                       strokeWidth={1.5}
                     />
-                    {label}
+                    {t(key)}
                     <ChevronRight className="w-3.5 h-3.5 ml-auto text-[var(--ink-muted)]/50" />
                   </Link>
                 ))}
