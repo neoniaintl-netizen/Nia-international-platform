@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useActionState } from "react";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -15,16 +16,17 @@ function ResetPasswordForm() {
   );
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
+  const t = useTranslations("Auth");
 
   if (!token) {
     return (
       <div className="bg-red-50 rounded-xl p-6 text-center">
-        <p className="text-sm text-red-700">유효하지 않은 접근입니다.</p>
+        <p className="text-sm text-red-700">{t("invalidAccess")}</p>
         <Link
           href="/forgot-password"
           className="inline-block mt-4 text-xs font-bold text-red-700 underline"
         >
-          비밀번호 찾기로 이동
+          {t("goToForgot")}
         </Link>
       </div>
     );
@@ -39,7 +41,7 @@ function ResetPasswordForm() {
           href="/login"
           className="block mt-6 h-11 bg-black text-white rounded-lg flex items-center justify-center text-sm font-bold"
         >
-          로그인
+          {t("login")}
         </Link>
       </div>
     );
@@ -51,7 +53,7 @@ function ResetPasswordForm() {
       <Input
         name="password"
         type="password"
-        placeholder="새 비밀번호 (8~30자)"
+        placeholder={t("newPwPh")}
         className="h-12 bg-gray-50 border-gray-200 rounded-lg text-sm"
         required
         minLength={8}
@@ -60,7 +62,7 @@ function ResetPasswordForm() {
       <Input
         name="confirmPassword"
         type="password"
-        placeholder="새 비밀번호 확인"
+        placeholder={t("newPwConfirmPh")}
         className="h-12 bg-gray-50 border-gray-200 rounded-lg text-sm"
         required
       />
@@ -74,16 +76,17 @@ function ResetPasswordForm() {
         disabled={isPending}
         className="w-full h-12 bg-black hover:bg-gray-800 text-white font-bold text-sm rounded-lg"
       >
-        {isPending ? "변경 중..." : "비밀번호 변경"}
+        {isPending ? t("changing") : t("changePw")}
       </Button>
     </form>
   );
 }
 
 export default function ResetPasswordPage() {
+  const t = useTranslations("Auth");
   return (
     <div className="w-full max-w-sm mx-auto">
-      <h1 className="text-2xl font-black text-center mb-8">비밀번호 재설정</h1>
+      <h1 className="text-2xl font-black text-center mb-8">{t("resetTitle")}</h1>
       <Suspense>
         <ResetPasswordForm />
       </Suspense>
