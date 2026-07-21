@@ -5,7 +5,6 @@ import { signIn, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
-import { redirect } from "next/navigation";
 import { safeCallbackUrl } from "@/lib/utils";
 import { isEmailConfigured, sendEmail, passwordResetEmailHtml } from "@/lib/email";
 
@@ -106,19 +105,24 @@ export async function registerAction(_prevState: any, formData: FormData) {
     throw e;
   }
 
-  // Auto login after register
-  try {
-    await signIn("credentials", {
-      email,
-      password,
-      redirectTo: "/",
-    });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      redirect("/login");
-    }
-    throw error;
-  }
+  // 승인제: 자동 로그인 없음. 관리자 승인(approvedAt) 후에만 로그인 가능.
+  return { success: true, pending: true };
+}
+
+// ─── 승인 대기 계정 여부 확인 (로그인 실패 시 메시지 구분용) ───
+// 자격증명이 정확한데 미승인이면 true → "승인 대기" 안내. (잘못된 비번은 false → 정보 노출 없음)
+export async function checkPendingApproval(
+  email: string,
+  password: string
+): Promise<boolean> {
+  if (!email || !password) return false;
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { approvedAt: true, role: true, passwordHash: true },
+  });
+  if (!user?.passwordHash) return false;
+  if (user.approvedAt || user.role === "ADMIN") return false;
+  return bcrypt.compare(password, user.passwordHash);
 }
 
 // ─── 로그아웃 ───

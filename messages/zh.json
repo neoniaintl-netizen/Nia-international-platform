@@ -293,6 +293,10 @@
   },
   "Auth": {
     "membersOnlyTitle": "会员专属高尔夫服饰商城",
-    "membersOnlyDesc": "登录后方可浏览及购买商品。"
+    "membersOnlyDesc": "登录后方可浏览及购买商品。",
+    "pendingApproval": "您的账号正在等待管理员审核，审核通过后即可登录。",
+    "registerPendingTitle": "注册申请已提交",
+    "registerPendingDesc": "管理员审核通过后即可登录，审核可能需要一些时间。",
+    "goToLogin": "前往登录"
   }
 }

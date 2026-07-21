@@ -6,9 +6,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { registerAction } from "@/actions/auth";
+import { useTranslations } from "next-intl";
+import { CheckCircle2 } from "lucide-react";
 
 export function RegisterForm() {
   const [state, formAction, isPending] = useActionState(registerAction, null);
+  const t = useTranslations("Auth");
+
+  // 승인제: 가입 신청 완료 → 승인 대기 안내 (자동 로그인 없음)
+  if (state?.success) {
+    return (
+      <div className="w-full max-w-sm mx-auto text-center py-8">
+        <CheckCircle2 className="w-12 h-12 mx-auto mb-5 text-green-500" strokeWidth={1.5} />
+        <h1 className="text-xl font-black mb-3">{t("registerPendingTitle")}</h1>
+        <p className="text-sm text-gray-500 leading-relaxed mb-8">
+          {t("registerPendingDesc")}
+        </p>
+        <Link
+          href="/login"
+          className="inline-block w-full h-12 leading-[3rem] bg-black hover:bg-gray-800 text-white font-bold text-sm rounded-lg"
+        >
+          {t("goToLogin")}
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-sm mx-auto">

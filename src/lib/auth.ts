@@ -33,6 +33,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const isValid = await bcrypt.compare(password, user.passwordHash);
         if (!isValid) return null;
 
+        // 승인제: 미승인 회원은 로그인(세션 발급) 차단. ADMIN 은 예외.
+        // 클라이언트 구분 메시지는 checkPendingApproval 서버액션이 담당.
+        if (!user.approvedAt && user.role !== "ADMIN") return null;
+
         return {
           id: user.id,
           email: user.email,

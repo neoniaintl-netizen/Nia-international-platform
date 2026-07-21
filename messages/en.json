@@ -292,6 +292,10 @@
   },
   "Auth": {
     "membersOnlyTitle": "Members-only golf wear mall",
-    "membersOnlyDesc": "Sign in to browse and purchase products."
+    "membersOnlyDesc": "Sign in to browse and purchase products.",
+    "pendingApproval": "Your account is pending admin approval. You can sign in once approved.",
+    "registerPendingTitle": "Registration submitted",
+    "registerPendingDesc": "You can sign in after an administrator approves your account. Approval may take some time.",
+    "goToLogin": "Go to login"
   }
 }

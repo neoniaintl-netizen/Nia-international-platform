@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { checkPendingApproval } from "@/actions/auth";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -45,7 +46,9 @@ export function LoginForm() {
     try {
       const res = await signIn("credentials", { email, password, redirect: false });
       if (res?.error) {
-        setError("이메일 또는 비밀번호가 일치하지 않습니다.");
+        // 자격증명은 맞지만 미승인이면 승인 대기 안내로 구분
+        const pending = await checkPendingApproval(email, password);
+        setError(pending ? t("pendingApproval") : "이메일 또는 비밀번호가 일치하지 않습니다.");
         setIsPending(false);
         return;
       }

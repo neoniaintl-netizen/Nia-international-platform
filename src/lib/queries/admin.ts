@@ -165,12 +165,14 @@ export async function getAdminOrders(options?: {
 export async function getAdminUsers(options?: {
   role?: string;
   search?: string;
+  pending?: boolean;
   limit?: number;
   offset?: number;
 }) {
-  const { role, search, limit = 20, offset = 0 } = options ?? {};
+  const { role, search, pending, limit = 20, offset = 0 } = options ?? {};
   const conditions: any[] = [];
   if (role) conditions.push({ role });
+  if (pending) conditions.push({ approvedAt: null });
   if (search) {
     conditions.push({
       OR: [
@@ -194,6 +196,7 @@ export async function getAdminUsers(options?: {
         name: true,
         nickname: true,
         role: true,
+        approvedAt: true,
         createdAt: true,
         _count: { select: { orders: true, reviews: true } },
       },
@@ -201,7 +204,12 @@ export async function getAdminUsers(options?: {
     prisma.user.count({ where }),
   ]);
 
-  return { users, total };
+  // 승인 대기 수 (ADMIN 제외) — 필터 배지용
+  const pendingCount = await prisma.user.count({
+    where: { approvedAt: null, role: { not: "ADMIN" } },
+  });
+
+  return { users, total, pendingCount };
 }
 
 // ─── Admin: Banners ───

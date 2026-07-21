@@ -293,6 +293,10 @@
   },
   "Auth": {
     "membersOnlyTitle": "회원 전용 골프웨어몰",
-    "membersOnlyDesc": "로그인 후 상품 열람 및 구매가 가능합니다."
+    "membersOnlyDesc": "로그인 후 상품 열람 및 구매가 가능합니다.",
+    "pendingApproval": "관리자 승인 대기 중입니다. 승인 후 로그인할 수 있습니다.",
+    "registerPendingTitle": "가입 신청이 완료되었습니다",
+    "registerPendingDesc": "관리자 승인 후 로그인하실 수 있습니다. 승인까지 다소 시간이 걸릴 수 있습니다.",
+    "goToLogin": "로그인으로"
   }
 }
