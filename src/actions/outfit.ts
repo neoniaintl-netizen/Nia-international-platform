@@ -130,6 +130,16 @@ export async function removeOutfitItemAction(itemId: string) {
     where: { id: itemId },
     select: { lookbookId: true },
   });
+  // 마지막 아이템을 빼면 공개 해제 — 빈 코디가 공개 상태로 남지 않도록
+  const remaining = await prisma.lookbookProduct.count({
+    where: { lookbookId: item.lookbookId },
+  });
+  if (remaining === 0) {
+    await prisma.lookbook.update({
+      where: { id: item.lookbookId },
+      data: { isPublished: false },
+    });
+  }
   revalidatePath(`/admin/outfits/${item.lookbookId}`);
   revalidatePath("/outfits");
   return { success: true };

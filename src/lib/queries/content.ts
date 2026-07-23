@@ -100,7 +100,7 @@ export async function getOutfits(limit = 30) {
 /** 코디 상세 — 역할별 아이템 + variants(사이즈) */
 export async function getOutfitBySlug(slug: string) {
   const o = await prisma.lookbook.findFirst({
-    where: { slug, kind: "OUTFIT", isPublished: true },
+    where: { slug, kind: "OUTFIT", isPublished: true, products: { some: {} } },
     include: {
       products: {
         orderBy: { sortOrder: "asc" },

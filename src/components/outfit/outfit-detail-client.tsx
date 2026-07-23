@@ -103,17 +103,23 @@ export function OutfitDetailClient({
 
     startTransition(async () => {
       let ok = 0;
+      let fail = 0;
       for (const i of selectedItems) {
         const variantId = selection[i.lookbookProductId]!.variantId!;
         const res = await addToCart(i.productId, variantId, 1);
-        if (!res?.error) ok += 1;
+        if (res?.error) fail += 1;
+        else ok += 1;
       }
-      if (ok > 0) {
-        toast.success(t("outfitAdded", { n: ok }), {
-          action: { label: t("addAllToCart"), onClick: () => router.push("/cart") },
-        });
+      if (ok === 0) {
+        toast.error(t("outfitAddFailed"));
+        return;
+      }
+      const goCart = { label: t("viewCart"), onClick: () => router.push("/cart") };
+      if (fail > 0) {
+        // 부분 성공 — 재고 변동 등으로 일부 실패. 성공으로 위장하지 않고 정직하게 알린다.
+        toast.warning(t("outfitAddedPartial", { ok, fail }), { action: goCart });
       } else {
-        toast.error("장바구니 담기에 실패했습니다.");
+        toast.success(t("outfitAdded", { n: ok }), { action: goCart });
       }
     });
   }
